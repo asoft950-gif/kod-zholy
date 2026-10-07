@@ -178,12 +178,15 @@ main {
 
 .controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .controls .primary { flex: 1 1 140px; font-size: 17px; }
-.timeline { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-.speed { display: flex; align-items: center; gap: 6px; font-size: 18px; }
-.speed input { width: 90px; }
-#scrub { flex: 1 1 120px; min-width: 100px; }
+.timeline { display: grid; gap: 12px; margin-top: 14px; }
+.tl { display: grid; gap: 4px; }
+.tl-label {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 13px; font-weight: 800; color: var(--muted);
+}
+.tl-label b { color: var(--ink); white-space: nowrap; }
+.tl input { width: 100%; margin: 0; }
 input[type="range"] { accent-color: var(--violet); }
-.step-count { font-size: 13px; font-weight: 800; color: var(--muted); min-width: 70px; text-align: right; }
 .py-status { margin-top: 10px; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 10px; }
 .py-status.loading { background: var(--sun); }
 .py-status.ready { display: none; }

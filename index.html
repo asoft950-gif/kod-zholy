@@ -55,13 +55,14 @@
           <button id="resetBtn" class="btn ghost" type="button" title="Бастапқы күйге қайту">↺</button>
         </div>
         <div class="timeline">
-          <label class="speed" title="Жылдамдық">
-            <span aria-hidden="true">🐢</span>
-            <input id="speed" type="range" min="1" max="4" value="2" aria-label="Жылдамдық">
-            <span aria-hidden="true">🐇</span>
+          <label class="tl">
+            <span class="tl-label"><span>Жылдамдық</span><span aria-hidden="true">🐢 баяу · жылдам 🐇</span></span>
+            <input id="speed" type="range" min="1" max="4" value="2">
           </label>
-          <input id="scrub" type="range" min="0" max="0" value="0" disabled aria-label="Қадамдар жолағы">
-          <span id="stepCount" class="step-count">—</span>
+          <label class="tl">
+            <span class="tl-label"><span>Қадам (жолақты тартып, кез келген қадамға өт)</span><b id="stepCount">—</b></span>
+            <input id="scrub" type="range" min="0" max="0" value="0" disabled>
+          </label>
         </div>
         <div id="pyStatus" class="py-status loading">Python жүктелуде… (алғашқы жолы 10–20 секунд)</div>
       </section>
