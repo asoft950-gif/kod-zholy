@@ -56,8 +56,10 @@ code {
   display: grid; place-items: center;
   width: 42px; height: 42px; flex: none;
   background: #fff; border: 3px solid var(--ink); border-radius: 12px;
-  font-size: 24px; box-shadow: 0 3px 0 var(--ink);
+  box-shadow: 0 3px 0 var(--ink); overflow: hidden;
 }
+.logo img { display: block; width: 34px; height: 34px; }
+.brand-text b i { font-style: normal; color: var(--violet); }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 .brand-text b { font-size: 20px; font-weight: 800; letter-spacing: -0.2px; }
 .brand-text small { font-size: 12px; font-weight: 700; opacity: 0.75; white-space: nowrap; }

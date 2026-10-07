@@ -1,4 +1,4 @@
-/* Код Жолы: бет аралық өту (hash-роутер) */
+/* Ботакод: бет аралық өту (hash-роутер) */
 (() => {
   "use strict";
 
@@ -14,7 +14,7 @@
   function show(name, title) {
     Object.keys(views).forEach((k) => (views[k].hidden = k !== name));
     $("#menuBtn").hidden = name !== "play";
-    document.title = (title ? title + " · " : "") + "Код Жолы";
+    document.title = (title ? title + " · " : "") + "Ботакод";
     window.scrollTo(0, 0);
   }
 
