@@ -44,8 +44,8 @@
         location.hash = "#/" + course.id + "/tasks";
         return;
       }
-      if (course.engine === "python" && KZ.play.open(course.id, parts[2])) return show("play", course.name);
-      if (course.engine === "web" && KZ.web.open(course.id, parts[2])) return show("web", course.name);
+      if ((course.engine === "python" || course.engine === "js") && KZ.play.open(course.id, parts[2])) return show("play", course.name);
+      if (course.engine === "web" && KZ.web && KZ.web.open(course.id, parts[2])) return show("web", course.name);
       location.hash = "#/" + course.id;
       return;
     }

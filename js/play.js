@@ -13,7 +13,9 @@
   let level = null;
   let list = []; // осы деңгей кіретін тізім (тапсырмалар не қосымша)
   let listKind = "tasks";
-  let runFn = null; // Python дайын болғанда толады
+  let runFn = null; // қозғалтқыш дайын болғанда толады
+  let loadedEngine = null; // runFn қай қозғалтқышқа тиесілі: python | js
+  let engine = "python";
   let pyState = "idle"; // idle | loading | ready | error
   let run = null; // соңғы орындау нәтижесі
   let idx = -1; // көрсетіліп тұрған кадр
@@ -60,7 +62,7 @@
     /* маңызды емес */
   }
 
-  /* ---------- Python жүктеу (алғаш қажет болғанда ғана) ---------- */
+  /* ---------- Қозғалтқыш жүктеу (алғаш қажет болғанда ғана) ---------- */
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const s = document.createElement("script");
@@ -86,18 +88,28 @@
   }
 
   async function ensurePython() {
+    if (loadedEngine !== engine) {
+      runFn = null;
+      pyState = "idle";
+    }
     if (runFn || pyState === "loading") return;
+    const isJs = engine === "js";
+    const name = isJs ? "JavaScript" : "Python";
     pyState = "loading";
-    setStatus("loading", "Python жүктелуде… (алғашқы жолы 10–20 секунд)");
+    setStatus("loading", name + " жүктелуде…" + (isJs ? "" : " (алғашқы жолы 10–20 секунд)"));
     updateButtons();
+    const mine = engine;
     try {
-      runFn = await (KZ.pyLoader || defaultLoader)();
+      const fn = await (isJs ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      if (mine !== engine) return; // жүктеу кезінде басқа курсқа өтіп кеттік
+      runFn = fn;
+      loadedEngine = mine;
       pyState = "ready";
       setStatus("ready");
     } catch (e) {
       console.error(e);
       pyState = "error";
-      setStatus("error", "Python жүктелмеді. Интернетті тексеріп, бетті қайта аш.");
+      setStatus("error", name + " жүктелмеді. Интернетті тексеріп, бетті қайта аш.");
     }
     updateButtons();
   }
@@ -107,7 +119,8 @@
     const code = editor.getValue();
     let res;
     try {
-      res = JSON.parse(runFn(code, JSON.stringify({ robot: level.robot })));
+      const raw = runFn(code, JSON.stringify({ robot: level.robot, html: typeof level.html === "string" ? level.html : undefined }));
+      res = typeof raw === "string" ? JSON.parse(raw) : raw;
     } catch (e) {
       console.error(e);
       setStatus("error", "Күтпеген қате шықты. Бетті жаңартып көр.");
@@ -207,11 +220,42 @@
     renderVars(f.vars || []);
     $("#console").textContent = f.out || "";
     renderNote(f);
+    showDom(f, i === lastIdx());
     scrub.value = String(i);
     updateCounter();
     if (i === lastIdx()) onEnd();
     else hideResult();
     updateButtons();
+  }
+
+  /* ---------- DOM көрінісі (JavaScript) ---------- */
+  let domShown = null;
+  function showDom(f, atEnd) {
+    const card = $("#domCard");
+    if (!card || card.hidden) return;
+    const stat = $("#domPreview");
+    const liveHost = $("#domLive");
+    if (atEnd && run && run.dom) {
+      // соңғы кадр: нағыз бет, батырмаларды басуға болады
+      liveHost.classList.remove("off");
+      stat.hidden = true;
+      return;
+    }
+    liveHost.classList.add("off");
+    stat.hidden = false;
+    if (f.dom !== undefined && f.dom !== domShown) {
+      domShown = f.dom;
+      stat.srcdoc = f.dom;
+    }
+  }
+
+  function renderDomInitial() {
+    const card = $("#domCard");
+    if (!card || card.hidden) return;
+    $("#domLive").classList.add("off");
+    $("#domPreview").hidden = false;
+    domShown = KZ.buildWebDoc("html", level.html || "", null, false);
+    $("#domPreview").srcdoc = domShown;
   }
 
   function setLine(line, cls) {
@@ -314,6 +358,7 @@
     renderVars([]);
     $("#console").textContent = "";
     renderNote(null);
+    renderDomInitial();
   }
 
   /* ---------- Нәтиже ---------- */
@@ -412,7 +457,8 @@
   function sandboxLevel() {
     const s = KZ.store.getSession("kodzholy.sandbox", null);
     KZ.store.setSession("kodzholy.sandbox", null);
-    const robot = s && s.robot === false ? null : (s && s.robot) || DEFAULT_ROBOT;
+    const isJs = engine === "js";
+    const robot = isJs || (s && s.robot === false) ? null : (s && s.robot) || DEFAULT_ROBOT;
     return {
       id: "free",
       sandbox: true,
@@ -421,10 +467,11 @@
         "<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Қателесуден қорықпа!</p>" +
         "<p class='tip'>Кодты ⏭ «Қадам» арқылы бір-бірден орындап, оң жақтағы қораптарға қара.</p>",
       hint: "",
-      starter: "# өз кодыңды жаз\n",
+      starter: isJs ? "// өз кодыңды жаз\n" : "# өз кодыңды жаз\n",
       solution: "",
       par: 99,
       robot,
+      html: isJs ? '<h1 id="title">Сәлем!</h1>\n<button id="btn">Бас</button>\n<p id="out"></p>' : undefined,
       check: {},
       sandboxCode: s && typeof s.code === "string" ? s.code : null,
     };
@@ -438,6 +485,14 @@
       : listKind === "bonus"
       ? "Қосымша " + level.id
       : "Деңгей " + level.id;
+    const isJs = engine === "js";
+    editor.setOption("mode", isJs ? "javascript" : "python");
+    editor.setOption("indentUnit", isJs ? 2 : 4);
+    editor.setOption("tabSize", isJs ? 2 : 4);
+    $("#editorTitle").textContent = isJs ? "JavaScript коды" : "Python коды";
+    $("#consoleTitle").textContent = isJs ? "Экран (console.log)" : "Экран (print)";
+    $("#console").dataset.ph = isJs ? "Мұнда console.log жазғаныңның нәтижесі шығады" : "Мұнда print жазғаныңның нәтижесі шығады";
+    $("#domCard").hidden = !(isJs && typeof level.html === "string");
     $("#taskTitle").textContent = level.title;
     $("#taskBody").innerHTML = level.task;
     $("#hintText").hidden = true;
@@ -560,6 +615,7 @@
       else found = KZ.findLevel(c, levelId);
       if (!found) return false;
       course = c;
+      engine = c.engine === "js" ? "js" : "python";
       listKind = found.kind;
       list = listKind === "bonus" ? c.bonus : c.levels;
       level = found.level || sandboxLevel();

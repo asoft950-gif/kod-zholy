@@ -297,10 +297,10 @@ KZ.evaluate = function (level, res) {
     fails.push("Бұл тапсырмада if шартын қолдану керек.");
   }
   if (c.requireDef && !res.features.has_def) {
-    fails.push("Бұл тапсырмада def арқылы функция жасау керек.");
+    fails.push(res.features.js ? "Бұл тапсырмада function арқылы функция жасау керек." : "Бұл тапсырмада def арқылы функция жасау керек.");
   }
   if (c.requireList && !res.features.has_list) {
-    fails.push("Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ].");
+    fails.push(res.features.js ? "Бұл тапсырмада массив қолдану керек: квадрат жақша [ ]." : "Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ].");
   }
   if (c.forbid && res.code) {
     c.forbid.forEach((f) => {

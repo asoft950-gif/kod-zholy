@@ -50,7 +50,7 @@
       </section>
 
       <section class="card editor-card">
-        <div class="card-title">Python коды</div>
+        <div class="card-title" id="editorTitle">Python коды</div>
         <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
 
         <div class="controls">
@@ -86,8 +86,15 @@
       </section>
 
       <section class="card">
-        <div class="card-title">Экран (print)</div>
+        <div class="card-title" id="consoleTitle">Экран (print)</div>
         <pre id="console" class="console" data-ph="Мұнда print жазғаныңның нәтижесі шығады"></pre>
+      </section>
+
+      <section class="card" id="domCard" hidden>
+        <div class="card-title">Бет (HTML)</div>
+        <iframe id="domPreview" class="web-preview" title="Бет" sandbox=""></iframe>
+        <div id="domLive" class="off"></div>
+        <p class="live-note">Соңғы қадамда бетті нағыз қолданып көруге болады: батырмаларды бас.</p>
       </section>
 
       <section id="result" class="card result" hidden></section>
@@ -170,6 +177,8 @@
   <script src="js/courses/css.js"></script>
   <script src="js/courses/css-content.js"></script>
   <script src="js/courses/javascript.js"></script>
+  <script src="js/courses/javascript-content.js"></script>
+  <script src="js/jsrunner.js"></script>
   <script src="js/play.js"></script>
   <script src="js/webdoc.js"></script>
   <script src="js/web.js"></script>

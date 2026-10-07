@@ -531,3 +531,5 @@ footer { text-align: center; padding: 18px 14px 28px; color: var(--muted); font-
 /* ---------- Құлыптар ---------- */
 .card.topic.locked { opacity: .65; background: #ece8dc; }
 .lock-note { margin: 6px 0 12px; font-size: 14px; font-weight: 700; opacity: .75; }
+.web-preview[hidden] { display: none; }
+#domLive.off { position: fixed; left: -9999px; top: 0; width: 500px; height: 300px; visibility: hidden; }
