@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Код Жолы: Python-ды көзбен көріп үйрен</title>
-  <meta name="description" content="Python кодын жазып, ол қалай жұмыс істейтінін робот пен қораптар арқылы көзбен көр. Қазақ тілінде, браузерде, ештеңе орнатпай.">
+  <title>Код Жолы: кодтауды көзбен көріп үйрен</title>
+  <meta name="description" content="Python, HTML, CSS, JavaScript: кодты жазып, ол қалай жұмыс істейтінін көзбен көр. Қазақ тілінде, браузерде, ештеңе орнатпай.">
   <meta name="theme-color" content="#ffd23f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,19 +15,24 @@
 </head>
 <body>
   <header class="top">
-    <div class="brand">
+    <a class="brand" href="#/" aria-label="Басты бет">
       <span class="logo" aria-hidden="true">🤖</span>
-      <div class="brand-text"><b>Код Жолы</b><small>Python-ды көзбен көр</small></div>
-    </div>
-    <button id="menuBtn" class="btn small" type="button">☰ Деңгейлер</button>
+      <span class="brand-text"><b>Код Жолы</b><small>Кодтауды көзбен көр</small></span>
+    </a>
+    <button id="menuBtn" class="btn small" type="button" hidden>☰ Деңгейлер</button>
     <div class="score" title="Жиналған жұлдыздар">⭐ <span id="totalStars">0</span></div>
   </header>
 
-  <main>
+  <div id="homeView" class="view" hidden></div>
+  <div id="courseView" class="view" hidden></div>
+  <div id="lectureView" class="view" hidden></div>
+
+  <main id="playView" class="view" hidden>
     <div class="col left">
       <section class="card task" id="taskCard" aria-live="polite">
+        <a id="backLink" class="back" href="#/">← Тапсырмалар</a>
         <div class="task-head">
-          <span class="badge" id="levelBadge">Деңгей 1.1</span>
+          <span class="badge" id="levelBadge">Деңгей</span>
           <span class="level-stars" id="levelStars" aria-label="Осы тапсырманың жұлдыздары"></span>
         </div>
         <h1 id="taskTitle">Тапсырма</h1>
@@ -64,14 +69,14 @@
             <input id="scrub" type="range" min="0" max="0" value="0" disabled>
           </label>
         </div>
-        <div id="pyStatus" class="py-status loading">Python жүктелуде… (алғашқы жолы 10–20 секунд)</div>
+        <div id="pyStatus" class="py-status ready"></div>
       </section>
     </div>
 
     <div class="col right" id="stage">
       <section class="card board-card" id="boardWrap" hidden>
         <div class="card-title">Робот алаңы</div>
-        <div id="board" class="board"></div>
+        <div id="board" class="board-holder"></div>
         <div id="note" class="note" hidden></div>
       </section>
 
@@ -97,11 +102,18 @@
     <div id="menuList"></div>
   </dialog>
 
-  <footer>Код Жолы · Python браузеріңнің ішінде жұмыс істейді, ештеңе орнатудың қажеті жоқ.</footer>
+  <footer>Код Жолы · кодты браузеріңнің ішінде орындайды, ештеңе орнатудың қажеті жоқ.</footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
-  <script src="js/levels.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/courses/python.js"></script>
+  <script src="js/courses/python-content.js"></script>
+  <script src="js/courses/html.js"></script>
+  <script src="js/courses/css.js"></script>
+  <script src="js/courses/javascript.js"></script>
+  <script src="js/play.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

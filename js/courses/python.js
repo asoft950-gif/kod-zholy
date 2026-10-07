@@ -1,14 +1,28 @@
-/* Код Жолы: тапсырмалар және тексеру логикасы */
-globalThis.KZ = globalThis.KZ || {};
-
-KZ.commands = [
+/* Python курсы: негізгі деректер мен тапсырмалар */
+KZ.registerCourse({
+  id: "python",
+  name: "Python",
+  emoji: "🐍",
+  color: "#6c5ce7",
+  status: "ready",
+  engine: "python",
+  tagline: "Робот пен қораптар арқылы көзбен көріп үйрен",
+  commands: [
   { code: "alga()", help: "алға 1 қадам (alga(3) — 3 қадам)" },
   { code: "onga()", help: "оңға бұрылу" },
   { code: "solga()", help: "солға бұрылу" },
   { code: "zhinau()", help: "тұрған жердегі жұлдызды жинау" },
-];
-
-KZ.levels = [
+],
+  topics: [
+    { id: "1", emoji: "📦", title: "Айнымалылар", blurb: "Сан мен мәтін сақталатын қораптар" },
+    { id: "2", emoji: "🤖", title: "Робот командалары", blurb: "Командалар бір-бірден орындалады" },
+    { id: "3", emoji: "🔁", title: "for циклі", blurb: "Қайталауды компьютерге тапсыр" },
+    { id: "4", emoji: "❓", title: "if / else", blurb: "Шарт бойынша шешім қабылдау" },
+    { id: "5", emoji: "♾️", title: "while циклі", blurb: "Қанша қайталарын білмесең" },
+    { id: "6", emoji: "🧩", title: "Функциялар", blurb: "Өз командаңды жаса" },
+    { id: "7", emoji: "📚", title: "Тізімдер", blurb: "Қатар тұрған қораптар" },
+  ],
+  levels: [
   /* ---------- 1. Айнымалылар ---------- */
   {
     id: "1.1",
@@ -355,57 +369,8 @@ KZ.levels = [
       },
     },
   },
-];
-
-/* Жұлдыз саны: код неғұрлым қысқа болса, соғұрлым көп */
-KZ.starsFor = function (level, lines) {
-  if (lines <= level.par) return 3;
-  if (lines <= level.par + 2) return 2;
-  return 1;
-};
-
-/* Орындау нәтижесін тексеру. res: runner.py қайтарған нәтиже (vars қосылған) */
-KZ.evaluate = function (level, res) {
-  const c = level.check;
-  const fails = [];
-
-  if (c.output !== undefined && res.output.trim() !== c.output) {
-    fails.push("Экранға «" + c.output + "» шығуы керек, ал сенде: «" + res.output.trim() + "».");
-  }
-  if (c.vars) {
-    for (const name of Object.keys(c.vars)) {
-      const v = res.vars[name];
-      if (!v) fails.push("«" + name + "» қорабы жасалмаған.");
-      else if (v.r !== c.vars[name]) {
-        fails.push("«" + name + "» қорабында " + c.vars[name] + " болуы керек, ал қазір " + v.r + ".");
-      }
-    }
-  }
-  if (c.collectAll && res.robot && res.robot.stars.length > 0) {
-    fails.push(
-      "Жұлдыздар: " + res.robot.got + "/" + res.robot.total + " жиналды. Қалғандарына да бар!"
-    );
-  }
-  if (c.requireFor && !res.features.has_for) {
-    fails.push("Бұл тапсырмада for циклін қолдану керек.");
-  }
-  if (c.requireWhile && !res.features.has_while) {
-    fails.push("Бұл тапсырмада while циклін қолдану керек.");
-  }
-  if (c.requireIf && !res.features.has_if) {
-    fails.push("Бұл тапсырмада if шартын қолдану керек.");
-  }
-  if (c.requireDef && !res.features.has_def) {
-    fails.push("Бұл тапсырмада def арқылы функция жасау керек.");
-  }
-  if (c.requireList && !res.features.has_list) {
-    fails.push("Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ].");
-  }
-  if (c.fn) {
-    const m = c.fn(res);
-    if (m) fails.push(m);
-  }
-
-  if (fails.length) return { ok: false, reason: fails.join(" ") };
-  return { ok: true, stars: KZ.starsFor(level, res.lines) };
-};
+],
+  bonus: [],
+  lectures: [],
+  reference: [],
+});

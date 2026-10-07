@@ -1,55 +1,29 @@
-/* Код Жолы: интерфейс және қадамдап қайта ойнату */
+/* Код Жолы: Python жұмыс алаңы (редактор, қадамдап қайта ойнату, тексеру) */
 (() => {
   "use strict";
 
-  const LEVELS = KZ.levels;
+  const { $, el } = KZ;
   const PY_BASE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
-  const PALETTE = ["#6c5ce7", "#ff6b6b", "#2ec4b6", "#f59f00", "#e64980", "#1c7ed6"];
   const DELAYS = [0, 1000, 600, 350, 150]; // жылдамдық 1..4 (мс)
-
-  const $ = (s) => document.querySelector(s);
-  const el = (tag, cls, text) => {
-    const e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text != null) e.textContent = text;
-    return e;
+  const DEFAULT_ROBOT = {
+    cols: 7, rows: 5, start: { x: 0, y: 2, d: 1 }, stars: [[3, 2], [6, 2], [3, 0]],
   };
 
-  /* ---------- Сақтау (localStorage) ---------- */
-  const store = {
-    get(key, fallback) {
-      try {
-        const v = localStorage.getItem(key);
-        return v == null ? fallback : JSON.parse(v);
-      } catch (e) {
-        return fallback;
-      }
-    },
-    set(key, value) {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (e) {
-        /* жеке режимде сақтау жұмыс істемеуі мүмкін */
-      }
-    },
-  };
-
-  /* ---------- Күй ---------- */
-  let progress = store.get("kodzholy.progress", {}); // { "1.1": 3, ... }
-  let levelIdx = store.get("kodzholy.level", 0);
-  if (!(levelIdx >= 0 && levelIdx < LEVELS.length)) levelIdx = 0;
-
+  let course = null;
+  let level = null;
+  let list = []; // осы деңгей кіретін тізім (тапсырмалар не қосымша)
+  let listKind = "tasks";
   let runFn = null; // Python дайын болғанда толады
+  let pyState = "idle"; // idle | loading | ready | error
   let run = null; // соңғы орындау нәтижесі
   let idx = -1; // көрсетіліп тұрған кадр
   let playing = false;
   let timer = null;
   let attempts = 0;
   let shownVars = {};
-  let angle = 0;
   let activeLine = null;
   let activeCls = null;
-  let board = { robotEl: null, innerEl: null, stars: new Map(), cfg: null };
+  let board = null;
 
   /* ---------- Элементтер ---------- */
   const runBtn = $("#runBtn");
@@ -86,7 +60,7 @@
     /* маңызды емес */
   }
 
-  /* ---------- Python жүктеу ---------- */
+  /* ---------- Python жүктеу (алғаш қажет болғанда ғана) ---------- */
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const s = document.createElement("script");
@@ -111,12 +85,18 @@
     pyStatus.textContent = text || "";
   }
 
-  async function initPython() {
+  async function ensurePython() {
+    if (runFn || pyState === "loading") return;
+    pyState = "loading";
+    setStatus("loading", "Python жүктелуде… (алғашқы жолы 10–20 секунд)");
+    updateButtons();
     try {
       runFn = await (KZ.pyLoader || defaultLoader)();
+      pyState = "ready";
       setStatus("ready");
     } catch (e) {
       console.error(e);
+      pyState = "error";
       setStatus("error", "Python жүктелмеді. Интернетті тексеріп, бетті қайта аш.");
     }
     updateButtons();
@@ -124,10 +104,10 @@
 
   /* ---------- Орындау ---------- */
   function execute() {
-    const level = LEVELS[levelIdx];
+    const code = editor.getValue();
     let res;
     try {
-      res = JSON.parse(runFn(editor.getValue(), JSON.stringify({ robot: level.robot })));
+      res = JSON.parse(runFn(code, JSON.stringify({ robot: level.robot })));
     } catch (e) {
       console.error(e);
       setStatus("error", "Күтпеген қате шықты. Бетті жаңартып көр.");
@@ -136,6 +116,7 @@
     const last = res.frames[res.frames.length - 1];
     res.vars = {};
     (last.vars || []).forEach((v) => (res.vars[v.n] = v));
+    res.code = code;
     res.evaluated = null;
     run = res;
     scrub.max = String(res.frames.length - 1);
@@ -222,7 +203,7 @@
     idx = i;
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
-    renderRobot(f.robot, f.kind);
+    if (board) board.setState(f.robot, f.kind);
     renderVars(f.vars || []);
     $("#console").textContent = f.out || "";
     renderNote(f);
@@ -279,26 +260,20 @@
   }
 
   /* ---------- Қораптар (жад) ---------- */
-  function colorFor(name) {
-    let h = 0;
-    for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-    return PALETTE[h % PALETTE.length];
-  }
-
-  function renderVars(list) {
+  function renderVars(vars) {
     const box = $("#memory");
     box.textContent = "";
-    if (!list.length) {
+    if (!vars.length) {
       box.appendChild(
         el("p", "empty", "Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады.")
       );
       shownVars = {};
       return;
     }
-    list.forEach((v) => {
+    vars.forEach((v) => {
       const changed = shownVars[v.n] !== v.r;
       const card = el("div", "var" + (changed ? " changed" : ""));
-      card.style.setProperty("--c", colorFor(v.n));
+      card.style.setProperty("--c", KZ.colorFor(v.n));
       const name = el("div", "var-name", v.n);
       name.appendChild(el("small", null, v.t));
       card.appendChild(name);
@@ -318,84 +293,23 @@
       box.appendChild(card);
     });
     shownVars = {};
-    list.forEach((v) => (shownVars[v.n] = v.r));
+    vars.forEach((v) => (shownVars[v.n] = v.r));
   }
 
   /* ---------- Робот алаңы ---------- */
-  const ROBOT_SVG =
-    '<svg viewBox="0 0 100 100" aria-hidden="true">' +
-    '<path d="M50 3 L66 22 L34 22 Z" fill="#ffd23f" stroke="#1f1d36" stroke-width="6" stroke-linejoin="round"/>' +
-    '<rect x="12" y="22" width="76" height="70" rx="18" fill="#6c5ce7" stroke="#1f1d36" stroke-width="6"/>' +
-    '<circle cx="36" cy="52" r="11" fill="#fff" stroke="#1f1d36" stroke-width="4"/>' +
-    '<circle cx="64" cy="52" r="11" fill="#fff" stroke="#1f1d36" stroke-width="4"/>' +
-    '<circle cx="36" cy="54" r="4.5" fill="#1f1d36"/><circle cx="64" cy="54" r="4.5" fill="#1f1d36"/>' +
-    '<rect x="36" y="74" width="28" height="6" rx="3" fill="#1f1d36"/></svg>';
-
   function buildBoard(cfg) {
     const root = $("#board");
     root.textContent = "";
-    board = { robotEl: null, innerEl: null, stars: new Map(), cfg };
+    board = null;
     if (!cfg) return;
-    root.style.setProperty("--cols", cfg.cols);
-    root.style.setProperty("--rows", cfg.rows);
-    root.style.aspectRatio = cfg.cols + " / " + cfg.rows;
-    root.style.maxWidth = Math.min(560, cfg.cols * 92) + "px";
-    const walls = new Set((cfg.walls || []).map((w) => w.join(",")));
-    for (let y = 0; y < cfg.rows; y++) {
-      for (let x = 0; x < cfg.cols; x++) {
-        const alt = (x + y) % 2 ? " alt" : "";
-        root.appendChild(el("div", "cell" + alt + (walls.has(x + "," + y) ? " wall" : "")));
-      }
-    }
-    const place = (node, x, y) => {
-      node.style.left = (x * 100) / cfg.cols + "%";
-      node.style.top = (y * 100) / cfg.rows + "%";
-      node.style.width = 100 / cfg.cols + "%";
-      node.style.height = 100 / cfg.rows + "%";
-    };
-    cfg.stars.forEach(([x, y]) => {
-      const s = el("div", "star", "⭐");
-      place(s, x, y);
-      root.appendChild(s);
-      board.stars.set(x + "," + y, s);
-    });
-    const robot = el("div", "robot");
-    const inner = el("div", "robot-inner");
-    inner.innerHTML = ROBOT_SVG;
-    robot.appendChild(inner);
-    place(robot, cfg.start.x, cfg.start.y);
-    root.appendChild(robot);
-    board.robotEl = robot;
-    board.innerEl = inner;
-    angle = (cfg.start.d == null ? 1 : cfg.start.d) * 90;
-    inner.style.transform = "rotate(" + angle + "deg)";
-  }
-
-  function renderRobot(r, kind) {
-    if (!r || !board.robotEl) return;
-    const cfg = board.cfg;
-    board.robotEl.style.left = (r.x * 100) / cfg.cols + "%";
-    board.robotEl.style.top = (r.y * 100) / cfg.rows + "%";
-    const target = r.d * 90;
-    const delta = ((((target - angle) % 360) + 540) % 360) - 180;
-    angle += delta;
-    board.innerEl.style.transform = "rotate(" + angle + "deg)";
-    const left = new Set(r.stars.map((s) => s[0] + "," + s[1]));
-    board.stars.forEach((node, key) => node.classList.toggle("got", !left.has(key)));
-    if (kind === "crash") {
-      board.robotEl.classList.remove("crash");
-      void board.robotEl.offsetWidth; // анимацияны қайта іске қосу
-      board.robotEl.classList.add("crash");
-    } else if (kind !== "error") {
-      board.robotEl.classList.remove("crash");
-    }
+    board = KZ.makeBoard(cfg);
+    root.appendChild(board.root);
   }
 
   function renderInitial() {
-    const level = LEVELS[levelIdx];
-    if (level.robot) {
+    if (level && level.robot && board) {
       const s = level.robot.start;
-      renderRobot({ x: s.x, y: s.y, d: s.d == null ? 1 : s.d, stars: level.robot.stars }, null);
+      board.setState({ x: s.x, y: s.y, d: s.d == null ? 1 : s.d, stars: level.robot.stars }, null);
     }
     renderVars([]);
     $("#console").textContent = "";
@@ -415,18 +329,25 @@
     box.hidden = false;
   }
 
+  function nextHref() {
+    const i = list.findIndex((l) => l.id === level.id);
+    if (i >= 0 && i < list.length - 1) return "#/" + course.id + "/play/" + list[i + 1].id;
+    return null;
+  }
+
   function onEnd() {
-    const level = LEVELS[levelIdx];
     if (run.evaluated === null) {
-      run.evaluated = run.error ? { ok: false, error: true } : KZ.evaluate(level, run);
-      if (run.evaluated.ok) {
-        const old = progress[level.id] || 0;
-        progress[level.id] = Math.max(old, run.evaluated.stars);
-        store.set("kodzholy.progress", progress);
-        refreshStars();
-      } else {
+      if (run.error) run.evaluated = { ok: false, error: true };
+      else if (level.sandbox) run.evaluated = { ok: true, sandbox: true };
+      else run.evaluated = KZ.evaluate(level, run);
+
+      if (run.evaluated.ok && !level.sandbox) {
+        KZ.progress.set(course.id, level.id, run.evaluated.stars);
+        KZ.updateTotal();
+        refreshLevelStars();
+      } else if (!run.evaluated.ok) {
         attempts++;
-        if (attempts >= 3) $("#solutionBtn").hidden = false;
+        if (attempts >= 3 && !level.sandbox) $("#solutionBtn").hidden = false;
       }
     }
     const ev = run.evaluated;
@@ -436,10 +357,10 @@
       showResult("err", (box) => {
         box.appendChild(el("h2", null, "🙈 Қате шықты"));
         box.appendChild(el("p", null, e.msg));
-        box.appendChild(
-          el("small", null, (e.line ? e.line + "-жол · " : "") + (e.detail || ""))
-        );
+        box.appendChild(el("small", null, (e.line ? e.line + "-жол · " : "") + (e.detail || "")));
       });
+    } else if (level.sandbox) {
+      hideResult();
     } else if (!ev.ok) {
       showResult("bad", (box) => {
         box.appendChild(el("h2", null, "🤔 Әлі толық емес"));
@@ -460,13 +381,15 @@
           )
         );
         const row = el("div", "row");
-        if (levelIdx < LEVELS.length - 1) {
-          const next = el("button", "btn primary", "Келесі тапсырма →");
-          next.type = "button";
-          next.addEventListener("click", () => loadLevel(levelIdx + 1, true));
-          row.appendChild(next);
+        const next = nextHref();
+        if (next) {
+          const a = el("a", "btn primary", "Келесі тапсырма →");
+          a.href = next;
+          row.appendChild(a);
         } else {
-          box.appendChild(el("p", null, "Барлық тапсырма аяқталды! Жаңа деңгейлер жақында."));
+          const a = el("a", "btn primary", "← Курсқа оралу");
+          a.href = "#/" + course.id + "/" + listKind;
+          row.appendChild(a);
         }
         const again = el("button", "btn", "↺ Қайта көру");
         again.type = "button";
@@ -481,39 +404,58 @@
   }
 
   /* ---------- Деңгей ---------- */
-  function totalStars() {
-    return Object.values(progress).reduce((a, b) => a + b, 0);
+  function refreshLevelStars() {
+    const n = level.sandbox ? 0 : KZ.progress.stars(course.id, level.id);
+    $("#levelStars").textContent = level.sandbox ? "" : "⭐".repeat(n) + "☆".repeat(3 - n);
   }
 
-  function refreshStars() {
-    $("#totalStars").textContent = String(totalStars());
-    const n = progress[LEVELS[levelIdx].id] || 0;
-    $("#levelStars").textContent = "⭐".repeat(n) + "☆".repeat(3 - n);
-    buildMenu();
+  function sandboxLevel() {
+    const s = KZ.store.getSession("kodzholy.sandbox", null);
+    KZ.store.setSession("kodzholy.sandbox", null);
+    const robot = s && s.robot === false ? null : (s && s.robot) || DEFAULT_ROBOT;
+    return {
+      id: "free",
+      sandbox: true,
+      title: "Еркін алаң",
+      task:
+        "<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Қателесуден қорықпа!</p>" +
+        "<p class='tip'>Кодты ⏭ «Қадам» арқылы бір-бірден орындап, оң жақтағы қораптарға қара.</p>",
+      hint: "",
+      starter: "# өз кодыңды жаз\n",
+      solution: "",
+      par: 99,
+      robot,
+      check: {},
+      sandboxCode: s && typeof s.code === "string" ? s.code : null,
+    };
   }
 
-  function loadLevel(i, scrollTop) {
+  function loadLevel() {
     stop();
-    levelIdx = i;
-    store.set("kodzholy.level", i);
-    const level = LEVELS[i];
     attempts = 0;
-
-    $("#levelBadge").textContent = "Деңгей " + level.id;
+    $("#levelBadge").textContent = level.sandbox
+      ? "Еркін алаң"
+      : listKind === "bonus"
+      ? "Қосымша " + level.id
+      : "Деңгей " + level.id;
     $("#taskTitle").textContent = level.title;
     $("#taskBody").innerHTML = level.task;
     $("#hintText").hidden = true;
     $("#hintText").textContent = level.hint;
+    $("#hintBtn").hidden = !!level.sandbox;
     $("#solutionText").hidden = true;
     $("#solutionText").textContent = level.solution;
     $("#solutionBtn").hidden = true;
+    const back = $("#backLink");
+    back.href = "#/" + course.id + "/" + listKind;
+    back.textContent = listKind === "bonus" ? "← Қосымша тапсырмалар" : "← " + course.name + ": тапсырмалар";
 
     const cmds = $("#commands");
     cmds.hidden = !level.robot;
     const chips = $("#commandChips");
     chips.textContent = "";
     if (level.robot) {
-      KZ.commands.forEach((c) => {
+      (course.commands || []).forEach((c) => {
         const b = el("button", "chip");
         b.type = "button";
         b.appendChild(el("b", null, c.code));
@@ -526,12 +468,13 @@
     $("#boardWrap").hidden = !level.robot;
     buildBoard(level.robot);
 
-    const saved = store.get("kodzholy.code." + level.id, null);
-    editor.setValue(typeof saved === "string" ? saved : level.starter);
+    const saved = KZ.codeStore.get(course.id, level.id);
+    let code = typeof saved === "string" ? saved : level.starter;
+    if (level.sandbox && level.sandboxCode != null) code = level.sandboxCode;
+    editor.setValue(code);
     editor.setCursor({ line: editor.lastLine(), ch: 0 });
     invalidate();
-    refreshStars();
-    if (scrollTop) window.scrollTo({ top: 0, behavior: "smooth" });
+    refreshLevelStars();
   }
 
   function insertCommand(text) {
@@ -546,28 +489,30 @@
     editor.focus();
   }
 
-  /* ---------- Мәзір ---------- */
+  /* ---------- Деңгейлер мәзірі ---------- */
   function buildMenu() {
-    const list = $("#menuList");
-    list.textContent = "";
-    let topic = null;
-    LEVELS.forEach((lv, i) => {
-      if (lv.topic !== topic) {
-        topic = lv.topic;
-        list.appendChild(el("h3", null, topic));
-      }
-      const b = el("button", "lv" + (i === levelIdx ? " current" : ""));
-      b.type = "button";
-      const n = progress[lv.id] || 0;
+    const box = $("#menuList");
+    box.textContent = "";
+    const addLevel = (lv, kind) => {
+      const b = el("a", "lv" + (level && lv.id === level.id ? " current" : ""));
+      b.href = "#/" + course.id + "/play/" + lv.id;
+      const n = KZ.progress.stars(course.id, lv.id);
       b.appendChild(el("span", "num", lv.id));
       b.appendChild(el("span", "t", lv.title));
       b.appendChild(el("span", "s", "⭐".repeat(n) + "☆".repeat(3 - n)));
-      b.addEventListener("click", () => {
-        $("#menu").close();
-        loadLevel(i, true);
-      });
-      list.appendChild(b);
+      b.addEventListener("click", () => $("#menu").close());
+      box.appendChild(b);
+    };
+    (course.topics || []).forEach((t) => {
+      const items = (course.levels || []).filter((l) => KZ.topicOf(l) === t.id);
+      if (!items.length) return;
+      box.appendChild(el("h3", null, t.emoji + " " + t.id + " · " + t.title));
+      items.forEach((l) => addLevel(l, "tasks"));
     });
+    if ((course.bonus || []).length) {
+      box.appendChild(el("h3", null, "🏆 Қосымша"));
+      course.bonus.forEach((l) => addLevel(l, "bonus"));
+    }
   }
 
   /* ---------- Оқиғалар ---------- */
@@ -584,6 +529,7 @@
     document.documentElement.style.setProperty("--dur", Math.min(0.35, (delay() * 0.8) / 1000) + "s");
   });
   $("#menuBtn").addEventListener("click", () => {
+    if (!course) return;
     buildMenu();
     $("#menu").showModal();
   });
@@ -597,12 +543,34 @@
     s.hidden = !s.hidden;
   });
   editor.on("change", () => {
-    store.set("kodzholy.code." + LEVELS[levelIdx].id, editor.getValue());
+    if (course && level) KZ.codeStore.set(course.id, level.id, editor.getValue());
     if (run || activeLine !== null) invalidate();
   });
-
-  /* ---------- Бастау ---------- */
   document.documentElement.style.setProperty("--dur", Math.min(0.35, (delay() * 0.8) / 1000) + "s");
-  loadLevel(levelIdx, false);
-  initPython();
+
+  /* ---------- Сыртқы API ---------- */
+  KZ.play = {
+    /* Жұмыс алаңын ашу; табылмаса false */
+    open(courseId, levelId) {
+      stop();
+      const c = KZ.getCourse(courseId);
+      if (!c) return false;
+      let found;
+      if (levelId === "free") found = { level: null, kind: "tasks" };
+      else found = KZ.findLevel(c, levelId);
+      if (!found) return false;
+      course = c;
+      listKind = found.kind;
+      list = listKind === "bonus" ? c.bonus : c.levels;
+      level = found.level || sandboxLevel();
+      if (!level.sandbox) KZ.last.set(course.id, level.id);
+      loadLevel();
+      ensurePython();
+      setTimeout(() => editor.refresh(), 0);
+      return true;
+    },
+    leave() {
+      stop();
+    },
+  };
 })();
