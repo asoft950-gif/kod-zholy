@@ -35,13 +35,26 @@
       location.hash = "#/";
       return;
     }
+    const guard = (levelId) => {
+      const f = parts[2] !== "free" && KZ.findLevel(course, levelId);
+      return !f || f.kind === "bonus" || KZ.progress.topicUnlocked(course, KZ.topicOf(f.level));
+    };
     if (parts[1] === "play" && parts[2]) {
+      if (!guard(parts[2])) {
+        location.hash = "#/" + course.id + "/tasks";
+        return;
+      }
       if (course.engine === "python" && KZ.play.open(course.id, parts[2])) return show("play", course.name);
       if (course.engine === "web" && KZ.web.open(course.id, parts[2])) return show("web", course.name);
       location.hash = "#/" + course.id;
       return;
     }
     if (parts[1] === "lecture" && parts[2]) {
+      const lec = (course.lectures || []).find((l) => l.id === parts[2]);
+      if (lec && !KZ.progress.topicUnlocked(course, lec.topic)) {
+        location.hash = "#/" + course.id + "/lectures";
+        return;
+      }
       if (KZ.views.lecture(views.lecture, course, parts[2])) return show("lecture", course.name);
       location.hash = "#/" + course.id + "/lectures";
       return;

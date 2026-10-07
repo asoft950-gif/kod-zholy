@@ -109,7 +109,12 @@
     c.topics.forEach((t) => {
       const items = c.lectures.filter((l) => l.topic === t.id);
       if (!items.length) return;
-      box.appendChild(h("h3", "topic-h", t.emoji + " " + t.title));
+      const open = KZ.progress.topicUnlocked(c, t.id);
+      box.appendChild(h("h3", "topic-h", (open ? "" : "🔒 ") + t.emoji + " " + t.title));
+      if (!open) {
+        box.appendChild(h("p", "lock-note", "Алдыңғы тақырыптың барлық тапсырмасын өткенде ашылады."));
+        return;
+      }
       items.forEach((l) => {
         const read = KZ.read.has(c.id, l.id);
         box.appendChild(
@@ -141,21 +146,39 @@
       const items = c.levels.filter((l) => KZ.topicOf(l) === t.id);
       if (!items.length) return;
       const got = items.reduce((a, l) => a + KZ.progress.stars(c.id, l.id), 0);
-      const card = el("section", "card topic");
+      const open = KZ.progress.topicUnlocked(c, t.id);
+      const card = el("section", "card topic" + (open ? "" : " locked"));
       card.appendChild(
         h(
           "div",
           "topic-head",
           h("span", "topic-emoji", t.emoji),
           h("div", "topic-info", h("b", null, t.id + " · " + t.title), h("small", null, t.blurb)),
-          h("span", "topic-stars", "⭐ " + got + "/" + items.length * 3)
+          h("span", "topic-stars", open ? "⭐ " + got + "/" + items.length * 3 : "🔒")
         )
       );
+      if (!open) {
+        const prev = KZ.progress.prevTopic(c, t.id);
+        card.appendChild(h("p", "lock-note", "«" + (prev ? prev.title : "Алдыңғы тақырып") + "» тақырыбының барлық тапсырмасын өткенде ашылады."));
+        box.appendChild(card);
+        return;
+      }
       const row = el("div", "pills");
       items.forEach((l) => row.appendChild(pill(c, l)));
       card.appendChild(row);
       box.appendChild(card);
     });
+    openAllToggle(c, box);
+  }
+
+  function openAllToggle(c, box) {
+    const b = el("button", "btn small ghost", KZ.progress.openAll() ? "🔒 Құлыптарды қайта қосу" : "🔓 Барлық тақырыпты ашу (мұғалім үшін)");
+    b.type = "button";
+    b.addEventListener("click", () => {
+      KZ.progress.setOpenAll(!KZ.progress.openAll());
+      location.reload();
+    });
+    box.appendChild(b);
   }
 
   function bonusTab(c, box) {

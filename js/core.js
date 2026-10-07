@@ -107,6 +107,26 @@ KZ.progress = {
   reset() {
     this._d = null;
   },
+  /* Тақырып ашық па? Алдыңғы тақырыптың барлық тапсырмасы өтілуі керек (Coursera сияқты) */
+  openAll() {
+    return KZ.store.get("kodzholy.openall", false) === true;
+  },
+  setOpenAll(v) {
+    KZ.store.set("kodzholy.openall", !!v);
+  },
+  topicUnlocked(course, topicId) {
+    if (this.openAll()) return true;
+    const ids = (course.topics || []).map((t) => t.id).filter((id) => (course.levels || []).some((l) => KZ.topicOf(l) === id));
+    const i = ids.indexOf(topicId);
+    if (i <= 0) return true;
+    return (course.levels || []).filter((l) => KZ.topicOf(l) === ids[i - 1]).every((l) => this.stars(course.id, l.id) > 0) && this.topicUnlocked(course, ids[i - 1]);
+  },
+  /* Алдыңғы тақырып атауы (құлып хабары үшін) */
+  prevTopic(course, topicId) {
+    const ids = (course.topics || []).filter((t) => (course.levels || []).some((l) => KZ.topicOf(l) === t.id));
+    const i = ids.findIndex((t) => t.id === topicId);
+    return i > 0 ? ids[i - 1] : null;
+  },
 };
 
 KZ.read = {
