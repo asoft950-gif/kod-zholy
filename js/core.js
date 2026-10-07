@@ -93,6 +93,7 @@ KZ.progress = {
     d[cid] = d[cid] || {};
     d[cid][lid] = Math.max(d[cid][lid] || 0, n);
     KZ.store.set("kodzholy.progress.v2", d);
+    if (KZ.auth) KZ.auth.queueSync();
   },
   courseStars(cid) {
     return Object.values(this._load()[cid] || {}).reduce((a, b) => a + b, 0);
@@ -144,6 +145,7 @@ KZ.read = {
     const arr = all[cid] || [];
     all[cid] = arr.includes(lid) ? arr.filter((x) => x !== lid) : arr.concat(lid);
     KZ.store.set("kodzholy.read.v1", all);
+    if (KZ.auth) KZ.auth.queueSync();
     return all[cid].includes(lid);
   },
 };

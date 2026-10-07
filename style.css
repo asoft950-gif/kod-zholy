@@ -535,3 +535,89 @@ footer { text-align: center; padding: 18px 14px 28px; color: var(--muted); font-
 .lock-note { margin: 6px 0 12px; font-size: 14px; font-weight: 700; opacity: .75; }
 .web-preview[hidden] { display: none; }
 #domLive.off { position: fixed; left: -9999px; top: 0; width: 500px; height: 300px; visibility: hidden; }
+
+/* ================= Аккаунттар, кабинеттер ================= */
+.acc-btn { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
+.cab-title { margin: 0; font-size: 26px; }
+.auth { display: grid; gap: 14px; }
+.auth-body form { display: grid; gap: 12px; }
+.field { display: grid; gap: 4px; font-weight: 800; font-size: 14px; }
+.field[hidden] { display: none; }
+input, select { font: inherit; }
+.field input, .inline-form input, .filters input, .filters select, .name-row input, .role-sel {
+  font: inherit; font-weight: 700; padding: 10px 12px; min-width: 0;
+  border: 3px solid var(--ink); border-radius: 12px; background: #fffdf5; color: var(--ink);
+}
+.role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.role-chip {
+  font: inherit; display: grid; gap: 2px; justify-items: center; padding: 10px 6px; cursor: pointer;
+  border: 3px solid var(--ink); border-radius: 14px; background: #fff; color: var(--ink);
+}
+.role-chip .re { font-size: 28px; }
+.role-chip small { color: var(--muted); font-weight: 700; }
+.role-chip.on { background: var(--sun); box-shadow: 0 4px 0 var(--ink); }
+.form-msg { margin: 0; font-weight: 800; padding: 8px 10px; border-radius: 10px; }
+.form-msg.bad { background: #ffe3e3; border: 2px solid var(--coral); }
+.form-msg.good { background: var(--mint); border: 2px solid var(--teal); }
+.form-msg[hidden] { display: none; }
+.hint { margin: 0; font-size: 14px; font-weight: 700; color: var(--muted); }
+.notice.info { background: var(--sun); }
+.notice.bad { background: #ffe3e3; }
+.notice h2 { margin: 0 0 6px; font-size: 20px; }
+.notice p { margin: 0; font-weight: 700; }
+.profile-head { display: flex; gap: 14px; align-items: center; }
+.avatar { width: 64px; height: 64px; flex: none; display: grid; place-items: center; font-size: 34px; background: var(--sun); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); }
+.ph-info { min-width: 0; display: grid; gap: 4px; }
+.ph-info h1 { margin: 0; font-size: 22px; overflow-wrap: anywhere; }
+.name-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.pbadge { font-size: 12px; font-weight: 800; padding: 2px 10px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; }
+.pbadge.role-owner { background: var(--yellow); }
+.pbadge.role-admin { background: #ffd9a8; }
+.pbadge.role-teacher { background: var(--mint); }
+.pbadge.st-pending { background: var(--sun); }
+.pbadge.st-blocked { background: #ffe3e3; }
+.cab-links { display: grid; gap: 10px; }
+.prog-row { display: grid; grid-template-columns: 110px 1fr; gap: 4px 10px; align-items: center; margin: 8px 0; font-weight: 800; }
+.prog-row small { grid-column: 1 / -1; color: var(--muted); }
+.cls-row, .user-row, .stu-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 2px dashed #d9d3c2; }
+.cls-row small, .u-info small { display: block; color: var(--muted); font-weight: 700; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.inline-form input { flex: 1 1 160px; }
+.cls-list { display: grid; gap: 14px; }
+.cls-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cls-name { font-size: 20px; }
+.cls-top small { display: block; color: var(--muted); font-weight: 700; }
+.code-box { font: 800 22px "JetBrains Mono", monospace; letter-spacing: 3px; padding: 6px 14px; cursor: pointer; background: var(--yellow); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); }
+.cls-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.cls-body { margin-top: 10px; }
+.stu-row { padding: 6px 0; }
+.stu-main { flex: 1; min-width: 0; font: inherit; text-align: left; background: none; border: 0; padding: 4px 0; cursor: pointer; display: grid; gap: 4px; color: var(--ink); }
+.stu-main small { color: var(--muted); font-weight: 700; }
+.stu-stars { font-weight: 800; }
+.chips-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.mini { font-size: 12px; font-weight: 800; padding: 1px 8px; border: 2px solid #cfc9b8; border-radius: 99px; color: var(--muted); }
+.mini.has { border-color: var(--ink); color: var(--ink); background: var(--mint); }
+.detail { margin-top: 10px; }
+.detail:empty { display: none; }
+.detail { padding: 10px; border: 3px dashed var(--ink); border-radius: 14px; background: #fffdf5; }
+.detail h3 { margin: 0 0 8px; }
+.det-course { margin: 8px 0; }
+.det-pills { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.dp { font-size: 11px; font-weight: 800; padding: 2px 6px; border: 2px solid #cfc9b8; border-radius: 8px; color: var(--muted); }
+.dp.s1 { background: #fff3c4; border-color: var(--ink); color: var(--ink); }
+.dp.s2 { background: #ffe58a; border-color: var(--ink); color: var(--ink); }
+.dp.s3 { background: var(--teal); border-color: var(--ink); color: var(--ink); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; }
+.stat { display: grid; justify-items: center; padding: 10px 6px; background: #fff; border: 3px solid var(--ink); border-radius: 14px; box-shadow: 0 4px 0 var(--ink); }
+.stat .se { font-size: 22px; }
+.stat b { font-size: 24px; }
+.stat small { color: var(--muted); font-weight: 800; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.filters input { flex: 1 1 160px; }
+.u-info { min-width: 0; display: grid; gap: 1px; }
+.u-info b { overflow-wrap: anywhere; }
+.u-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.role-sel { padding: 4px 8px; font-size: 14px; border-width: 2px; border-radius: 10px; }
+.btn.danger { background: var(--coral); color: #fff; }
+@media (max-width: 520px) { .user-row, .cls-row { flex-direction: column; align-items: stretch; } .u-actions { justify-content: flex-start; } }

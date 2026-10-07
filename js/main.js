@@ -7,6 +7,7 @@
     home: $("#homeView"),
     course: $("#courseView"),
     lecture: $("#lectureView"),
+    cab: $("#cabView"),
     play: $("#playView"),
     web: $("#webView"),
   };
@@ -29,6 +30,12 @@
     if (parts.length === 0) {
       KZ.views.home(views.home);
       return show("home");
+    }
+    if (["login", "account", "teacher", "admin"].includes(parts[0])) {
+      const titles = { login: "Кіру", account: "Кабинет", teacher: "Сыныптар", admin: "Басқару" };
+      show("cab", titles[parts[0]]);
+      KZ.cabinet[parts[0]](views.cab, parts[1]);
+      return;
     }
     const course = KZ.getCourse(parts[0]);
     if (!course) {
@@ -61,6 +68,29 @@
     }
     KZ.views.course(views.course, course, parts[1]);
     show("course", course.name);
+  }
+
+  /* Аккаунт батырмасы және кіргеннен кейін беттерді жаңарту */
+  const accBtn = $("#accountBtn");
+  function paintAccount() {
+    if (!KZ.auth || !KZ.auth.enabled) {
+      accBtn.hidden = true;
+      return;
+    }
+    accBtn.hidden = false;
+    const p = KZ.auth.profile;
+    accBtn.href = p ? "#/account" : "#/login";
+    $("#accountLabel").textContent = p ? (p.full_name || p.email).split(" ")[0] : "Кіру";
+  }
+  if (KZ.auth) {
+    paintAccount();
+    KZ.auth.onChange(() => {
+      paintAccount();
+      const h = location.hash.replace(/^#\/?/, "");
+      const parts = h.split("/").filter(Boolean);
+      const staticPage = parts.length === 0 || (KZ.getCourse(parts[0]) && !["play", "lecture"].includes(parts[1]));
+      if (staticPage) route();
+    });
   }
 
   window.addEventListener("hashchange", route);
