@@ -150,6 +150,211 @@ KZ.levels = [
     },
     check: { collectAll: true, requireFor: true },
   },
+
+  /* ---------- 4. if / else ---------- */
+  {
+    id: "4.1",
+    topic: "4 · if / else: шешім қабылдау",
+    title: "Жұп па, тақ па?",
+    task:
+      `<p><b>x</b> саны берілген. Егер ол жұп болса, экранға <code>жұп</code>, әйтпесе <code>тақ</code> деп шығар. ` +
+      `x-тің мәнін өзгертіп те көр, код дұрыс жұмыс істеуі керек.</p>` +
+      `<p class='tip'><code>x % 2 == 0</code> дегені: x-ті 2-ге бөлгендегі қалдық 0 болса, сан жұп. ` +
+      `Шарт былай жазылады: <code>if шарт:</code> және <code>else:</code>. Екеуінің де ішіндегі жолдарға 4 бос орын қой.</p>`,
+    hint: `if x % 2 == 0: деп жаз, келесі жолға (4 бос орынмен) print("жұп"). Одан кейін else: және print("тақ").`,
+    starter: "x = 7\n# if / else көмегімен жұп не тақ екенін шығар\n",
+    solution: 'x = 7\nif x % 2 == 0:\n    print("жұп")\nelse:\n    print("тақ")\n',
+    par: 5,
+    robot: null,
+    check: {
+      requireIf: true,
+      fn(res) {
+        const v = res.vars.x;
+        if (!v || v.t !== "int") return "«x» қорабында бүтін сан болуы керек.";
+        const want = parseInt(v.s, 10) % 2 === 0 ? "жұп" : "тақ";
+        if (res.output.trim() !== want) {
+          return "x = " + v.s + " үшін экранда «" + want + "» шығуы керек, ал сенде: «" + res.output.trim() + "».";
+        }
+        return null;
+      },
+    },
+  },
+  {
+    id: "4.2",
+    topic: "4 · if / else: шешім қабылдау",
+    title: "Жұлдыз бар ма?",
+    task:
+      `<p>Жолда жұлдыздар шашыраңқы тұр. Жұлдыз жоқ жерде <code>zhinau()</code> қате береді! ` +
+      `Сондықтан алдымен тексер, сосын жина.</p>` +
+      `<p class='tip'><code>zhuldyz_bar()</code> — робот тұрған жерде жұлдыз болса «иә» дейді. ` +
+      `<code>if zhuldyz_bar():</code> деп жазып, ішіне <code>zhinau()</code> қой.</p>`,
+    hint: "for i in range(6): ішінде alga() жаз, сосын if zhuldyz_bar(): деп тексеріп, ішінде zhinau() жаз.",
+    starter: "# жолмен жүріп, тек жұлдыз бар жерде жина\n",
+    solution: "for i in range(6):\n    alga()\n    if zhuldyz_bar():\n        zhinau()\n",
+    par: 4,
+    robot: {
+      cols: 7, rows: 3, start: { x: 0, y: 1, d: 1 },
+      stars: [[2, 1], [3, 1], [5, 1]], strict: true,
+    },
+    check: { collectAll: true, requireIf: true },
+  },
+  {
+    id: "4.3",
+    topic: "4 · if / else: шешім қабылдау",
+    title: "Қабырғаға тіресе, бұрыл",
+    task:
+      `<p>Робот алға жүре берсін, ал қабырғаға тіреле қалса, оңға бұрылсын. Жолдың соңындағы жұлдызды жина.</p>` +
+      `<p class='tip'><code>aldy_bos()</code> — алдында бос орын болса «иә» дейді. ` +
+      `Бір жол + бір бұрылыс + бір жол неше қайталау болатынын санап тап.</p>`,
+    hint: "for i in range(9): ішінде: if aldy_bos(): alga() else: onga(). Цикл біткен соң zhinau().",
+    starter: "# қабырғаға тіресе бұрыл, соңында жұлдызды жина\n",
+    solution: "for i in range(9):\n    if aldy_bos():\n        alga()\n    else:\n        onga()\nzhinau()\n",
+    par: 6,
+    robot: { cols: 5, rows: 5, start: { x: 0, y: 0, d: 1 }, stars: [[4, 4]] },
+    check: { collectAll: true, requireIf: true, requireFor: true },
+  },
+
+  /* ---------- 5. while ---------- */
+  {
+    id: "5.1",
+    topic: "5 · while: қанша қайталарын білмесең",
+    title: "Қабырғаға дейін",
+    task:
+      `<p>Жолдың ұзындығын санамай-ақ, қабырғаға дейін жүр да, соңындағы жұлдызды жина.</p>` +
+      `<p class='tip'><code>while aldy_bos():</code> — алдында бос орын бар болғанша төмендегі жолдарды қайталай береді.</p>`,
+    hint: "while aldy_bos(): деп жаз, ішіне alga(). Цикл біткен соң zhinau().",
+    starter: "# қабырғаға дейін жүр\n",
+    solution: "while aldy_bos():\n    alga()\nzhinau()\n",
+    par: 3,
+    robot: { cols: 8, rows: 3, start: { x: 0, y: 1, d: 1 }, stars: [[7, 1]] },
+    check: { collectAll: true, requireWhile: true },
+  },
+  {
+    id: "5.2",
+    topic: "5 · while: қанша қайталарын білмесең",
+    title: "Екі қабырға",
+    task:
+      `<p>Алдымен оң қабырғаға дейін жүр, сосын бұрылып, төменгі қабырғаға дейін жүр. Бұрышта жұлдыз тұр.</p>`,
+    hint: "while aldy_bos(): alga(), сосын onga(), сосын тағы бір while цикл. Соңында zhinau().",
+    starter: "# екі жолды while-мен жүр\n",
+    solution: "while aldy_bos():\n    alga()\nonga()\nwhile aldy_bos():\n    alga()\nzhinau()\n",
+    par: 6,
+    robot: { cols: 6, rows: 6, start: { x: 0, y: 0, d: 1 }, stars: [[5, 5]] },
+    check: { collectAll: true, requireWhile: true },
+  },
+  {
+    id: "5.3",
+    topic: "5 · while: қанша қайталарын білмесең",
+    title: "Санау",
+    task:
+      `<p>1-ден 5-ке дейінгі сандарды экранға бір-бірден шығар.</p>` +
+      `<p class='tip'><code>while i &lt;= 5:</code> — шарт дұрыс болғанша қайталайды. ` +
+      `i әр айналымда 1-ге артып отыруы керек (<code>i = i + 1</code>), әйтпесе цикл ешқашан тоқтамайды! ` +
+      `Оң жақтағы «i» қорабына қара.</p>`,
+    hint: "i = 1 деп баста. while i <= 5: ішінде print(i) және i = i + 1.",
+    starter: "# 1-ден 5-ке дейін санап шық\n",
+    solution: "i = 1\nwhile i <= 5:\n    print(i)\n    i = i + 1\n",
+    par: 4,
+    robot: null,
+    check: { output: "1\n2\n3\n4\n5", requireWhile: true },
+  },
+
+  /* ---------- 6. Функциялар ---------- */
+  {
+    id: "6.1",
+    topic: "6 · Функциялар: өз командаңды жаса",
+    title: "Өз командаң",
+    task:
+      `<p>Робот екі қадам алға жүріп, жұлдыз жинайды. Осы екі команданы өз атыңмен <b>функция</b> етіп, ` +
+      `оны 3 рет шақыр.</p>` +
+      `<p class='tip'>Жасау: <code>def eki_kadam():</code> және ішіндегі жолдарға 4 бос орын. ` +
+      `Шақыру: <code>eki_kadam()</code>. Функцияны алдымен жасап, содан кейін шақыр!</p>`,
+    hint: "def eki_kadam(): ішіне alga(2) және zhinau() жаз. Төменде eki_kadam() деп 3 рет шақыр (не for-мен).",
+    starter: "# def-пен өз функцияңды жаса\n",
+    solution: "def eki_kadam():\n    alga(2)\n    zhinau()\neki_kadam()\neki_kadam()\neki_kadam()\n",
+    par: 6,
+    robot: { cols: 7, rows: 3, start: { x: 0, y: 1, d: 1 }, stars: [[2, 1], [4, 1], [6, 1]] },
+    check: { collectAll: true, requireDef: true },
+  },
+  {
+    id: "6.2",
+    topic: "6 · Функциялар: өз командаңды жаса",
+    title: "Қосу функциясы",
+    task:
+      `<p><b>qosu(a, b)</b> функциясын жаса: ол екі санды қосып, нәтижені <code>return</code> арқылы қайтарсын. ` +
+      `Сосын <code>print(qosu(3, 4))</code> және <code>print(qosu(10, 20))</code> шығар.</p>` +
+      `<p class='tip'>Функция жұмыс істеп тұрғанда оң жақта оның ішкі қораптары (a және b) пайда болады.</p>`,
+    hint: "def qosu(a, b): ішіне return a + b жаз. Содан кейін екі print жаз.",
+    starter: "# qosu функциясын жаса\n",
+    solution: "def qosu(a, b):\n    return a + b\nprint(qosu(3, 4))\nprint(qosu(10, 20))\n",
+    par: 4,
+    robot: null,
+    check: {
+      output: "7\n30",
+      requireDef: true,
+      fn(res) {
+        const used = res.frames.some(
+          (f) => (f.vars || []).some((v) => v.n === "a") && (f.vars || []).some((v) => v.n === "b")
+        );
+        return used ? null : "qosu(a, b) функциясын шақырып, a және b параметрлерін қолдан.";
+      },
+    },
+  },
+
+  /* ---------- 7. Тізімдер ---------- */
+  {
+    id: "7.1",
+    topic: "7 · Тізімдер: қатар тұрған қораптар",
+    title: "Жеміс тізімі",
+    task:
+      `<p><b>zhemister</b> тізімін жаса: ішінде <code>"алма"</code>, <code>"алмұрт"</code>, <code>"шие"</code> тұрсын. ` +
+      `Сосын <code>append</code> арқылы <code>"жүзім"</code> қос да, тізімнің ұзындығын шығар.</p>` +
+      `<p class='tip'>Тізім: <code>[1, 2, 3]</code>. Қосу: <code>zhemister.append("жүзім")</code>. ` +
+      `Ұзындық: <code>len(zhemister)</code>. Оң жақта тізім қатар тұрған қораптар болып көрінеді, әрқайсысының нөмірі бар.</p>`,
+    hint: `zhemister = ["алма", "алмұрт", "шие"], сосын zhemister.append("жүзім"), сосын print(len(zhemister)).`,
+    starter: "# жеміс тізімін жаса\n",
+    solution: 'zhemister = ["алма", "алмұрт", "шие"]\nzhemister.append("жүзім")\nprint(len(zhemister))\n',
+    par: 3,
+    robot: null,
+    check: {
+      output: "4",
+      requireList: true,
+      fn(res) {
+        const v = res.vars.zhemister;
+        if (!v) return "«zhemister» тізімі жасалмаған.";
+        if (v.t !== "list" || !v.i) return "zhemister тізім болуы керек: квадрат жақшаға [ ] ал.";
+        if (v.i.length !== 4) return "Тізімде 4 жеміс болуы керек, қазір " + v.i.length + ".";
+        return null;
+      },
+    },
+  },
+  {
+    id: "7.2",
+    topic: "7 · Тізімдер: қатар тұрған қораптар",
+    title: "Тізімнің қосындысы",
+    task:
+      `<p>Тізімдегі барлық санның қосындысын тап та, экранға шығар.</p>` +
+      `<p class='tip'><code>for x in sandar:</code> — тізімнің әр элементін бір-бірден x қорабына салып береді. ` +
+      `Қосындыны жинайтын бөлек қорап жаса (басында 0), оған әр санды қос.</p>`,
+    hint: "soma = 0 деп баста. for x in sandar: ішінде soma = soma + x. Соңында print(soma).",
+    starter: "sandar = [3, 8, 5, 2]\n# for циклімен қосындыны тап\n",
+    solution: "sandar = [3, 8, 5, 2]\nsoma = 0\nfor x in sandar:\n    soma = soma + x\nprint(soma)\n",
+    par: 5,
+    robot: null,
+    check: {
+      requireFor: true,
+      requireList: true,
+      fn(res) {
+        const v = res.vars.sandar;
+        if (!v || !v.i) return "«sandar» тізімін өшірме.";
+        const want = String(v.i.reduce((a, s) => a + parseInt(s, 10), 0));
+        if (res.output.trim() !== want) {
+          return "Қосынды " + want + " болуы керек, ал экранда: «" + res.output.trim() + "».";
+        }
+        return null;
+      },
+    },
+  },
 ];
 
 /* Жұлдыз саны: код неғұрлым қысқа болса, соғұрлым көп */
@@ -183,6 +388,18 @@ KZ.evaluate = function (level, res) {
   }
   if (c.requireFor && !res.features.has_for) {
     fails.push("Бұл тапсырмада for циклін қолдану керек.");
+  }
+  if (c.requireWhile && !res.features.has_while) {
+    fails.push("Бұл тапсырмада while циклін қолдану керек.");
+  }
+  if (c.requireIf && !res.features.has_if) {
+    fails.push("Бұл тапсырмада if шартын қолдану керек.");
+  }
+  if (c.requireDef && !res.features.has_def) {
+    fails.push("Бұл тапсырмада def арқылы функция жасау керек.");
+  }
+  if (c.requireList && !res.features.has_list) {
+    fails.push("Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ].");
   }
   if (c.fn) {
     const m = c.fn(res);

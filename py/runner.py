@@ -118,9 +118,11 @@ def run(code, cfg_json=None):
         stars = {(s[0], s[1]) for s in rc["stars"]}
         walls = {(w[0], w[1]) for w in rc.get("walls", [])}
         total = len(stars)
+        strict = bool(rc.get("strict", False))
     else:
         cols = rows = total = 0
         robot, stars, walls = None, set(), set()
+        strict = False
 
     reserved = {"alga", "onga", "solga", "onga_burul", "solga_burul", "zhinau",
                 "zhuldyz_bar", "aldy_bos", "print", "input"}
@@ -197,6 +199,10 @@ def run(code, cfg_json=None):
             robot["got"] += 1
             add_frame(cur[0], "collect",
                       "Жұлдыз жиналды! (%d/%d)" % (robot["got"], total))
+        elif strict:
+            msg = "Мұнда жұлдыз жоқ! Алдымен if zhuldyz_bar(): арқылы тексер."
+            add_frame(cur[0], "crash", msg)
+            raise RobotError(msg)
         else:
             add_frame(cur[0], "miss", "Мұнда жұлдыз жоқ.")
 
