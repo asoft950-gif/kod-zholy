@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Код Жолы: Python-ды көзбен көріп үйрен</title>
+  <meta name="description" content="Python кодын жазып, ол қалай жұмыс істейтінін робот пен қораптар арқылы көзбен көр. Қазақ тілінде, браузерде, ештеңе орнатпай.">
+  <meta name="theme-color" content="#ffd23f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🤖</span>
+      <div class="brand-text"><b>Код Жолы</b><small>Python-ды көзбен көр</small></div>
+    </div>
+    <button id="menuBtn" class="btn small" type="button">☰ Деңгейлер</button>
+    <div class="score" title="Жиналған жұлдыздар">⭐ <span id="totalStars">0</span></div>
+  </header>
+
+  <main>
+    <div class="col left">
+      <section class="card task" id="taskCard" aria-live="polite">
+        <div class="task-head">
+          <span class="badge" id="levelBadge">Деңгей 1.1</span>
+          <span class="level-stars" id="levelStars" aria-label="Осы тапсырманың жұлдыздары"></span>
+        </div>
+        <h1 id="taskTitle">Тапсырма</h1>
+        <div id="taskBody" class="task-body"></div>
+        <div id="commands" class="commands" hidden>
+          <div class="commands-title">Робот командалары (басып қоссаң, кодқа түседі):</div>
+          <div id="commandChips" class="chips"></div>
+        </div>
+        <div class="task-actions">
+          <button id="hintBtn" class="btn ghost small" type="button">💡 Кеңес</button>
+          <button id="solutionBtn" class="btn ghost small" type="button" hidden>🔑 Шешімді көру</button>
+        </div>
+        <p id="hintText" class="hint" hidden></p>
+        <pre id="solutionText" class="solution" hidden></pre>
+      </section>
+
+      <section class="card editor-card">
+        <div class="card-title">Python коды</div>
+        <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+
+        <div class="controls">
+          <button id="runBtn" class="btn primary" type="button" disabled>▶ Іске қосу</button>
+          <button id="backBtn" class="btn" type="button" title="Бір қадам артқа" disabled>⏮</button>
+          <button id="stepBtn" class="btn" type="button" title="Бір қадам алға" disabled>⏭ Қадам</button>
+          <button id="resetBtn" class="btn ghost" type="button" title="Бастапқы күйге қайту">↺</button>
+        </div>
+        <div class="timeline">
+          <label class="speed" title="Жылдамдық">
+            <span aria-hidden="true">🐢</span>
+            <input id="speed" type="range" min="1" max="4" value="2" aria-label="Жылдамдық">
+            <span aria-hidden="true">🐇</span>
+          </label>
+          <input id="scrub" type="range" min="0" max="0" value="0" disabled aria-label="Қадамдар жолағы">
+          <span id="stepCount" class="step-count">—</span>
+        </div>
+        <div id="pyStatus" class="py-status loading">Python жүктелуде… (алғашқы жолы 10–20 секунд)</div>
+      </section>
+    </div>
+
+    <div class="col right" id="stage">
+      <section class="card board-card" id="boardWrap" hidden>
+        <div class="card-title">Робот алаңы</div>
+        <div id="board" class="board"></div>
+        <div id="note" class="note" hidden></div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">Жад: қораптар</div>
+        <div id="memory" class="memory"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">Экран (print)</div>
+        <pre id="console" class="console" data-ph="Мұнда print жазғаныңның нәтижесі шығады"></pre>
+      </section>
+
+      <section id="result" class="card result" hidden></section>
+    </div>
+  </main>
+
+  <dialog id="menu" class="menu">
+    <div class="menu-head">
+      <b>Деңгейлер</b>
+      <button id="menuClose" class="btn small ghost" type="button">✕</button>
+    </div>
+    <div id="menuList"></div>
+  </dialog>
+
+  <footer>Код Жолы · Python браузеріңнің ішінде жұмыс істейді, ештеңе орнатудың қажеті жоқ.</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
