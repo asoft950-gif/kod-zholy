@@ -8,6 +8,7 @@
     course: $("#courseView"),
     lecture: $("#lectureView"),
     play: $("#playView"),
+    web: $("#webView"),
   };
 
   function show(name, title) {
@@ -19,6 +20,7 @@
 
   function route() {
     if (KZ.play) KZ.play.leave();
+    if (KZ.web) KZ.web.leave();
     const parts = decodeURIComponent(location.hash.replace(/^#\/?/, ""))
       .split("/")
       .filter(Boolean);
@@ -35,6 +37,7 @@
     }
     if (parts[1] === "play" && parts[2]) {
       if (course.engine === "python" && KZ.play.open(course.id, parts[2])) return show("play", course.name);
+      if (course.engine === "web" && KZ.web.open(course.id, parts[2])) return show("web", course.name);
       location.hash = "#/" + course.id;
       return;
     }

@@ -233,7 +233,7 @@
     if (ready) {
       info.appendChild(bar(total ? (done / total) * 100 : 0));
       info.appendChild(h("small", null, done + " / " + total + " тапсырма · ⭐ " + KZ.progress.courseStars(c.id)));
-      if (c.engine === "python") info.appendChild(A("btn small", "#/" + c.id + "/play/free", "🧪 Еркін алаң"));
+      if (c.engine === "python" || c.engine === "web") info.appendChild(A("btn small", "#/" + c.id + "/play/free", "🧪 Еркін алаң"));
     }
     head.appendChild(info);
     page.appendChild(head);
@@ -265,6 +265,15 @@
     pre.appendChild(code);
     wrap.appendChild(pre);
     if (b.note) wrap.appendChild(h("p", "try-note", b.note));
+    if (withTry && c.engine === "web") {
+      const btn = el("button", "btn small primary", "▶ Өзің көр");
+      btn.type = "button";
+      btn.addEventListener("click", () => {
+        KZ.store.setSession("kodzholy.sandbox", { code: b.code });
+        location.hash = "#/" + c.id + "/play/free";
+      });
+      wrap.appendChild(btn);
+    }
     if (withTry && c.engine === "python") {
       const btn = el("button", "btn small primary", "▶ Өзің көр");
       btn.type = "button";
@@ -305,6 +314,25 @@
         case "try":
           box.appendChild(codeBlock(c, b, true));
           break;
+        case "live": {
+          const wrap = el("div", "live");
+          const ta = el("textarea", "live-code");
+          ta.value = b.code;
+          ta.spellcheck = false;
+          ta.rows = Math.min(10, b.code.split("\n").length + 1);
+          const fr = el("iframe", "live-frame");
+          fr.setAttribute("sandbox", "");
+          const upd = () => (fr.srcdoc = KZ.buildWebDoc(b.kind || "html", ta.value, b.html, false));
+          ta.addEventListener("input", upd);
+          upd();
+          wrap.appendChild(h("div", "live-label", "✏️ Кодты өзгертіп көр, нәтиже оң жақта жаңарады"));
+          const row = el("div", "live-row");
+          row.appendChild(ta);
+          row.appendChild(fr);
+          wrap.appendChild(row);
+          box.appendChild(wrap);
+          break;
+        }
         case "tip":
         case "warn": {
           const d = el("div", "callout " + b.t);

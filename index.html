@@ -94,6 +94,57 @@
     </div>
   </main>
 
+  <main id="webView" class="view" hidden>
+    <div class="col left">
+      <section class="card task">
+        <a id="webBack" class="back" href="#/">← Тапсырмалар</a>
+        <div class="task-head">
+          <span class="badge" id="webBadge">Деңгей</span>
+          <span class="level-stars" id="webStars" aria-label="Осы тапсырманың жұлдыздары"></span>
+        </div>
+        <h1 id="webTitle">Тапсырма</h1>
+        <div id="webTaskBody" class="task-body"></div>
+        <div class="task-actions">
+          <button id="webHintBtn" class="btn ghost small" type="button">💡 Кеңес</button>
+          <button id="webSolutionBtn" class="btn ghost small" type="button" hidden>🔑 Шешімді көру</button>
+        </div>
+        <p id="webHint" class="hint" hidden></p>
+        <pre id="webSolution" class="solution" hidden></pre>
+      </section>
+
+      <section class="card editor-card" id="webHtmlCard" hidden>
+        <div class="card-title">HTML (өзгертуге болмайды)</div>
+        <textarea id="webHtmlCode" spellcheck="false"></textarea>
+      </section>
+
+      <section class="card editor-card">
+        <div class="card-title" id="webEditorTitle">HTML коды</div>
+        <textarea id="webCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        <div class="controls">
+          <button id="webCheck" class="btn primary" type="button">✔ Тексеру</button>
+          <button id="webReset" class="btn ghost" type="button" title="Бастапқы күйге қайту">↺</button>
+        </div>
+        <p class="live-note">Код өзгергенде бет бірден жаңарады.</p>
+      </section>
+    </div>
+
+    <div class="col right">
+      <section class="card">
+        <div class="card-title">Бет қалай көрінеді</div>
+        <iframe id="webPreview" class="web-preview" title="Алдын ала көру" sandbox="allow-same-origin"></iframe>
+      </section>
+      <section class="card">
+        <div class="card-title">Құрылым ағашы</div>
+        <div id="webTree" class="web-tree"></div>
+      </section>
+      <section class="card">
+        <div class="card-title">Таңдалған элемент</div>
+        <div id="webInspect" class="web-inspect"></div>
+      </section>
+      <section id="webResult" class="card result" hidden></section>
+    </div>
+  </main>
+
   <dialog id="menu" class="menu">
     <div class="menu-head">
       <b>Деңгейлер</b>
@@ -106,13 +157,21 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
   <script src="js/core.js"></script>
   <script src="js/courses/python.js"></script>
   <script src="js/courses/python-content.js"></script>
   <script src="js/courses/html.js"></script>
+  <script src="js/courses/html-content.js"></script>
   <script src="js/courses/css.js"></script>
   <script src="js/courses/javascript.js"></script>
   <script src="js/play.js"></script>
+  <script src="js/webdoc.js"></script>
+  <script src="js/web.js"></script>
   <script src="js/views.js"></script>
   <script src="js/main.js"></script>
 </body>
