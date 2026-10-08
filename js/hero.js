@@ -72,15 +72,22 @@
     { id: "pack", slot: "back", n: "Рюкзак", unlock: "start", back: true, svg: () => `<rect x="30" y="94" width="60" height="32" rx="10" fill="#e17055" ${S}/>` },
     { id: "book", slot: "back", n: "Кітап", unlock: "reader", back: true, svg: () => `<rect x="82" y="96" width="22" height="28" rx="3" fill="#74b9ff" ${S3}/><path d="M86 104h14M86 110h14" stroke="#fff" stroke-width="3"/>` },
     { id: "cape", slot: "back", n: "Батыр жапқышы", unlock: "streak7", back: true, svg: () => `<path d="M34 92L14 134h92L86 92z" fill="#e84393" ${S}/>` },
-    { id: "wings", slot: "back", n: "Қанаттар", unlock: "streak30", back: true, svg: () => `<path d="M34 100q-30-14-26-44 20 6 30 26zM86 100q30-14 26-44-20 6-30 26z" fill="#fff" ${S}/>` },
+    { id: "wings", slot: "back", n: "Қанаттар", unlock: "streak30", back: true, svg: () => `<path d="M40 100Q6 96 2 58q14 2 22 12-4-16 4-26 10 10 12 24 2-10 10-14 6 22-10 46z" fill="#dff3ff" ${S3}/><path d="M80 100q34-4 38-42-14 2-22 12 4-16-4-26-10 10-12 24-2-10-10-14-6 22 10 46z" fill="#dff3ff" ${S3}/>` },
     { id: "sparkle", slot: "back", n: "Жарқыл", unlock: "perfect10", back: true, svg: () => `<g fill="#ffd23f" stroke="${INK}" stroke-width="2"><path d="M14 40l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M106 70l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></g>` },
     /* ---- серия ауасы (серия тірі болғанда ғана көрінеді) ---- */
-    { id: "flame", slot: "aura", n: "Жалын ауасы", unlock: { streak: 3 }, back: true, svg: () => `<path d="M14 130q-10-30 8-48 0 14 8 18-2-24 14-40 2 18 14 26 8-8 4-22 22 18 20 44 0 14-8 22z" fill="#ff9f43" ${S3} opacity=".85"/>` },
+    { id: "flame", slot: "aura", n: "Жалын ауасы", unlock: { streak: 3 }, back: true, svg: () => `<g opacity=".9"><path d="M60 140q-50 0-44-40 4-22 18-34-2 16 8 22 0-26 18-46 18 20 18 46 10-6 8-22 14 12 18 34 6 40-44 40z" fill="#ff9f43" ${S3}/><path d="M60 140q-34 0-30-28 4-14 12-20 0 12 8 14 0-16 10-28 10 12 10 28 8-2 8-14 8 6 12 20 4 28-30 28z" fill="#ffd23f"/></g>` },
     { id: "bolt", slot: "aura", n: "Найзағай ауасы", unlock: { streak: 7 }, back: true, svg: () => `<g fill="#ffe66d" ${S3}><path d="M10 36l14 4-8 12 14 4-18 20 4-16-12-4z"/><path d="M104 48l12 4-6 10 12 4-16 18 3-14-10-4z"/></g>` },
     { id: "galaxy", slot: "aura", n: "Галактика ауасы", unlock: { streak: 30 }, back: true, svg: () => `<circle cx="60" cy="80" r="58" fill="rgba(108,92,231,.35)" stroke="#a29bfe" stroke-width="3" stroke-dasharray="3 7"/><g fill="#fff"><circle cx="16" cy="60" r="2.5"/><circle cx="104" cy="40" r="2.5"/><circle cx="100" cy="112" r="2"/><circle cx="20" cy="112" r="2"/></g>` },
   ];
   const BYID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
   const STARTERS_N = 4;
+  let gradN = 0;
+  /* екі HEX түсті араластыру (t: екінші түстің үлесі) */
+  function mix(a, b, t) {
+    const p = (x, i) => parseInt(x.slice(1 + i * 2, 3 + i * 2), 16);
+    const o = [0, 1, 2].map((i) => Math.round(p(a, i) * (1 - t) + p(b, i) * t));
+    return "#" + o.map((v) => v.toString(16).padStart(2, "0")).join("");
+  }
 
   /* ---------- Күй ---------- */
   const load = () => {
@@ -139,44 +146,75 @@
       s.color = c;
       save(s);
     },
-    /* SVG жолы. opts: { eq, color, size } */
+    /* SVG жолы. opts: { eq, color, preview, still } */
     svg(opts) {
       const s = opts && opts.eq ? opts : ensure();
       const c = s.color || "#ffd23f";
       const eq = s.eq || {};
+      const uid = "hg" + ++gradN;
+      const defs = {};
+      /* түс -> жоғарыдан төмен градиент (2.5D көлем) */
+      const grad = (hex) => {
+        const k = hex.slice(1);
+        if (!defs[k]) defs[k] = `<linearGradient id="${uid}${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${mix(hex, "#ffffff", 0.38)}"/><stop offset=".55" stop-color="${hex}"/><stop offset="1" stop-color="${mix(hex, "#1f1d36", 0.28)}"/></linearGradient>`;
+        return `url(#${uid}${k})`;
+      };
+      const skin = (str) => str.replace(/fill="(#[0-9a-fA-F]{6})"/g, (m, hx) => `fill="${grad(hx)}"`);
       const get = (slot) => {
         const it = BYID[eq[slot]];
         return it && it.slot === slot && (s.preview || hero.visible(it)) ? it : null;
       };
+      const draw = (it) => skin(it.svg(c));
       const auras = get("aura");
       const back = get("back");
-      const parts = [];
-      if (auras) parts.push(auras.svg(c));
-      if (back && back.back) parts.push(back.svg(c));
-      // аяқ, қол, дене
-      parts.push(`<path d="M46 126v10M74 126v10" ${S}/>`);
-      parts.push(`<path d="M38 100l-12 14M82 100l12 14" ${S}/>`);
+      const dark = mix(c, "#1f1d36", 0.3);
+      const P = [];
+      P.push(`<ellipse cx="60" cy="140" rx="34" ry="6" fill="#1f1d36" opacity=".18"/>`);
+      if (auras) P.push(`<g class="hf-aura">${draw(auras)}</g>`);
+      P.push('<g class="hf-bob">');
+      if (back && back.back) P.push(draw(back));
+      // аяқтар
+      P.push(`<ellipse cx="47" cy="130" rx="12" ry="7" fill="${dark}" ${S}/><ellipse cx="73" cy="130" rx="12" ry="7" fill="${dark}" ${S}/>`);
+      // сол қол (қозғалмайды), оң қол (бұлғайды)
+      P.push(`<path d="M40 102q-10 8-14 16" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M40 102q-10 8-14 16" fill="none" stroke="${dark}" stroke-width="6" stroke-linecap="round"/>`);
+      P.push(`<g class="hf-arm"><path d="M80 102q10 8 14 16" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M80 102q10 8 14 16" fill="none" stroke="${dark}" stroke-width="6" stroke-linecap="round"/></g>`);
+      // дене
       const outfit = get("outfit");
-      parts.push(outfit ? outfit.svg(c) : `<rect x="38" y="94" width="44" height="32" rx="10" fill="${c}" ${S}/>`);
+      P.push(outfit ? draw(outfit) : skin(`<rect x="38" y="94" width="44" height="34" rx="14" fill="${c}" ${S}/>`));
+      P.push(`<ellipse cx="50" cy="104" rx="6" ry="3.5" fill="#fff" opacity=".35"/>`);
       const neck = get("neck");
-      if (neck) parts.push(neck.svg(c));
+      if (neck) P.push(draw(neck));
       const pin = get("pin");
-      if (pin) parts.push(pin.svg(c));
-      // бас
-      parts.push(`<path d="M60 30V16" ${S}/><circle cx="60" cy="13" r="6" fill="#ff6b6b" ${S3}/>`);
-      parts.push(`<rect x="25" y="30" width="70" height="60" rx="14" fill="${c}" ${S}/>`);
-      parts.push(`<circle cx="48" cy="58" r="9" fill="#fff" ${S3}/><circle cx="72" cy="58" r="9" fill="#fff" ${S3}/><circle cx="48" cy="58" r="3" fill="${INK}"/><circle cx="72" cy="58" r="3" fill="${INK}"/>`);
-      parts.push(`<path d="M46 77q14 8 28 0" fill="none" ${S}/>`);
+      if (pin) P.push(draw(pin));
+      // бас: антенна, құлақтар, бет, экран, көз, ауыз
+      P.push(`<g class="hf-ant"><path d="M60 30V15" ${S}/><circle cx="60" cy="12" r="7" fill="#ff6b6b" ${S3}/><circle cx="57.5" cy="9.5" r="2.4" fill="#fff" opacity=".8"/></g>`);
+      P.push(`<rect x="15" y="52" width="12" height="24" rx="6" fill="${dark}" ${S3}/><rect x="93" y="52" width="12" height="24" rx="6" fill="${dark}" ${S3}/>`);
+      P.push(skin(`<rect x="25" y="30" width="70" height="62" rx="24" fill="${c}" ${S}/>`));
+      P.push(`<path d="M33 42q4-8 16-8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>`);
+      P.push(`<rect x="32" y="42" width="56" height="38" rx="17" fill="#fffdf5" ${S3}/><rect x="32" y="64" width="56" height="16" rx="12" fill="#1f1d36" opacity=".06"/>`);
+      P.push(`<g class="hf-eyes"><ellipse cx="48" cy="58" rx="7" ry="9" fill="${INK}"/><ellipse cx="72" cy="58" rx="7" ry="9" fill="${INK}"/><circle cx="50.5" cy="54" r="2.8" fill="#fff"/><circle cx="74.5" cy="54" r="2.8" fill="#fff"/><circle cx="46.5" cy="62" r="1.3" fill="#fff" opacity=".8"/><circle cx="70.5" cy="62" r="1.3" fill="#fff" opacity=".8"/></g>`);
+      P.push(`<ellipse cx="38" cy="70" rx="5" ry="3" fill="#ff8fa3" opacity=".6"/><ellipse cx="82" cy="70" rx="5" ry="3" fill="#ff8fa3" opacity=".6"/>`);
+      P.push(`<path class="hf-m1" d="M52 71q8 6 16 0" fill="none" ${S3}/><path class="hf-m2" d="M50 69h20q-1 12-10 12t-10-12z" fill="#ff6b6b" ${S3}/>`);
       const face = get("face");
-      if (face) parts.push(face.svg(c));
+      if (face) P.push(draw(face));
       const hat = get("hat");
-      if (hat) parts.push(hat.svg(c));
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -8 132 150" role="img" aria-label="Бота кейіпкері">${parts.join("")}</svg>`;
+      if (hat) P.push(draw(hat));
+      P.push("</g>");
+      const defsStr = Object.values(defs).join("");
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -8 132 156" role="img" aria-label="Бота кейіпкері"><defs>${defsStr}</defs>${P.join("")}</svg>`;
+    },
+    /* Қуану: барлық көрінетін кейіпкер секіріп, күлімдейді */
+    cheer() {
+      document.querySelectorAll(".hero-fig").forEach((f) => {
+        f.classList.add("cheer");
+        setTimeout(() => f.classList.remove("cheer"), 1100);
+      });
     },
     /* DOM элементі */
     node(cls) {
       const d = el("span", "hero-fig" + (cls ? " " + cls : ""));
       d.innerHTML = hero.svg();
+      d.addEventListener("click", () => hero.cheer());
       return d;
     },
     /* Жаңа ашылған заттарды хабарлау үшін: жетістіктен кейін қайсы зат ашылды */
@@ -273,6 +311,17 @@
     redraw();
   };
 
+  /* Тапсырма шешілгенде кейіпкер қуанады */
+  if (KZ.progress && !KZ.progress._heroWrapped) {
+    const set0 = KZ.progress.set;
+    KZ.progress.set = function (cid, lid, n) {
+      const r = set0.apply(this, arguments);
+      if (n > 0) setTimeout(() => hero.cheer(), 50);
+      return r;
+    };
+    KZ.progress._heroWrapped = true;
+  }
+
   /* Жаңа жетістік ашылғанда, онымен бірге ашылған затты да хабарлау */
   if (KZ.ach && KZ.ach.check && !KZ.ach._heroWrapped) {
     const orig = KZ.ach.check;
@@ -280,6 +329,7 @@
       const fresh = orig.call(this, silent);
       if (!silent && fresh && fresh.length) {
         const items = hero.newFor(fresh.map((a) => a.id));
+        hero.cheer();
         if (items.length) setTimeout(() => KZ.toast("🎁", "Жаңа зат: " + items.map((i) => i.n).join(", "), "Кейіпкер бетінде киіп көр"), 900);
       }
       return fresh;

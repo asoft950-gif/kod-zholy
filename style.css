@@ -1045,3 +1045,25 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 .hero-item.on { background: var(--sun); outline: 3px solid var(--violet); }
 .hero-item.locked { opacity: .65; }
 .hero-item .hi-need { font-weight: 700; color: var(--muted); font-size: 11px; }
+
+/* Кейіпкер: тірі қозғалыстар */
+.hero-fig svg .hf-bob { animation: hfBob 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.hero-fig svg .hf-eyes { animation: hfBlink 5s infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+.hero-fig svg .hf-ant { animation: hfAnt 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.hero-fig svg .hf-arm { animation: hfWave 4s ease-in-out infinite; transform-box: fill-box; transform-origin: 0% 0%; }
+.hero-fig svg .hf-aura { animation: hfAura 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.hero-fig svg .hf-m2 { display: none; }
+.hero-fig.cheer svg .hf-m1 { display: none; }
+.hero-fig.cheer svg .hf-m2 { display: inline; }
+.hero-fig.cheer svg .hf-bob { animation: hfJump .55s ease-out 2; }
+.hero-fig.cheer svg .hf-arm { animation: hfWaveFast .28s ease-in-out 4; }
+@keyframes hfBob { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-3px) scale(1.015, .985); } }
+@keyframes hfBlink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.1); } }
+@keyframes hfAnt { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes hfWave { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-40deg); } 86% { transform: rotate(-10deg); } 93% { transform: rotate(-40deg); } }
+@keyframes hfWaveFast { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-50deg); } }
+@keyframes hfJump { 0% { transform: translateY(0) scale(1.08, .9); } 40% { transform: translateY(-16px) scale(.95, 1.06); } 75% { transform: translateY(0) scale(1.06, .94); } 100% { transform: translateY(0) scale(1, 1); } }
+@keyframes hfAura { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.05); opacity: 1; } }
+.hero-bot { animation: none; }
+.hi-fig .hero-fig *, .hi-fig svg * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .hero-fig svg * { animation: none !important; } }
