@@ -937,3 +937,4 @@ html[data-theme="dark"] .st-row.new { background: #1f3a3a; }
 .gate p { margin: 0; max-width: 420px; font-weight: 700; }
 .gate-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
 .guest-note { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.copyright { margin-top: 8px; font-size: 12px; opacity: .85; letter-spacing: .2px; }
