@@ -1,0 +1,3 @@
+#!/bin/sh
+# Сайт файлы өзгерсе, service worker нұсқасын автоматты жаңарту
+node tools/stamp-sw.mjs >/dev/null && git add sw.js

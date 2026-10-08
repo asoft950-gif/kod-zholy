@@ -178,10 +178,37 @@
   if (swOk) {
     window.addEventListener("load", () => {
       try {
-        navigator.serviceWorker.register("sw.js").catch((e) => console.warn("sw:", e.message));
+        navigator.serviceWorker
+          .register("sw.js")
+          .then((reg) => {
+            /* Жаңа нұсқаны өзі тексереді: ашылғанда, 5 минут сайын және бетке қайта оралғанда */
+            const check = () => reg.update().catch(() => {});
+            setInterval(check, 5 * 60 * 1000);
+            document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && check());
+            window.addEventListener("online", check);
+          })
+          .catch((e) => console.warn("sw:", e.message));
       } catch (e) {
         console.warn("sw:", e.message); // кукиге тыйым салынған не жеке режим
       }
+    });
+  }
+  /* Жаңа нұсқа белсенді болғанда бетті өзі жаңартады. Оқушы код жазып отырса, жұмысы жоғалмасын деп
+     келесі бетке өткенде жаңартады және кішкентай хабар көрсетеді. */
+  if (swOk) {
+    let hadController = !!navigator.serviceWorker.controller;
+    let pending = false;
+    const editing = () => !!document.querySelector("#playView:not([hidden]), #webView:not([hidden]), #sqlView:not([hidden])");
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController) {
+        hadController = true; // алғашқы орнату: жаңартудың қажеті жоқ
+        return;
+      }
+      if (pending) return;
+      if (!editing()) return location.reload();
+      pending = true;
+      if (KZ.toast) KZ.toast("✨", "Сайттың жаңа нұсқасы дайын", "Келесі бетке өткенде өзі жаңарады");
+      window.addEventListener("hashchange", () => location.reload(), { once: true });
     });
   }
   let installEvent = null;
