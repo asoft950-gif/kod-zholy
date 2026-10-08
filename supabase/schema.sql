@@ -63,6 +63,30 @@ create table if not exists public.activity_days (
   primary key (user_id, day)
 );
 
+create table if not exists public.assignments (
+  id uuid primary key default gen_random_uuid(),
+  class_id uuid not null references public.classes(id) on delete cascade,
+  teacher_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  body text not null default '',
+  course text not null check (course in ('python', 'javascript')),
+  starter text not null default '',
+  hint text not null default '',
+  expected text not null default '',
+  expected_hash text not null check (expected_hash ~ '^[0-9a-f]{64}$'),
+  par int check (par is null or par between 1 and 200),
+  due date,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.assignment_done (
+  assignment_id uuid not null references public.assignments(id) on delete cascade,
+  student_id uuid not null references public.profiles(id) on delete cascade,
+  stars int not null check (stars between 1 and 3),
+  updated_at timestamptz not null default now(),
+  primary key (assignment_id, student_id)
+);
+
 -- ---------- Қауіпсіздік: кестелерге тікелей қол жеткізу жабық ----------
 -- Барлық әрекет төмендегі функциялар (RPC) арқылы жүреді, олар рөлді өзі тексереді.
 alter table public.app_config enable row level security;
@@ -72,8 +96,10 @@ alter table public.class_members enable row level security;
 alter table public.progress enable row level security;
 alter table public.lectures_read enable row level security;
 alter table public.activity_days enable row level security;
+alter table public.assignments enable row level security;
+alter table public.assignment_done enable row level security;
 revoke all on public.app_config, public.profiles, public.classes, public.class_members,
-  public.progress, public.lectures_read, public.activity_days from anon, authenticated;
+  public.progress, public.lectures_read, public.activity_days, public.assignments, public.assignment_done from anon, authenticated;
 
 -- ---------- Көмекші функциялар ----------
 -- Ағымдағы пайдаланушының белсенді рөлі (күтіп тұрған/бұғатталған болса, null)
@@ -324,6 +350,110 @@ begin
                           from public.progress where user_id = sid), '[]'::jsonb));
 end $$;
 
+-- ---------- Мұғалімнің тапсырмалары ----------
+-- Күтілетін нәтиже оқушыға берілмейді: тек оның SHA-256 хэші (оны мұғалімнің браузері есептейді).
+create or replace function public.create_assignment(
+  cid uuid, title_in text, body_in text, course_in text, starter_in text, hint_in text,
+  expected_in text, hash_in text, par_in int, due_in date) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare a public.assignments;
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  if length(trim(coalesce(title_in, ''))) < 1 or course_in not in ('python', 'javascript')
+     or coalesce(hash_in, '') !~ '^[0-9a-f]{64}$' or (par_in is not null and (par_in < 1 or par_in > 200)) then
+    raise exception 'bad_input';
+  end if;
+  insert into public.assignments (class_id, teacher_id, title, body, course, starter, hint, expected, expected_hash, par, due)
+  values (cid, auth.uid(), left(trim(title_in), 80), left(coalesce(body_in, ''), 4000), course_in,
+          left(coalesce(starter_in, ''), 4000), left(coalesce(hint_in, ''), 500), left(coalesce(expected_in, ''), 2000),
+          hash_in, par_in, due_in)
+  returning * into a;
+  return jsonb_build_object('id', a.id, 'title', a.title);
+end $$;
+
+create or replace function public.delete_assignment(aid uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare cid uuid;
+begin
+  select class_id into cid from public.assignments where id = aid;
+  if cid is null or not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  delete from public.assignments where id = aid;
+end $$;
+
+create or replace function public.class_assignments(cid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', a.id, 'title', a.title, 'course', a.course, 'due', a.due, 'created_at', a.created_at,
+      'done', (select count(*) from public.assignment_done d where d.assignment_id = a.id),
+      'total', (select count(*) from public.class_members m where m.class_id = a.class_id)) order by a.created_at desc)
+    from public.assignments a where a.class_id = cid), '[]'::jsonb);
+end $$;
+
+create or replace function public.assignment_results(aid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare cid uuid;
+begin
+  select class_id into cid from public.assignments where id = aid;
+  if cid is null or not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', p.id, 'full_name', p.full_name, 'stars', d.stars, 'at', d.updated_at) order by p.full_name)
+    from public.class_members m join public.profiles p on p.id = m.student_id
+    left join public.assignment_done d on d.assignment_id = aid and d.student_id = p.id
+    where m.class_id = cid), '[]'::jsonb);
+end $$;
+
+create or replace function public.my_assignments() returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public.require_role(array['student']);
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', a.id, 'title', a.title, 'course', a.course, 'due', a.due, 'class', c.name, 'stars', d.stars)
+      order by (d.stars is not null), a.due nulls last, a.created_at desc)
+    from public.class_members m
+    join public.classes c on c.id = m.class_id
+    join public.assignments a on a.class_id = c.id
+    left join public.assignment_done d on d.assignment_id = a.id and d.student_id = auth.uid()
+    where m.student_id = auth.uid()), '[]'::jsonb);
+end $$;
+
+create or replace function public.get_assignment(aid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare a public.assignments; r text := public.active_role(); mgr boolean; res jsonb;
+begin
+  if r is null then raise exception 'not_active'; end if;
+  select * into a from public.assignments where id = aid;
+  if a.id is null then raise exception 'no_assignment'; end if;
+  mgr := public.can_manage_class(a.class_id);
+  if not mgr and not (r = 'student' and exists (select 1 from public.class_members where class_id = a.class_id and student_id = auth.uid())) then
+    raise exception 'forbidden';
+  end if;
+  res := jsonb_build_object('id', a.id, 'title', a.title, 'body', a.body, 'course', a.course, 'starter', a.starter,
+    'hint', a.hint, 'par', a.par, 'due', a.due, 'expected_hash', a.expected_hash, 'manager', mgr,
+    'class', (select name from public.classes where id = a.class_id),
+    'stars', (select stars from public.assignment_done where assignment_id = a.id and student_id = auth.uid()));
+  if mgr then res := res || jsonb_build_object('expected', a.expected); end if;
+  return res;
+end $$;
+
+create or replace function public.submit_assignment(aid uuid, stars_in int) returns int
+language plpgsql security definer set search_path = public as $$
+declare cid uuid; s int := least(3, greatest(1, coalesce(stars_in, 1))); best int;
+begin
+  perform public.require_role(array['student']);
+  select class_id into cid from public.assignments where id = aid;
+  if cid is null or not exists (select 1 from public.class_members where class_id = cid and student_id = auth.uid()) then
+    raise exception 'forbidden';
+  end if;
+  insert into public.assignment_done (assignment_id, student_id, stars) values (aid, auth.uid(), s)
+  on conflict (assignment_id, student_id) do update
+    set stars = greatest(public.assignment_done.stars, excluded.stars),
+        updated_at = case when excluded.stars > public.assignment_done.stars then now() else public.assignment_done.updated_at end
+  returning stars into best;
+  return best;
+end $$;
+
 -- ---------- Админ жағы ----------
 create or replace function public.admin_stats() returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -398,7 +528,9 @@ begin
            where n.nspname = 'public' and p.proname in (
              'my_profile','claim_owner','update_name','sync_progress','join_class','leave_class','student_classes',
              'create_class','teacher_classes','delete_class','class_overview','remove_student','student_progress',
-             'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user')
+             'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
+             'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
+             'get_assignment','submit_assignment')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);

@@ -19,6 +19,38 @@
     window.scrollTo(0, 0);
   }
 
+  /* Мұғалім тапсырмасы: #/task/<id> */
+  async function openTask(id) {
+    const mine = location.hash;
+    show("cab", "Тапсырма");
+    views.cab.textContent = "Тапсырма жүктелуде…";
+    if (!KZ.auth || !KZ.auth.enabled) {
+      location.hash = "#/login";
+      return;
+    }
+    await KZ.auth.ready;
+    if (!KZ.auth.profile) {
+      location.hash = "#/login";
+      return;
+    }
+    try {
+      const a = await KZ.assign.get(id);
+      if (location.hash !== mine) return;
+      if (KZ.play.openAssignment(a)) {
+        show("play", a.title);
+        $("#menuBtn").hidden = true;
+      } else location.hash = "#/account";
+    } catch (e) {
+      if (location.hash !== mine) return;
+      views.cab.textContent = "";
+      const box = KZ.h("div", "page narrow", KZ.h("section", "card notice bad", KZ.h("h2", null, "🙈 Тапсырма ашылмады"), KZ.h("p", null, e.message)));
+      const back = KZ.h("a", "back", "← Кабинет");
+      back.href = "#/account";
+      box.prepend(back);
+      views.cab.appendChild(box);
+    }
+  }
+
   function route() {
     if (KZ.play) KZ.play.leave();
     if (KZ.web) KZ.web.leave();
@@ -30,6 +62,10 @@
     if (parts.length === 0) {
       KZ.views.home(views.home);
       return show("home");
+    }
+    if (parts[0] === "task" && parts[1]) {
+      openTask(parts[1]);
+      return;
     }
     if (parts[0] === "achievements") {
       KZ.achievementsPage(views.cab);

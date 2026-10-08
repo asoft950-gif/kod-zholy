@@ -26,6 +26,7 @@
   let activeLine = null;
   let activeCls = null;
   let board = null;
+  const onceFns = {};
 
   /* ---------- Элементтер ---------- */
   const runBtn = $("#runBtn");
@@ -381,8 +382,46 @@
     return null;
   }
 
+  /* Мұғалім тапсырмасы: нәтиженің хэшін күтілген хэшпен салыстыру */
+  async function evalAssign(r, a) {
+    try {
+      const hash = await KZ.assign.hash(r.output);
+      if (hash !== a.expected_hash) {
+        return { ok: false, reason: "Экранға шыққан нәтиже күтілгенге сәйкес емес. Тапсырма шартын қайта оқып, кодты тексер." };
+      }
+      return { ok: true, stars: KZ.starsFor({ par: a.par || 999 }, r.lines) };
+    } catch (e) {
+      return { ok: false, reason: e.message };
+    }
+  }
+
   function onEnd() {
     if (run.evaluated === null) {
+      if (level.assign && !run.error) {
+        const r = run;
+        const lv = level;
+        r.evaluated = { pending: true };
+        evalAssign(r, lv.assign).then((ev) => {
+          if (run !== r) return;
+          r.evaluated = ev;
+          if (ev.ok) {
+            if (!lv.assign.manager) {
+              KZ.assign
+                .submit(lv.assign.id, ev.stars)
+                .then((best) => {
+                  lv.assign.stars = best;
+                  if (level === lv) refreshLevelStars();
+                })
+                .catch((e) => KZ.toast("⚠️", "Нәтиже жіберілмеді", e.message));
+              if (KZ.activity) KZ.activity.onLevel("assign", lv.assign.id, ev.stars, null);
+            }
+          } else {
+            attempts++;
+          }
+          renderEnd();
+        });
+        return;
+      }
       if (run.error) run.evaluated = { ok: false, error: true };
       else if (level.sandbox) run.evaluated = { ok: true, sandbox: true };
       else run.evaluated = KZ.evaluate(level, run);
@@ -393,9 +432,14 @@
         refreshLevelStars();
       } else if (!run.evaluated.ok) {
         attempts++;
-        if (attempts >= 3 && !level.sandbox) $("#solutionBtn").hidden = false;
+        if (attempts >= 3 && !level.sandbox && !level.assign) $("#solutionBtn").hidden = false;
       }
     }
+    renderEnd();
+  }
+
+  function renderEnd() {
+    if (run.evaluated && run.evaluated.pending) return;
     const ev = run.evaluated;
 
     if (run.error) {
@@ -427,8 +471,15 @@
           )
         );
         const row = el("div", "row");
-        const next = nextHref();
-        if (next) {
+        if (level.assign && level.assign.manager) {
+          box.appendChild(el("small", null, "Мұғалім ретінде тексеріп жатырсың: нәтиже сақталмайды."));
+        }
+        const next = level.assign ? null : nextHref();
+        if (level.assign) {
+          const a = el("a", "btn primary", level.assign.manager ? "← Сыныптарға оралу" : "← Менің тапсырмаларым");
+          a.href = level.assign.manager ? "#/teacher" : "#/account";
+          row.appendChild(a);
+        } else if (next) {
           const a = el("a", "btn primary", "Келесі тапсырма →");
           a.href = next;
           row.appendChild(a);
@@ -451,7 +502,7 @@
 
   /* ---------- Деңгей ---------- */
   function refreshLevelStars() {
-    const n = level.sandbox ? 0 : KZ.progress.stars(course.id, level.id);
+    const n = level.sandbox ? 0 : level.assign ? level.assign.stars || 0 : KZ.progress.stars(course.id, level.id);
     $("#levelStars").textContent = level.sandbox ? "" : "⭐".repeat(n) + "☆".repeat(3 - n);
   }
 
@@ -483,6 +534,8 @@
     attempts = 0;
     $("#levelBadge").textContent = level.sandbox
       ? "Еркін алаң"
+      : level.assign
+      ? "Мұғалім тапсырмасы"
       : listKind === "bonus"
       ? "Қосымша " + level.id
       : "Деңгей " + level.id;
@@ -498,13 +551,18 @@
     $("#taskBody").innerHTML = level.task;
     $("#hintText").hidden = true;
     $("#hintText").textContent = level.hint;
-    $("#hintBtn").hidden = !!level.sandbox;
+    $("#hintBtn").hidden = !!level.sandbox || !!(level.assign && !level.assign.hint);
     $("#solutionText").hidden = true;
     $("#solutionText").textContent = level.solution;
     $("#solutionBtn").hidden = true;
     const back = $("#backLink");
-    back.href = "#/" + course.id + "/" + listKind;
-    back.textContent = listKind === "bonus" ? "← Қосымша тапсырмалар" : "← " + course.name + ": тапсырмалар";
+    if (level.assign) {
+      back.href = level.assign.manager ? "#/teacher" : "#/account";
+      back.textContent = level.assign.manager ? "← Сыныптарым" : "← Менің тапсырмаларым";
+    } else {
+      back.href = "#/" + course.id + "/" + listKind;
+      back.textContent = listKind === "bonus" ? "← Қосымша тапсырмалар" : "← " + course.name + ": тапсырмалар";
+    }
 
     const cmds = $("#commands");
     cmds.hidden = !level.robot;
@@ -625,6 +683,39 @@
       ensurePython();
       setTimeout(() => editor.refresh(), 0);
       return true;
+    },
+    /* Мұғалім тапсырмасын ашу (KZ.assign.get нәтижесі) */
+    openAssignment(a) {
+      stop();
+      const c = KZ.getCourse(a.course);
+      if (!c) return false;
+      course = c;
+      engine = c.engine === "js" ? "js" : "python";
+      listKind = "assign";
+      list = [];
+      level = {
+        id: "t-" + a.id,
+        assign: a,
+        title: a.title,
+        task: KZ.assign.bodyHtml(a),
+        hint: a.hint || "",
+        starter: a.starter || "",
+        solution: "",
+        par: a.par || 999,
+        check: {},
+      };
+      loadLevel();
+      ensurePython();
+      setTimeout(() => editor.refresh(), 0);
+      return true;
+    },
+    /* Кодты бір рет орындап, экран нәтижесін қайтару (мұғалім шешімін тексеруі үшін) */
+    async runOnce(eng, code) {
+      const key = eng === "js" ? "js" : "python";
+      if (!onceFns[key]) onceFns[key] = await (key === "js" ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      const raw = onceFns[key](code, JSON.stringify({}));
+      const res = typeof raw === "string" ? JSON.parse(raw) : raw;
+      return { output: res.output || "", lines: res.lines || 0, error: res.error || null };
     },
     leave() {
       stop();

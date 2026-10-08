@@ -266,13 +266,42 @@
       });
       page.appendChild(prog);
 
-      if (p.role === "student") await studentClasses(page, root);
+      if (p.role === "student") {
+        await studentTasks(page);
+        await studentClasses(page, root);
+      }
     }
 
     page.appendChild(btn("btn ghost", "Аккаунттан шығу", async () => {
       await A.signOut();
       location.hash = "#/";
     }));
+  }
+
+  /* Мұғалім берген тапсырмалар */
+  async function studentTasks(page) {
+    let list = [];
+    try {
+      list = await A.rpc("my_assignments");
+    } catch (e) {
+      return;
+    }
+    if (!list.length) return;
+    const card = el("section", "card");
+    card.appendChild(h("div", "card-title", "📝 Мұғалім тапсырмалары"));
+    list.forEach((a) => {
+      const late = !a.stars && KZ.assign.overdue(a.due);
+      card.appendChild(
+        link(
+          "row-link" + (a.stars ? " done" : ""),
+          "#/task/" + a.id,
+          h("span", "rl-title", a.title),
+          h("span", "rl-meta", a.class + (a.due ? " · " + a.due : "") + (late ? " · мерзімі өтті" : "")),
+          h("span", "rl-check", a.stars ? "⭐".repeat(a.stars) : "›")
+        )
+      );
+    });
+    page.appendChild(card);
   }
 
   async function studentClasses(page, root) {
@@ -355,6 +384,183 @@
     }
   }
 
+  /* ---------- Мұғалім тапсырмалары ---------- */
+  const lbl = (text, input) => h("label", "field", h("span", null, text), input);
+  const area = (rows, ph, mono) => {
+    const t = el("textarea", mono ? "mono" : "");
+    t.rows = rows;
+    if (ph) t.placeholder = ph;
+    t.spellcheck = false;
+    return t;
+  };
+
+  function assignmentForm(c, onSaved) {
+    const f = el("form", "asg-form");
+    const title = el("input");
+    title.maxLength = 80;
+    title.required = true;
+    title.placeholder = "Мысалы: Екі санды қос";
+    const lang = el("select");
+    [["python", "Python"], ["javascript", "JavaScript"]].forEach(([v, l]) => {
+      const o = el("option", null, l);
+      o.value = v;
+      lang.appendChild(o);
+    });
+    const body = area(4, "Тапсырма шарты: оқушы не істеуі керек, экранға не шығуы керек…");
+    body.maxLength = 4000;
+    const starter = area(3, "Бастапқы код (міндетті емес)", true);
+    const solution = area(4, "Өз шешімің: іске қосқанда күтілетін нәтиже мен жол саны автоматты табылады", true);
+    const run = btn("btn small", "▶ Шешімді іске қосу");
+    const expected = area(2, "Күтілетін нәтиже: оқушы кодының экранға шығарғаны дәл осындай болуы керек", true);
+    expected.required = true;
+    const par = el("input");
+    par.type = "number";
+    par.min = "1";
+    par.max = "200";
+    par.placeholder = "жол саны";
+    const hint = el("input");
+    hint.maxLength = 500;
+    hint.placeholder = "Кеңес (міндетті емес)";
+    const due = el("input");
+    due.type = "date";
+    const msg = el("p", "form-msg");
+    msg.hidden = true;
+    const say = (t, bad) => {
+      msg.hidden = !t;
+      msg.textContent = t || "";
+      msg.className = "form-msg" + (bad ? " bad" : " good");
+    };
+
+    run.addEventListener("click", async () => {
+      if (!solution.value.trim()) return say("Алдымен шешім кодын жаз.", true);
+      run.disabled = true;
+      say("Іске қосылып жатыр…");
+      try {
+        const r = await KZ.play.runOnce(lang.value === "javascript" ? "js" : "python", solution.value);
+        if (r.error) say("Шешімде қате бар: " + (r.error.msg || "белгісіз қате"), true);
+        else {
+          expected.value = KZ.assign.normalize(r.output);
+          par.value = String(Math.max(1, Math.min(200, r.lines || 1)));
+          say(expected.value ? "Дайын: нәтиже мен жол саны толтырылды. Қаласаң, өзгерт." : "Шешім экранға ештеңе шығармады. Тапсырма үшін нәтиже керек.", !expected.value);
+        }
+      } catch (e) {
+        say("Іске қосу сәтсіз: " + e.message, true);
+      }
+      run.disabled = false;
+    });
+
+    const go = el("button", "btn primary", "Жариялау");
+    go.type = "submit";
+    f.append(
+      lbl("Тақырыбы", title),
+      lbl("Тілі", lang),
+      lbl("Тапсырма шарты", body),
+      lbl("Бастапқы код", starter),
+      lbl("Шешім (сақталмайды, тек нәтижені есептеу үшін)", solution),
+      run,
+      lbl("Күтілетін нәтиже", expected),
+      h("div", "field-row", lbl("Үздік шешім: ең көбі неше жол", par), lbl("Тапсыру мерзімі", due)),
+      lbl("Кеңес", hint),
+      go,
+      msg
+    );
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      go.disabled = true;
+      try {
+        const exp = KZ.assign.normalize(expected.value);
+        if (!exp) throw new Error("Күтілетін нәтиже бос болмауы керек.");
+        const hash = await KZ.assign.hash(exp);
+        await A.rpc("create_assignment", {
+          cid: c.id,
+          title_in: title.value,
+          body_in: body.value,
+          course_in: lang.value,
+          starter_in: starter.value,
+          hint_in: hint.value,
+          expected_in: exp,
+          hash_in: hash,
+          par_in: par.value ? Number(par.value) : null,
+          due_in: due.value || null,
+        });
+        f.reset();
+        say("");
+        await onSaved();
+      } catch (err) {
+        say(err.message, true);
+      }
+      go.disabled = false;
+    });
+    return f;
+  }
+
+  function assignmentRow(a, reload) {
+    const row = el("div", "asg-row");
+    const late = KZ.assign.overdue(a.due);
+    const info = h(
+      "div",
+      "asg-info",
+      h("b", null, a.title),
+      h("small", null, (KZ.assign.LANG[a.course] || a.course) + (a.due ? " · мерзімі " + a.due + (late ? " (өтті)" : "") : "") + " · ✅ " + a.done + "/" + a.total)
+    );
+    const detail = el("div", "asg-detail");
+    detail.hidden = true;
+    let loaded = false;
+    const res = btn("btn small", "Нәтижелер", async () => {
+      detail.hidden = !detail.hidden;
+      if (detail.hidden || loaded) return;
+      loaded = true;
+      detail.textContent = "Жүктелуде…";
+      try {
+        const list = await A.rpc("assignment_results", { aid: a.id });
+        detail.textContent = "";
+        if (!list.length) detail.appendChild(h("p", "empty-note", "Сыныпта оқушы жоқ."));
+        list.forEach((s) =>
+          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : "әлі жоқ")))
+        );
+      } catch (e) {
+        detail.textContent = "";
+        failWith(detail, e);
+      }
+    });
+    const actions = el("div", "u-actions");
+    actions.append(
+      link("btn small ghost", "#/task/" + a.id, "👁 Көру"),
+      res,
+      confirmBtn("btn small ghost", "🗑", "Өшіру?", async () => {
+        await A.rpc("delete_assignment", { aid: a.id });
+        await reload();
+      })
+    );
+    row.append(h("div", "asg-top", info, actions), detail);
+    return row;
+  }
+
+  function assignmentsPanel(c) {
+    const wrap = el("div", "asg");
+    const list = el("div", "asg-list");
+    let form;
+    async function reload() {
+      list.textContent = "Жүктелуде…";
+      try {
+        const items = await A.rpc("class_assignments", { cid: c.id });
+        list.textContent = "";
+        if (!items.length) list.appendChild(h("p", "empty-note", "Әзірге тапсырма жоқ."));
+        items.forEach((a) => list.appendChild(assignmentRow(a, reload)));
+      } catch (e) {
+        list.textContent = "";
+        failWith(list, e);
+      }
+      if (form) form.hidden = true;
+    }
+    form = assignmentForm(c, reload);
+    form.hidden = true;
+    const add = btn("btn small primary", "＋ Жаңа тапсырма", () => (form.hidden = !form.hidden));
+    wrap.append(h("div", "asg-head", h("b", null, "📝 Тапсырмалар"), add), form, list);
+    reload();
+    return wrap;
+  }
+
   async function classCard(root, c) {
     const card = el("section", "card cls-card");
     const top = el("div", "cls-top");
@@ -411,7 +617,7 @@
       await A.rpc("delete_class", { cid: c.id });
       teacher(root);
     }));
-    card.append(actions, body);
+    card.append(actions, body, assignmentsPanel(c));
     return card;
   }
 

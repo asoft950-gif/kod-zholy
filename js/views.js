@@ -74,6 +74,11 @@
     );
 
     page.appendChild(KZ.dailyCard());
+    if (KZ.assignNotice) {
+      const slot = el("div", "slot"); // мұғалім тапсырмалары кейін жүктелгенде осы жерге түседі
+      page.appendChild(slot);
+      KZ.assignNotice(slot);
+    }
 
     page.appendChild(h("h2", "section-title", "Курстар"));
     const grid = el("div", "course-grid");

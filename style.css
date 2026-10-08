@@ -673,3 +673,27 @@ a.score.streak:not(.hot) { opacity: 0.85; }
 .badge-card:not(.on) .bc-e { filter: grayscale(1); }
 .bc-date { font-size: 11px; }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* ---------- Мұғалім тапсырмалары ---------- */
+.slot { display: contents; }
+.assign-note { display: flex; gap: 14px; align-items: center; background: #ffe9e6; flex-wrap: wrap; }
+.an-e { font-size: 34px; line-height: 1; }
+.an-t { flex: 1 1 200px; display: grid; }
+.an-t small { color: var(--muted); font-weight: 700; }
+
+.asg { margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--ink); display: grid; gap: 10px; }
+.asg-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.asg-list { display: grid; gap: 8px; }
+.asg-row { border: 2px solid var(--ink); border-radius: 12px; padding: 8px 10px; background: #fff; display: grid; gap: 8px; }
+.asg-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.asg-info { display: grid; min-width: 0; }
+.asg-info small { color: var(--muted); font-weight: 700; }
+.asg-detail { display: grid; gap: 4px; }
+.asg-res { display: flex; justify-content: space-between; padding: 4px 8px; border-radius: 8px; background: #f1ede2; font-weight: 700; }
+.asg-res.ok { background: var(--mint); }
+.asg-form { display: grid; gap: 10px; padding: 12px; border: 3px solid var(--ink); border-radius: 14px; background: var(--sun); }
+.asg-form textarea, .asg-form select, .asg-form input { width: 100%; font: inherit; border: 3px solid var(--ink); border-radius: 10px; padding: 6px 10px; background: #fff; }
+.asg-form textarea.mono { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 14px; }
+.asg-form .btn { justify-self: start; }
+.field-row { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
