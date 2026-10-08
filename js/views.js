@@ -195,19 +195,19 @@
 
   function bonusTab(c, box) {
     if (!c.bonus.length) return box.appendChild(h("p", "empty-note", "Қосымша тапсырмалар әзірге жоқ."));
-    const card = el("section", "card topic");
-    card.appendChild(
-      h(
-        "div",
-        "topic-head",
-        h("span", "topic-emoji", "🏆"),
-        h("div", "topic-info", h("b", null, "Қосымша тапсырмалар"), h("small", null, "Күрделірек, ойланып шешетін тапсырмалар"))
-      )
-    );
-    const row = el("div", "pills");
-    c.bonus.forEach((l) => row.appendChild(pill(c, l)));
-    card.appendChild(row);
-    box.appendChild(card);
+    const groups = [
+      ["🏆", "Қосымша тапсырмалар", "Күрделірек, ойланып шешетін тапсырмалар", c.bonus.filter((l) => !l.debug)],
+      ["🐞", "Қате тап", "Кодта қате бар: тауып түзет. Нағыз бағдарламашы осылай үйренеді", c.bonus.filter((l) => l.debug)],
+    ];
+    groups.forEach(([emoji, title, sub, list]) => {
+      if (!list.length) return;
+      const card = el("section", "card topic");
+      card.appendChild(h("div", "topic-head", h("span", "topic-emoji", emoji), h("div", "topic-info", h("b", null, title), h("small", null, sub))));
+      const row = el("div", "pills");
+      list.forEach((l) => row.appendChild(pill(c, l)));
+      card.appendChild(row);
+      box.appendChild(card);
+    });
   }
 
   function referenceTab(c, box) {

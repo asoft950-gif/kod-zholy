@@ -579,6 +579,8 @@
       ? "Еркін алаң"
       : level.assign
       ? "Мұғалім тапсырмасы"
+      : level.debug
+      ? "🐞 Қате тап " + level.id
       : listKind === "bonus"
       ? "Қосымша " + level.id
       : "Деңгей " + level.id;
@@ -666,9 +668,15 @@
       box.appendChild(el("h3", null, t.emoji + " " + t.id + " · " + t.title));
       items.forEach((l) => addLevel(l, "tasks"));
     });
-    if ((course.bonus || []).length) {
+    const plain = (course.bonus || []).filter((l) => !l.debug);
+    const dbg = (course.bonus || []).filter((l) => l.debug);
+    if (plain.length) {
       box.appendChild(el("h3", null, "🏆 Қосымша"));
-      course.bonus.forEach((l) => addLevel(l, "bonus"));
+      plain.forEach((l) => addLevel(l, "bonus"));
+    }
+    if (dbg.length) {
+      box.appendChild(el("h3", null, "🐞 Қате тап"));
+      dbg.forEach((l) => addLevel(l, "bonus"));
     }
   }
 

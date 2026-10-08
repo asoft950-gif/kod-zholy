@@ -388,7 +388,7 @@
     hlLine = null;
     checkedOnce = false;
     const isCss = level.kind === "css";
-    $("#webBadge").textContent = level.sandbox ? "Еркін алаң" : listKind === "bonus" ? "Қосымша " + level.id : "Деңгей " + level.id;
+    $("#webBadge").textContent = level.sandbox ? "Еркін алаң" : level.debug ? "🐞 Қате тап " + level.id : listKind === "bonus" ? "Қосымша " + level.id : "Деңгей " + level.id;
     $("#webTitle").textContent = level.title;
     $("#webTaskBody").innerHTML = level.task;
     $("#webHint").hidden = true;

@@ -189,7 +189,7 @@
 
   /* ---------- Жетістіктер ---------- */
   function stats() {
-    const st = { levels: 0, perfect: 0, bonus: 0, courses: 0, read: 0, complete: {} };
+    const st = { levels: 0, perfect: 0, bonus: 0, bugs: 0, courses: 0, read: 0, complete: {} };
     KZ.courses.forEach((c) => {
       if (c.status !== "ready") return;
       let any = false;
@@ -207,6 +207,7 @@
         if (s > 0) {
           st.levels++;
           st.bonus++;
+          if (l.debug) st.bugs++;
           any = true;
         }
         if (s === 3) st.perfect++;
@@ -227,6 +228,8 @@
       { id: "perfect10", e: "💎", t: "Мінсіз он", d: "10 тапсырманы 3 жұлдызбен өт", ok: (s) => s.perfect >= 10 },
       { id: "perfect30", e: "👑", t: "Қысқа код шебері", d: "30 тапсырманы 3 жұлдызбен өт", ok: (s) => s.perfect >= 30 },
       { id: "bonus1", e: "🏆", t: "Қосымша жеңіс", d: "Қосымша тапсырманы шеш", ok: (s) => s.bonus >= 1 },
+      { id: "bug1", e: "🐞", t: "Қате аулаушы", d: "«Қате тап» тапсырмасын шеш", ok: (s) => s.bugs >= 1 },
+      { id: "bug10", e: "🕵️", t: "Бас детектив", d: "10 қате тауып түзет", ok: (s) => s.bugs >= 10 },
       { id: "poly", e: "🌍", t: "Көп тілді", d: "3 түрлі курстан тапсырма шеш", ok: (s) => s.courses >= 3 },
       { id: "reader", e: "📖", t: "Оқымысты", d: "10 лекцияны оқыдым деп белгіле", ok: (s) => s.read >= 10 },
       { id: "streak3", e: "🔥", t: "3 күн қатарынан", d: "3 күн қатарынан тапсырма шеш", ok: () => act.best() >= 3 },
