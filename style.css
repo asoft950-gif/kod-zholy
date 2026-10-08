@@ -984,3 +984,8 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 .rating-stars { white-space: nowrap; }
 .rating-switch { display: flex; align-items: center; gap: 6px; font-weight: 800; margin-bottom: 4px; }
 .rating-switch input { width: 20px; height: 20px; }
+
+/* Офлайн жүктеу */
+.off-box { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; max-width: 100%; }
+.off-box small { color: var(--muted); font-weight: 700; line-height: 1.35; }
+.set-row.off-row { align-items: flex-start; }

@@ -111,7 +111,7 @@
     } catch (e) {
       console.error(e);
       pyState = "error";
-      setStatus("error", name + " жүктелмеді. Интернетті тексеріп, бетті қайта аш.");
+      setStatus("error", name + " жүктелмеді. Интернетті тексеріп, бетті қайта аш. (Алдын ала жүктеу: ⚙ Баптаулар → Офлайн.)");
     }
     updateButtons();
   }
