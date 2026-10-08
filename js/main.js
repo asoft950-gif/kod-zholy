@@ -67,6 +67,10 @@
       openTask(parts[1]);
       return;
     }
+    if (parts[0] === "certificate" && parts[1]) {
+      KZ.certPage(views.cab, parts[1]);
+      return show("cab", "Сертификат");
+    }
     if (parts[0] === "algo") {
       KZ.algoPage(views.cab, parts[1]);
       return show("cab", "Алгоритм көрінісі");

@@ -8,7 +8,7 @@ const SHELL = [
   "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
   "assets/icon-192.png", "assets/icon-512.png", "assets/apple-touch-icon.png",
   "js/core.js", "js/main.js", "js/views.js", "js/play.js", "js/jsrunner.js", "js/web.js", "js/webdoc.js",
-  "js/streak.js", "js/algo.js", "js/settings.js", "js/config.js", "js/auth.js", "js/assign.js", "js/cabinet.js",
+  "js/streak.js", "js/algo.js", "js/cert.js", "js/settings.js", "js/config.js", "js/auth.js", "js/assign.js", "js/cabinet.js",
   "js/courses/python.js", "js/courses/python-content.js", "js/courses/html.js", "js/courses/html-content.js",
   "js/courses/css.js", "js/courses/css-content.js", "js/courses/debug-content.js", "js/courses/javascript.js", "js/courses/javascript-content.js",
 ];

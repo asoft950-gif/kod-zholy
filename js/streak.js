@@ -360,6 +360,7 @@
       );
     });
     page.appendChild(grid);
+    if (KZ.certSection) page.appendChild(KZ.certSection());
     root.appendChild(page);
   };
 

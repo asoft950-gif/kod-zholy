@@ -272,6 +272,8 @@
     }
     head.appendChild(info);
     page.appendChild(head);
+    const banner = ready && KZ.certBanner ? KZ.certBanner(c) : null;
+    if (banner) page.appendChild(banner);
 
     if (!ready) {
       roadmap(c, page);
