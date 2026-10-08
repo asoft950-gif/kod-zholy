@@ -1,4 +1,4 @@
-/* Ботакод: HTML/CSS үшін алдын ала көру құжатын құру */
+/* Bitlings: HTML/CSS үшін алдын ала көру құжатын құру */
 globalThis.KZ = globalThis.KZ || {};
 
 KZ.WEB_BASE =

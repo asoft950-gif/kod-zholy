@@ -1,4 +1,4 @@
-/* Ботакод: бет аралық өту (hash-роутер) */
+/* Bitlings: бет аралық өту (hash-роутер) */
 (() => {
   "use strict";
 
@@ -16,7 +16,7 @@
   function show(name, title) {
     Object.keys(views).forEach((k) => (views[k].hidden = k !== name));
     $("#menuBtn").hidden = name !== "play";
-    document.title = (title ? title + " · " : "") + "Ботакод";
+    document.title = (title ? title + " · " : "") + "Bitlings";
     window.scrollTo(0, 0);
   }
 
@@ -76,7 +76,7 @@
       if (!KZ.auth.settled) {
         views.cab.textContent = "Жүктелуде…";
         KZ.auth.ready.then(route);
-        return show("cab", "Ботакод");
+        return show("cab", "Bitlings");
       }
       KZ.cabinet.gate(views.cab, location.hash);
       gated = true;

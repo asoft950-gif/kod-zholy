@@ -1,4 +1,4 @@
-/* Ботакод: кабинеттер (кіру/тіркелу, оқушы, мұғалім, админ) */
+/* Bitlings: кабинеттер (кіру/тіркелу, оқушы, мұғалім, админ) */
 (() => {
   "use strict";
 
@@ -85,7 +85,7 @@
       h("section", "card gate",
         h("div", "gate-emoji", "🔒"),
         h("h1", null, "Алдымен кіру керек"),
-        h("p", null, "Лекция оқу, тапсырма орындау және жетістік жинау үшін Ботакодқа тіркел не өз аккаунтыңа кір. Прогресің сақталады, кез келген құрылғыдан жалғастыра аласың."),
+        h("p", null, "Лекция оқу, тапсырма орындау және жетістік жинау үшін Bitlings-ке тіркел не өз аккаунтыңа кір. Прогресің сақталады, кез келген құрылғыдан жалғастыра аласың."),
         h("div", "gate-btns", link("btn primary big", "#/login/register", "✨ Тіркелу"), link("btn big", "#/login", "🔑 Кіру")))
     );
   }
@@ -103,7 +103,7 @@
       location.hash = "#/account";
       return;
     }
-    const page = shell(root, "Ботакодқа кіру", ["#/", "← Басты бет"]);
+    const page = shell(root, "Bitlings-ке кіру", ["#/", "← Басты бет"]);
     const card = el("section", "card auth");
     const tabs = el("nav", "tabs");
     const body = el("div", "auth-body");
@@ -921,7 +921,7 @@
     });
     bar.append(printBtn, closeBtn);
     const sheet = el("div", "report-sheet");
-    sheet.appendChild(h("h2", null, "Ботакод · апталық есеп"));
+    sheet.appendChild(h("h2", null, "Bitlings · апталық есеп"));
     sheet.appendChild(h("p", "report-sub", cls.name + " · " + fmt(from) + " – " + fmt(now) + " " + now.getFullYear()));
     const sum = el("div", "report-sum");
     [[r.n, "оқушы"], [r.active7 + "/" + r.n, "осы аптада кірген"], [r.weekLevels, "аптада өтілген тапсырма"], [r.weekStars, "аптада алынған ⭐"], [r.totalStars, "жалпы ⭐"]].forEach(([v, l]) =>
@@ -953,7 +953,7 @@
       );
       sheet.appendChild(ul);
     }
-    sheet.appendChild(h("small", "report-foot", "Ботакод by AbySoft · botakod.vercel.app"));
+    sheet.appendChild(h("small", "report-foot", "Bitlings by AbySoft · botakod.vercel.app"));
     dlg.append(bar, sheet);
     document.body.appendChild(dlg);
     if (dlg.showModal) dlg.showModal();

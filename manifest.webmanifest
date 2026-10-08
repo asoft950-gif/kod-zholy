@@ -1,6 +1,6 @@
 {
-  "name": "Ботакод: кодты көзбен көр",
-  "short_name": "Ботакод",
+  "name": "Bitlings: кодты көзбен көр",
+  "short_name": "Bitlings",
   "description": "Python, HTML, CSS, JavaScript: кодты жазып, ол қалай жұмыс істейтінін көзбен көр.",
   "lang": "kk",
   "start_url": "./",

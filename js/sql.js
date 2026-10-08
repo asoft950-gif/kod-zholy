@@ -1,4 +1,4 @@
-/* Ботакод: SQL жұмыс алаңы (sql.js: SQLite браузер ішінде) */
+/* Bitlings: SQL жұмыс алаңы (sql.js: SQLite браузер ішінде) */
 (() => {
   "use strict";
 

@@ -1,4 +1,4 @@
-/* Ботакод: курсты бітіргенде сертификат (сурет ретінде жүктеп алуға / басып шығаруға болады) */
+/* Bitlings: курсты бітіргенде сертификат (сурет ретінде жүктеп алуға / басып шығаруға болады) */
 (() => {
   "use strict";
 
@@ -27,7 +27,8 @@
 
   function robotImage() {
     return new Promise((resolve) => {
-      const svg = KZ.ROBOT_SVG.indexOf("xmlns") > -1 ? KZ.ROBOT_SVG : KZ.ROBOT_SVG.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+      const src = KZ.hero ? KZ.hero.svg(Object.assign({}, KZ.hero.state(), { still: true })) : KZ.ROBOT_SVG;
+      const svg = src.indexOf("xmlns") > -1 ? src : src.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = () => resolve(null);
@@ -77,7 +78,7 @@
     ctx.textAlign = "left";
     ctx.fillStyle = INK;
     ctx.font = "800 64px " + FAM;
-    ctx.fillText("Ботакод", 262, 170);
+    ctx.fillText("Bitlings", 262, 170);
     ctx.font = "700 28px " + FAM;
     ctx.fillText("Кодты көзбен көріп үйрен", 264, 208);
 
@@ -112,7 +113,7 @@
     ctx.textAlign = "right";
     ctx.fillText("№ " + codeOf(name + "|" + c.id + "|" + dateStr(date)), W - 150, H - 150);
     ctx.textAlign = "center";
-    ctx.fillText("🤖 Жарайсың! Кодтай бер!", W / 2, H - 150);
+    ctx.fillText("💜 Жарайсың! Кодтай бер!", W / 2, H - 150);
   }
 
   /* Бет: #/certificate/<курс> */
@@ -189,7 +190,7 @@
         if (!blob) return;
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "botakod-sertifikat-" + c.id + ".png";
+        a.download = "bitlings-sertifikat-" + c.id + ".png";
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {

@@ -1,4 +1,4 @@
-/* Ботакод: оқушының өз кейіпкері (Бит: < > құлақты желе-кейіпкер). Киімдер мен аксессуарлар жетістіктер мен серия арқылы ашылады.
+/* Bitlings: оқушының өз кейіпкері (Бит: < > құлақты желе-кейіпкер). Киімдер мен аксессуарлар жетістіктер мен серия арқылы ашылады.
    Күй: kodzholy.hero.v1 = { color, starters:[id], eq:{ slot: id } } */
 (() => {
   "use strict";
@@ -218,8 +218,9 @@
       // бет: ұрт, көз, ауыз
       P.push(`<ellipse cx="62" cy="146" rx="9" ry="5.5" fill="#ff7eb6" opacity=".55"/><ellipse cx="138" cy="146" rx="9" ry="5.5" fill="#ff7eb6" opacity=".55"/>`);
       P.push(`<g class="hf-eyes hf-e1"><ellipse cx="80" cy="126" rx="11" ry="14" fill="#1c1240"/><ellipse cx="120" cy="126" rx="11" ry="14" fill="#1c1240"/><circle cx="84" cy="120" r="4.5" fill="#ffffff"/><circle cx="124" cy="120" r="4.5" fill="#ffffff"/><circle cx="77" cy="132" r="2" fill="#ffffff"/><circle cx="117" cy="132" r="2" fill="#ffffff"/></g>`);
-      P.push(`<g class="hf-e2"><path d="M69 130C73 118 87 118 91 130M109 130C113 118 127 118 131 130" fill="none" stroke="#1c1240" stroke-width="6" stroke-linecap="round"/></g>`);
-      P.push(`<path class="hf-m1" d="M92 150C96 156 104 156 108 150" fill="none" ${S}/><g class="hf-m2"><path d="M87 145C87 163 113 163 113 145Z" fill="#5a1e52" ${S}/><ellipse cx="100" cy="156" rx="7" ry="3.5" fill="#ff7eb6"/></g>`);
+      if (!s.still) P.push(`<g class="hf-e2"><path d="M69 130C73 118 87 118 91 130M109 130C113 118 127 118 131 130" fill="none" stroke="#1c1240" stroke-width="6" stroke-linecap="round"/></g>`);
+      P.push(`<path class="hf-m1" d="M92 150C96 156 104 156 108 150" fill="none" ${S}/>`);
+      if (!s.still) P.push(`<g class="hf-m2"><path d="M87 145C87 163 113 163 113 145Z" fill="#5a1e52" ${S}/><ellipse cx="100" cy="156" rx="7" ry="3.5" fill="#ff7eb6"/></g>`);
       const neck = get("neck");
       if (neck) P.push(draw(neck));
       const face = get("face");
