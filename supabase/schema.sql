@@ -33,6 +33,9 @@ create table if not exists public.classes (
   created_at timestamptz not null default now()
 );
 
+-- Сынып рейтингі: мұғалім қосқанда ғана оқушыларға көрінеді
+alter table public.classes add column if not exists rating_on boolean not null default false;
+
 create table if not exists public.class_members (
   class_id uuid not null references public.classes(id) on delete cascade,
   student_id uuid not null references public.profiles(id) on delete cascade,
@@ -291,7 +294,7 @@ create or replace function public.student_classes() returns jsonb
 language plpgsql security definer set search_path = public as $$
 begin
   perform public.require_role(array['student']);
-  return coalesce((select jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'teacher', t.full_name) order by c.created_at)
+  return coalesce((select jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'teacher', t.full_name, 'rating', c.rating_on) order by c.created_at)
     from public.class_members m join public.classes c on c.id = m.class_id
     join public.profiles t on t.id = c.teacher_id where m.student_id = auth.uid()), '[]'::jsonb);
 end $$;
@@ -324,7 +327,7 @@ declare r text;
 begin
   r := public.require_role(array['owner', 'admin', 'teacher']);
   return coalesce((select jsonb_agg(jsonb_build_object(
-      'id', c.id, 'name', c.name, 'code', c.code, 'teacher', t.full_name, 'mine', c.teacher_id = auth.uid(),
+      'id', c.id, 'name', c.name, 'code', c.code, 'teacher', t.full_name, 'mine', c.teacher_id = auth.uid(), 'rating', c.rating_on,
       'students', (select count(*) from public.class_members m where m.class_id = c.id)) order by c.created_at desc)
     from public.classes c join public.profiles t on t.id = c.teacher_id
     where c.teacher_id = auth.uid() or r in ('owner', 'admin')), '[]'::jsonb);
@@ -644,6 +647,42 @@ begin
       where m.class_id = cid and g.stars > 0), '[]'::jsonb));
 end $$;
 
+-- ---------- Сынып рейтингі ----------
+-- Қатарынан белсенді күн саны (бүгін не кеше аяқталған болса ғана)
+create or replace function public.user_streak(uid uuid) returns int
+language sql stable security definer set search_path = public as $$
+  with recursive s(day) as (
+    select max(day) from public.activity_days where user_id = uid having max(day) >= current_date - 1
+    union all
+    select a.day from public.activity_days a join s on a.day = s.day - 1 where a.user_id = uid
+  ) select count(*)::int from s where day is not null;
+$$;
+
+create or replace function public.set_class_rating(cid uuid, on_in boolean) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  update public.classes set rating_on = coalesce(on_in, false) where id = cid;
+end $$;
+
+-- Мұғалімге әрдайым, оқушыға тек рейтинг қосулы болғанда (және ол сыныпта болса)
+create or replace function public.class_rating(cid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare on_ boolean; mgr boolean := public.can_manage_class(cid);
+begin
+  select rating_on into on_ from public.classes where id = cid;
+  if on_ is null then raise exception 'forbidden'; end if;
+  if not mgr and not (public.active_role() = 'student' and on_ and exists (
+      select 1 from public.class_members where class_id = cid and student_id = auth.uid())) then
+    raise exception 'forbidden';
+  end if;
+  return jsonb_build_object('on', on_, 'rows', coalesce((select jsonb_agg(x order by (x ->> 'stars')::int desc, (x ->> 'streak')::int desc, x ->> 'name') from (
+    select jsonb_build_object('name', p.full_name, 'me', p.id = auth.uid(),
+      'stars', coalesce((select sum(g.stars) from public.progress g where g.user_id = p.id), 0)::int,
+      'streak', public.user_streak(p.id)) as x
+    from public.class_members m join public.profiles p on p.id = m.student_id where m.class_id = cid) q), '[]'::jsonb));
+end $$;
+
 -- ---------- Құпиясөзді қалпына келтіру (пошта керек емес) ----------
 -- Оқушының мұғалімі не админ уақытша құпиясөз қояды. Мұғалім тек өз сыныбындағы оқушыға, админ оқушы мен мұғалімге, құрушы кез келгенге (өзінен басқа құрушыдан).
 create or replace function public.reset_password(sid uuid, new_pw text) returns void
@@ -676,7 +715,7 @@ begin
              'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
              'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
              'get_assignment','submit_assignment',
-             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password')
+             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password','set_class_rating','class_rating')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);
@@ -687,5 +726,6 @@ end $$;
 revoke all on function public.active_role() from public, anon, authenticated;
 revoke all on function public.require_role(text[]) from public, anon, authenticated;
 revoke all on function public.can_manage_class(uuid) from public, anon, authenticated;
+revoke all on function public.user_streak(uuid) from public, anon, authenticated;
 revoke all on function public.make_class_code() from public, anon, authenticated;
 revoke all on function public.handle_new_user() from public, anon, authenticated;

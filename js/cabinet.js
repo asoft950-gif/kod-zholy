@@ -430,6 +430,37 @@
     page.appendChild(card);
   }
 
+  /* Сынып рейтингі: жұлдыз бен күн сериясы бойынша тізім */
+  function ratingTable(rows) {
+    const wrap = el("div", "rating");
+    if (!rows.length) {
+      wrap.appendChild(h("p", "empty-note", "Әзірге оқушы жоқ."));
+      return wrap;
+    }
+    const medal = ["🥇", "🥈", "🥉"];
+    rows.forEach((r, i) => {
+      wrap.appendChild(
+        h("div", "rating-row" + (r.me ? " me" : ""),
+          h("span", "rating-pos", medal[i] || String(i + 1)),
+          h("span", "rating-name", r.name + (r.me ? " (сен)" : "")),
+          h("span", "rating-streak", r.streak > 0 ? "🔥 " + r.streak : ""),
+          h("span", "rating-stars", "⭐ " + r.stars))
+      );
+    });
+    return wrap;
+  }
+  async function ratingPanel(cid, box) {
+    box.textContent = "Жүктелуде…";
+    try {
+      const r = await A.rpc("class_rating", { cid });
+      box.textContent = "";
+      box.appendChild(ratingTable(r.rows));
+    } catch (e) {
+      box.textContent = "";
+      failWith(box, e);
+    }
+  }
+
   async function studentClasses(page, root) {
     const card = el("section", "card");
     card.appendChild(h("div", "card-title", "Менің сыныптарым"));
@@ -437,13 +468,25 @@
       const list = await A.rpc("student_classes");
       if (!list.length) card.appendChild(h("p", "empty-note", "Әзірге сыныпқа қосылмағансың. Мұғалімнен код сұра."));
       list.forEach((c) => {
-        card.appendChild(
-          h("div", "cls-row", h("div", null, h("b", null, c.name), h("small", null, "Мұғалім: " + c.teacher)),
-            confirmBtn("btn small ghost", "Сыныптан шығу", "Расымен шығу?", async () => {
-              await A.rpc("leave_class", { class_id_in: c.id });
-              account(root);
-            }))
+        const rbox = el("div", "cls-body");
+        rbox.hidden = true;
+        const acts = el("div", "cls-actions");
+        if (c.rating) {
+          const rb = btn("btn small", "🏆 Рейтинг", async () => {
+            rbox.hidden = !rbox.hidden;
+            rb.textContent = rbox.hidden ? "🏆 Рейтинг" : "🏆 Жасыру";
+            if (!rbox.hidden) await ratingPanel(c.id, rbox);
+          });
+          acts.appendChild(rb);
+        }
+        acts.appendChild(
+          confirmBtn("btn small ghost", "Сыныптан шығу", "Расымен шығу?", async () => {
+            await A.rpc("leave_class", { class_id_in: c.id });
+            account(root);
+          })
         );
+        card.appendChild(h("div", "cls-row", h("div", null, h("b", null, c.name), h("small", null, "Мұғалім: " + c.teacher)), acts));
+        card.appendChild(rbox);
       });
     } catch (e) {
       failWith(card, e);
@@ -951,14 +994,45 @@
       statsBtn.textContent = statsBox.hidden ? "📊 Статистика" : "📊 Жасыру";
       if (!statsBox.hidden) await statsPanel(c, statsBox);
     });
+    const ratingBox = el("div", "cls-body");
+    ratingBox.hidden = true;
+    const ratingBtn = btn("btn small", "🏆 Рейтинг", async () => {
+      ratingBox.hidden = !ratingBox.hidden;
+      ratingBtn.textContent = ratingBox.hidden ? "🏆 Рейтинг" : "🏆 Жасыру";
+      if (ratingBox.hidden) return;
+      ratingBox.textContent = "";
+      const sw = el("label", "rating-switch");
+      const cb = el("input");
+      cb.type = "checkbox";
+      cb.checked = !!c.rating;
+      const note = h("small", null, "");
+      const setNote = () => (note.textContent = c.rating ? "Оқушылар рейтингті көреді." : "Қазір рейтинг тек саған көрінеді, оқушыларға жасырын.");
+      setNote();
+      cb.addEventListener("change", async () => {
+        cb.disabled = true;
+        try {
+          await A.rpc("set_class_rating", { cid: c.id, on_in: cb.checked });
+          c.rating = cb.checked;
+        } catch (e) {
+          cb.checked = !cb.checked;
+        }
+        cb.disabled = false;
+        setNote();
+      });
+      sw.append(cb, h("span", null, " Оқушыларға көрсету"));
+      const list = el("div");
+      ratingBox.append(sw, note, list);
+      await ratingPanel(c.id, list);
+    });
     const actions = el("div", "cls-actions");
     actions.appendChild(open);
     actions.appendChild(statsBtn);
+    actions.appendChild(ratingBtn);
     actions.appendChild(confirmBtn("btn small ghost", "Сыныпты өшіру", "Расымен өшіру?", async () => {
       await A.rpc("delete_class", { cid: c.id });
       teacher(root);
     }));
-    card.append(actions, statsBox, body, assignmentsPanel(c));
+    card.append(actions, statsBox, ratingBox, body, assignmentsPanel(c));
     return card;
   }
 
