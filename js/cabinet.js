@@ -77,6 +77,24 @@
     );
   }
 
+  /* Тіркелмеген пайдаланушы курсқа/жетістікке кірмек болғанда */
+  function gate(root, wanted) {
+    KZ.returnTo = wanted && wanted !== "#/" ? wanted : null;
+    const page = shell(root, null, ["#/", "← Басты бет"]);
+    page.appendChild(
+      h("section", "card gate",
+        h("div", "gate-emoji", "🔒"),
+        h("h1", null, "Алдымен кіру керек"),
+        h("p", null, "Лекция оқу, тапсырма орындау және жетістік жинау үшін Ботакодқа тіркел не өз аккаунтыңа кір. Прогресің сақталады, кез келген құрылғыдан жалғастыра аласың."),
+        h("div", "gate-btns", link("btn primary big", "#/login/register", "✨ Тіркелу"), link("btn big", "#/login", "🔑 Кіру")))
+    );
+  }
+  const goAfterLogin = () => {
+    const to = KZ.returnTo || "#/account";
+    KZ.returnTo = null;
+    location.hash = to;
+  };
+
   /* ================= Кіру / тіркелу ================= */
   async function login(root, tab) {
     if (!A.enabled) return disabledPage(root);
@@ -125,14 +143,14 @@
       const pw = field("Құпиясөз", "password", "password", { auto: "current-password" });
       const go = el("button", "btn primary big", "Кіру");
       go.type = "submit";
-      f.append(em.wrap, pw.wrap, go, h("p", "forgot", "Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді."), msg);
+      f.append(em.wrap, pw.wrap, go, (KZ.config || {}).emailReset ? link("forgot", "#/login/reset", "Құпиясөзді ұмыттым (поштамен)") : null, h("p", "forgot", "Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді."), msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         go.disabled = true;
         show("");
         try {
           await A.signIn(em.input.value, pw.input.value);
-          location.hash = "#/account";
+          goAfterLogin();
         } catch (err) {
           show(err.message, true);
           go.disabled = false;
@@ -178,7 +196,7 @@
           if (r.needsConfirm) {
             show("Тіркелдің! Поштаңа хат жіберілді: ондағы сілтемені басып, сосын «Кіру» бетінен кір.", false);
             go.disabled = false;
-          } else location.hash = "#/account";
+          } else goAfterLogin();
         } catch (err) {
           show(err.message, true);
           go.disabled = false;
@@ -187,9 +205,67 @@
       body.appendChild(f);
     }
 
-    const t = tab === "register" ? "register" : "login";
-    renderTabs(t);
+    /* Құпиясөзді қалпына келтіру (тек өз SMTP қосылғанда): 1) email -> поштаға код; 2) код + жаңа құпиясөз */
+    function resetForm() {
+      body.textContent = "";
+      const f = el("form");
+      const em = field("Email", "email", "email", { auto: "email" });
+      const go = el("button", "btn primary big", "Код жіберу");
+      go.type = "submit";
+      f.append(h("p", "hint", "Тіркелген email-ді жаз, поштаңа код жібереміз."), em.wrap, go, link("forgot", "#/login", "← Кіру бетіне"), msg);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        go.disabled = true;
+        show("");
+        try {
+          await A.requestReset(em.input.value);
+          codeForm(em.input.value.trim());
+        } catch (err) {
+          show(err.message, true);
+          go.disabled = false;
+        }
+      });
+      body.appendChild(f);
+    }
+
+    function codeForm(email) {
+      body.textContent = "";
+      const f = el("form");
+      const code = field("Поштадағы код", "text", "code", { auto: "one-time-code", ph: "123456" });
+      code.input.inputMode = "numeric";
+      code.input.maxLength = 12;
+      const pw = field("Жаңа құпиясөз (кемінде 6 таңба)", "password", "password", { auto: "new-password" });
+      const go = el("button", "btn primary big", "Құпиясөзді жаңарту");
+      go.type = "submit";
+      const again = btn("btn small ghost", "Кодты қайта жібер", async () => {
+        try {
+          await A.requestReset(email);
+          show("Жаңа код жіберілді.", false);
+        } catch (err) {
+          show(err.message, true);
+        }
+      });
+      f.append(h("p", "hint", "Егер " + email + " тіркелген болса, поштаға код жіберілді (спам қалтасын да қара). Кодты және жаңа құпиясөзді енгіз."), code.wrap, pw.wrap, go, again, msg);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        show("");
+        if (pw.input.value.length < 6) return show("Құпиясөз кемінде 6 таңбадан тұруы керек.", true);
+        go.disabled = true;
+        try {
+          await A.resetWithCode(email, code.input.value, pw.input.value);
+          goAfterLogin();
+        } catch (err) {
+          show(err.message, true);
+          go.disabled = false;
+        }
+      });
+      body.appendChild(f);
+    }
+
+    const t = tab === "register" ? "register" : tab === "reset" && (KZ.config || {}).emailReset ? "reset" : "login";
+    renderTabs(t === "reset" ? "login" : t);
     if (t === "login") loginForm();
+    else if (t === "reset") resetForm();
     else registerForm();
   }
 
@@ -1043,5 +1119,5 @@
     }
   }
 
-  KZ.cabinet = { login, account, teacher, admin };
+  KZ.cabinet = { login, account, teacher, admin, gate };
 })();

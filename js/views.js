@@ -54,6 +54,13 @@
       target = { course: c, level: c.levels[0] };
     }
 
+    if (KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
+      page.appendChild(
+        h("section", "card guest-note",
+          h("b", null, "🔒 Курстарды бастау үшін тіркел не аккаунтыңа кір"),
+          h("span", "row", A("btn primary small", "#/login/register", "Тіркелу"), A("btn small", "#/login", "Кіру")))
+      );
+    }
     page.appendChild(
       h(
         "section",

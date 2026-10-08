@@ -51,6 +51,7 @@
     }
   }
 
+  let gated = false;
   function route() {
     if (KZ.play) KZ.play.leave();
     if (KZ.web) KZ.web.leave();
@@ -67,6 +68,19 @@
       openTask(parts[1]);
       return;
     }
+    /* Курстар, лекциялар, тапсырмалар және жетістіктер тек тіркелген/кірген пайдаланушыға (аккаунттар қосулы болса) */
+    const needLogin = parts[0] === "achievements" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
+    if (needLogin && KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
+      if (!KZ.auth.settled) {
+        views.cab.textContent = "Жүктелуде…";
+        KZ.auth.ready.then(route);
+        return show("cab", "Ботакод");
+      }
+      KZ.cabinet.gate(views.cab, location.hash);
+      gated = true;
+      return show("cab", "Кіру керек");
+    }
+    gated = false;
     if (parts[0] === "certificate" && parts[1]) {
       KZ.certPage(views.cab, parts[1]);
       return show("cab", "Сертификат");
@@ -136,7 +150,7 @@
       paintAccount();
       const h = location.hash.replace(/^#\/?/, "");
       const parts = h.split("/").filter(Boolean);
-      const staticPage = parts.length === 0 || (KZ.getCourse(parts[0]) && !["play", "lecture"].includes(parts[1]));
+      const staticPage = gated || parts.length === 0 || (KZ.getCourse(parts[0]) && !["play", "lecture"].includes(parts[1]));
       if (staticPage) route();
     });
   }

@@ -930,3 +930,10 @@ html[data-theme="dark"] .st-row.new { background: #1f3a3a; }
 .pw-box { display: inline-block; margin-left: 6px; font-size: 18px; }
 .pw-change summary { cursor: pointer; font-weight: 800; }
 .pw-change form { display: grid; gap: 8px; margin-top: 10px; }
+
+.gate { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 26px 18px; }
+.gate-emoji { font-size: 54px; }
+.gate h1 { margin: 0; }
+.gate p { margin: 0; max-width: 420px; font-weight: 700; }
+.gate-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+.guest-note { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }

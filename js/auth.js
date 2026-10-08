@@ -23,6 +23,7 @@
     no_assignment: "Мұндай тапсырма табылмады (өшірілген болуы мүмкін).",
     "should be different from the old password": "Жаңа құпиясөз ескісінен өзгеше болуы керек.",
     bad_password: "Құпиясөз 6–72 таңбадан тұруы керек.",
+    "Token has expired or is invalid": "Код қате не мерзімі өтіп кеткен. Жаңа код сұра.",
     "Invalid login credentials": "Email не құпиясөз қате.",
     "User already registered": "Бұл email бұрын тіркелген. «Кіру» бетіне өт.",
     "Email not confirmed": "Email әлі расталмаған. Поштаңды тексеріп, сілтемені бас.",
@@ -76,6 +77,7 @@
     enabled: !!(cfg.supabaseUrl && cfg.supabaseKey),
     profile: null, // { id, email, full_name, role, status }
     ready: null,
+    settled: false, // алғашқы тексеру (кірген бе?) аяқталды ма
 
     onChange(f) {
       listeners.push(f);
@@ -129,6 +131,26 @@
     async signIn(email, password) {
       const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw new Error(kz(error.message));
+      await loadProfile();
+    },
+
+    /* Құпиясөзді қалпына келтіру: поштаға 6 таңбалы код жіберіледі (сілтеме емес, сондықтан кез келген құрылғыда жұмыс істейді) */
+    async requestReset(email) {
+      const { error } = await client.auth.resetPasswordForEmail(email.trim());
+      if (error) throw new Error(kz(error.message));
+    },
+    async resetWithCode(email, code, password) {
+      const v = await client.auth.verifyOtp({ email: email.trim(), token: String(code).replace(/\s+/g, ""), type: "recovery" });
+      if (v.error) throw new Error(kz(v.error.message));
+      const u = await client.auth.updateUser({ password });
+      if (u.error) {
+        try {
+          await client.auth.signOut();
+        } catch (e) {
+          /* маңызды емес */
+        }
+        throw new Error(kz(u.error.message));
+      }
       await loadProfile();
     },
 
@@ -207,8 +229,11 @@
       p = await A.rpc("my_profile");
     } catch (e) {
       console.warn("profile:", e.message);
+      // интернет жоқта (офлайн) кірген адамды қайтадан кіргізбей, соңғы белгілі профильді қолданамыз
+      if (/Байланыс жоқ/.test(e.message)) p = KZ.store.get("kodzholy.profile", null);
     }
     A.profile = p;
+    if (p) KZ.store.set("kodzholy.profile", p);
     if (p) {
       // басқа адамның деректері осы құрылғыда қалып қойса, тазалаймыз
       const prev = KZ.store.get("kodzholy.uid", null);
@@ -240,5 +265,8 @@
   }
 
   A.ready = new Promise((r) => (readyResolve = r));
-  init().finally(() => readyResolve());
+  init().finally(() => {
+    A.settled = true;
+    readyResolve();
+  });
 })();
