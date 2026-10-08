@@ -154,7 +154,7 @@
         const read = [];
         const rd = KZ.read._all();
         Object.keys(rd).forEach((c) => rd[c].forEach((l) => read.push({ c, l })));
-        const res = await A.rpc("sync_progress", { items, read });
+        const res = await A.rpc("sync_progress", { items, read, days: KZ.activity.toCloud() });
         const merged = {};
         res.progress.forEach((p) => {
           merged[p.c] = merged[p.c] || {};
@@ -168,6 +168,8 @@
         KZ.store.set("kodzholy.progress.v2", merged);
         KZ.store.set("kodzholy.read.v1", mread);
         KZ.progress.reset();
+        KZ.activity.fromCloud(res.days);
+        KZ.ach.check(true);
         KZ.updateTotal();
         emit();
       } catch (e) {

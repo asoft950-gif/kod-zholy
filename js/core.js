@@ -89,10 +89,12 @@ KZ.progress = {
     return (this._load()[cid] || {})[lid] || 0;
   },
   set(cid, lid, n) {
+    const dl = KZ.activity ? KZ.activity.daily() : null; // күннің тапсырмасын прогресс өзгермей тұрып бекітеміз
     const d = this._load();
     d[cid] = d[cid] || {};
     d[cid][lid] = Math.max(d[cid][lid] || 0, n);
     KZ.store.set("kodzholy.progress.v2", d);
+    if (KZ.activity) KZ.activity.onLevel(cid, lid, n, dl);
     if (KZ.auth) KZ.auth.queueSync();
   },
   courseStars(cid) {
@@ -145,8 +147,10 @@ KZ.read = {
     const arr = all[cid] || [];
     all[cid] = arr.includes(lid) ? arr.filter((x) => x !== lid) : arr.concat(lid);
     KZ.store.set("kodzholy.read.v1", all);
+    const now = all[cid].includes(lid);
+    if (now && KZ.activity) KZ.activity.onRead();
     if (KZ.auth) KZ.auth.queueSync();
-    return all[cid].includes(lid);
+    return now;
   },
 };
 
@@ -177,6 +181,7 @@ KZ.codeStore = {
 KZ.updateTotal = function () {
   const e = document.getElementById("totalStars");
   if (e) e.textContent = String(KZ.progress.total());
+  if (KZ.updateStreak) KZ.updateStreak();
 };
 
 /* ---------- Қораптардың түсі ---------- */

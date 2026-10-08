@@ -621,3 +621,55 @@ input, select { font: inherit; }
 .role-sel { padding: 4px 8px; font-size: 14px; border-width: 2px; border-radius: 10px; }
 .btn.danger { background: var(--coral); color: #fff; }
 @media (max-width: 520px) { .user-row, .cls-row { flex-direction: column; align-items: stretch; } .u-actions { justify-content: flex-start; } }
+
+/* ---------- Серия, күннің тапсырмасы, жетістіктер ---------- */
+a.score.streak { color: inherit; text-decoration: none; background: #fff; }
+a.score.streak.hot { background: #ffe1a8; }
+a.score.streak:not(.hot) { opacity: 0.85; }
+
+.toasts { position: fixed; z-index: 50; left: 50%; bottom: 18px; transform: translateX(-50%); display: grid; gap: 10px; width: min(92vw, 380px); pointer-events: none; }
+.toast {
+  display: flex; gap: 12px; align-items: center;
+  background: #fff; border: 3px solid var(--ink); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 10px 14px; animation: toast-in 0.35s ease-out; transition: opacity 0.4s, transform 0.4s;
+}
+.toast.out { opacity: 0; transform: translateY(10px); }
+.toast-emoji { font-size: 30px; line-height: 1; }
+.toast-text { display: grid; line-height: 1.25; }
+.toast-text small { color: var(--muted); font-weight: 700; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.daily { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: var(--mint); }
+.daily-streak { text-align: center; min-width: 84px; }
+.ds-num { font-size: 32px; font-weight: 800; line-height: 1.1; }
+.daily-streak small { font-weight: 800; color: var(--muted); }
+.daily-body { flex: 1 1 220px; min-width: 0; display: grid; gap: 4px; justify-items: start; }
+.daily-body p { margin: 0; font-weight: 700; }
+.daily-body small { color: var(--muted); font-weight: 700; }
+
+.streak-card { display: grid; gap: 14px; background: var(--sun); }
+.streak-big { display: flex; gap: 14px; align-items: center; }
+.sb-fire { font-size: 54px; line-height: 1; }
+.streak-big b { font-size: 30px; display: block; line-height: 1.1; }
+.streak-big small { font-weight: 700; color: var(--muted); }
+.streak-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.streak-facts b { display: block; font-size: 24px; }
+.streak-facts small { font-weight: 700; color: var(--muted); }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 360px; }
+.cal-h { text-align: center; font-size: 12px; font-weight: 800; color: var(--muted); }
+.cal-d { aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 8px; background: #fff; display: grid; place-items: center; font-size: 13px; }
+.cal-d.on { background: var(--teal); }
+.cal-d.daily { background: var(--yellow); }
+.cal-d.today { outline: 3px solid var(--violet); outline-offset: 1px; }
+.cal-d.future { opacity: 0.35; border-style: dashed; }
+
+.ach-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (min-width: 640px) { .ach-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 960px) { .ach-grid { grid-template-columns: repeat(4, 1fr); } }
+.badge-card { display: grid; gap: 2px; justify-items: center; text-align: center; padding: 12px 8px; background: #ece8dc; border: 3px solid var(--ink); border-radius: 14px; opacity: 0.75; }
+.badge-card.on { background: #fff; opacity: 1; box-shadow: var(--shadow); }
+.badge-card small { color: var(--muted); font-weight: 700; line-height: 1.25; }
+.bc-e { font-size: 36px; line-height: 1.2; }
+.badge-card:not(.on) .bc-e { filter: grayscale(1); }
+.bc-date { font-size: 11px; }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }

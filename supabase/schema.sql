@@ -56,6 +56,13 @@ create table if not exists public.lectures_read (
   primary key (user_id, course_id, lecture_id)
 );
 
+create table if not exists public.activity_days (
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  day date not null,
+  daily boolean not null default false,
+  primary key (user_id, day)
+);
+
 -- ---------- Қауіпсіздік: кестелерге тікелей қол жеткізу жабық ----------
 -- Барлық әрекет төмендегі функциялар (RPC) арқылы жүреді, олар рөлді өзі тексереді.
 alter table public.app_config enable row level security;
@@ -64,8 +71,9 @@ alter table public.classes enable row level security;
 alter table public.class_members enable row level security;
 alter table public.progress enable row level security;
 alter table public.lectures_read enable row level security;
+alter table public.activity_days enable row level security;
 revoke all on public.app_config, public.profiles, public.classes, public.class_members,
-  public.progress, public.lectures_read from anon, authenticated;
+  public.progress, public.lectures_read, public.activity_days from anon, authenticated;
 
 -- ---------- Көмекші функциялар ----------
 -- Ағымдағы пайдаланушының белсенді рөлі (күтіп тұрған/бұғатталған болса, null)
@@ -166,10 +174,12 @@ begin
 end $$;
 
 -- ---------- Прогресс ----------
--- items: [{c, l, s}], read: [{c, l}]. Ең үлкен жұлдызды сақтайды, бәрін қайтарады.
-create or replace function public.sync_progress(items jsonb default '[]', read jsonb default '[]') returns jsonb
+-- items: [{c, l, s}], read: [{c, l}], days: [{d, y}]. Ең үлкен жұлдызды сақтайды, бәрін қайтарады.
+-- days: белсенді күндер (серия үшін), y=1 — сол күні «күннің тапсырмасы» орындалған.
+drop function if exists public.sync_progress(jsonb, jsonb);
+create or replace function public.sync_progress(items jsonb default '[]', read jsonb default '[]', days jsonb default '[]') returns jsonb
 language plpgsql security definer set search_path = public as $$
-declare it jsonb; res jsonb;
+declare it jsonb; res jsonb; dd date;
 begin
   perform public.require_role(array['owner', 'admin', 'teacher', 'student']);
   for it in select * from jsonb_array_elements(coalesce(items, '[]'::jsonb)) loop
@@ -183,11 +193,25 @@ begin
     insert into public.lectures_read (user_id, course_id, lecture_id)
     values (auth.uid(), left(it ->> 'c', 40), left(it ->> 'l', 40)) on conflict do nothing;
   end loop;
+  for it in select * from jsonb_array_elements(coalesce(days, '[]'::jsonb)) loop
+    begin
+      dd := (it ->> 'd')::date;
+    exception when others then
+      continue;
+    end;
+    -- болашақ күндер мен тым ескі күндер қабылданбайды (уақыт белдеуі үшін бір күн қор)
+    if dd > current_date + 1 or dd < date '2024-01-01' then continue; end if;
+    insert into public.activity_days (user_id, day, daily)
+    values (auth.uid(), dd, coalesce((it ->> 'y')::int, 0) = 1)
+    on conflict (user_id, day) do update set daily = public.activity_days.daily or excluded.daily;
+  end loop;
   select jsonb_build_object(
     'progress', coalesce((select jsonb_agg(jsonb_build_object('c', course_id, 'l', level_id, 's', stars))
                           from public.progress where user_id = auth.uid()), '[]'::jsonb),
     'read', coalesce((select jsonb_agg(jsonb_build_object('c', course_id, 'l', lecture_id))
-                      from public.lectures_read where user_id = auth.uid()), '[]'::jsonb)) into res;
+                      from public.lectures_read where user_id = auth.uid()), '[]'::jsonb),
+    'days', coalesce((select jsonb_agg(jsonb_build_object('d', day, 'y', case when daily then 1 else 0 end))
+                      from public.activity_days where user_id = auth.uid()), '[]'::jsonb)) into res;
   return res;
 end $$;
 

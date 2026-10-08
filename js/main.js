@@ -31,6 +31,10 @@
       KZ.views.home(views.home);
       return show("home");
     }
+    if (parts[0] === "achievements") {
+      KZ.achievementsPage(views.cab);
+      return show("cab", "Жетістіктер");
+    }
     if (["login", "account", "teacher", "admin"].includes(parts[0])) {
       const titles = { login: "Кіру", account: "Кабинет", teacher: "Сыныптар", admin: "Басқару" };
       show("cab", titles[parts[0]]);

@@ -73,6 +73,8 @@
       )
     );
 
+    page.appendChild(KZ.dailyCard());
+
     page.appendChild(h("h2", "section-title", "Курстар"));
     const grid = el("div", "course-grid");
     KZ.courses.forEach((c) => grid.appendChild(courseCard(c)));
