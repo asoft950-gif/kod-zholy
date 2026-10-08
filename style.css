@@ -898,3 +898,6 @@ html[data-theme="dark"] .btn.primary, html[data-theme="dark"] .btn.danger { colo
   .brand { flex: none; }
   #menuBtn { padding: 4px 8px; font-size: 12px; line-height: 1.15; }
 }
+.asg-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.asg-auto { padding: 6px 10px; border: 2px dashed var(--line); border-radius: 10px; }
+.asg-auto summary { cursor: pointer; font-weight: 800; }

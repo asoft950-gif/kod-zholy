@@ -281,14 +281,28 @@
   /* Мұғалім берген тапсырмалар */
   async function studentTasks(page) {
     let list = [];
+    let levels = [];
     try {
-      list = await A.rpc("my_assignments");
+      [list, levels] = await Promise.all([A.rpc("my_assignments"), A.rpc("my_levels")]);
     } catch (e) {
       return;
     }
-    if (!list.length) return;
+    if (!list.length && !levels.length) return;
     const card = el("section", "card");
     card.appendChild(h("div", "card-title", "📝 Мұғалім тапсырмалары"));
+    levels.forEach((x) => {
+      const stars = Math.max(x.stars || 0, KZ.progress.stars(x.course, x.level_id));
+      const late = !stars && KZ.assign.overdue(x.due);
+      card.appendChild(
+        link(
+          "row-link" + (stars ? " done" : ""),
+          "#/" + x.course + "/play/" + x.level_id + "/open",
+          h("span", "rl-title", levelTitle(x.course, x.level_id)),
+          h("span", "rl-meta", x.class + (x.due ? " · " + x.due : "") + (late ? " · мерзімі өтті" : "")),
+          h("span", "rl-check", stars ? "⭐".repeat(stars) : "›")
+        )
+      );
+    });
     list.forEach((a) => {
       const late = !a.stars && KZ.assign.overdue(a.due);
       card.appendChild(
@@ -456,9 +470,12 @@
       lbl("Тілі", lang),
       lbl("Тапсырма шарты", body),
       lbl("Бастапқы код", starter),
-      lbl("Шешім (сақталмайды, тек нәтижені есептеу үшін)", solution),
-      run,
-      lbl("Күтілетін нәтиже", expected),
+      lbl("Күтілетін нәтиже (экранға не шығуы керек)", expected),
+      (() => {
+        const d = el("details", "asg-auto");
+        d.append(h("summary", null, "💡 Нәтижені өзім жазбай, шешім кодын іске қосып алам"), lbl("Шешім (сақталмайды, тек нәтижені есептеу үшін)", solution), run);
+        return d;
+      })(),
       h("div", "field-row", lbl("Үздік шешім: ең көбі неше жол", par), lbl("Тапсыру мерзімі", due)),
       lbl("Кеңес", hint),
       go,
@@ -536,27 +553,150 @@
     return row;
   }
 
+  /* Дайын тапсырма: курс пен деңгейді таңдау жеткілікті, ештеңе жазудың қажеті жоқ */
+  function levelTitle(course, id) {
+    const c = KZ.getCourse(course);
+    const f = c && KZ.findLevel(c, id);
+    return f ? id + " · " + f.level.title : id;
+  }
+
+  function levelPicker(c, onSaved) {
+    const f = el("form", "asg-form");
+    const course = el("select");
+    KZ.courses
+      .filter((x) => x.status === "ready")
+      .forEach((x) => {
+        const o = el("option", null, x.emoji + " " + x.name);
+        o.value = x.id;
+        course.appendChild(o);
+      });
+    const level = el("select");
+    const fill = () => {
+      level.textContent = "";
+      const cr = KZ.getCourse(course.value);
+      const add = (label, list) => {
+        if (!list.length) return;
+        const g = el("optgroup");
+        g.label = label;
+        list.forEach((l) => {
+          const o = el("option", null, l.id + " · " + l.title);
+          o.value = l.id;
+          g.appendChild(o);
+        });
+        level.appendChild(g);
+      };
+      (cr.topics || []).forEach((t) => add(t.emoji + " " + t.title, (cr.levels || []).filter((l) => KZ.topicOf(l) === t.id)));
+      add("🏆 Қосымша", (cr.bonus || []).filter((l) => !l.debug));
+      add("🐞 Қате тап", (cr.bonus || []).filter((l) => l.debug));
+    };
+    course.addEventListener("change", fill);
+    fill();
+    const due = el("input");
+    due.type = "date";
+    const msg = el("p", "form-msg");
+    msg.hidden = true;
+    const go = el("button", "btn primary", "Сыныпқа беру");
+    go.type = "submit";
+    f.append(
+      h("p", "muted", "Сайттағы дайын тапсырманы таңда: оқушы оны өз прогресінде орындайды, нәтижесін осы жерден көресің."),
+      lbl("Курс", course),
+      lbl("Тапсырма", level),
+      lbl("Тапсыру мерзімі (міндетті емес)", due),
+      go,
+      msg
+    );
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      go.disabled = true;
+      try {
+        await A.rpc("assign_level", { cid: c.id, course_in: course.value, level_in: level.value, due_in: due.value || null });
+        await onSaved();
+      } catch (err) {
+        msg.hidden = false;
+        msg.className = "form-msg bad";
+        msg.textContent = err.message;
+      }
+      go.disabled = false;
+    });
+    return f;
+  }
+
+  function levelRow(x, reload) {
+    const row = el("div", "asg-row");
+    const late = KZ.assign.overdue(x.due);
+    const cr = KZ.getCourse(x.course);
+    const info = h(
+      "div",
+      "asg-info",
+      h("b", null, levelTitle(x.course, x.level_id)),
+      h("small", null, (cr ? cr.name : x.course) + " · дайын тапсырма" + (x.due ? " · мерзімі " + x.due + (late ? " (өтті)" : "") : "") + " · ✅ " + x.done + "/" + x.total)
+    );
+    const detail = el("div", "asg-detail");
+    detail.hidden = true;
+    let loaded = false;
+    const res = btn("btn small", "Нәтижелер", async () => {
+      detail.hidden = !detail.hidden;
+      if (detail.hidden || loaded) return;
+      loaded = true;
+      detail.textContent = "Жүктелуде…";
+      try {
+        const list = await A.rpc("level_results", { lid: x.id });
+        detail.textContent = "";
+        if (!list.length) detail.appendChild(h("p", "empty-note", "Сыныпта оқушы жоқ."));
+        list.forEach((s) =>
+          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : "әлі жоқ")))
+        );
+      } catch (e) {
+        detail.textContent = "";
+        failWith(detail, e);
+      }
+    });
+    const actions = el("div", "u-actions");
+    actions.append(
+      link("btn small ghost", "#/" + x.course + "/play/" + x.level_id + "/open", "👁 Көру"),
+      res,
+      confirmBtn("btn small ghost", "🗑", "Өшіру?", async () => {
+        await A.rpc("remove_level", { lid: x.id });
+        await reload();
+      })
+    );
+    row.append(h("div", "asg-top", info, actions), detail);
+    return row;
+  }
+
   function assignmentsPanel(c) {
     const wrap = el("div", "asg");
     const list = el("div", "asg-list");
     let form;
+    let pick;
     async function reload() {
       list.textContent = "Жүктелуде…";
       try {
-        const items = await A.rpc("class_assignments", { cid: c.id });
+        const [items, levels] = await Promise.all([A.rpc("class_assignments", { cid: c.id }), A.rpc("class_levels_list", { cid: c.id })]);
         list.textContent = "";
-        if (!items.length) list.appendChild(h("p", "empty-note", "Әзірге тапсырма жоқ."));
+        if (!items.length && !levels.length) list.appendChild(h("p", "empty-note", "Әзірге тапсырма жоқ. «Дайын тапсырма» түймесі ең оңай жол."));
+        levels.forEach((x) => list.appendChild(levelRow(x, reload)));
         items.forEach((a) => list.appendChild(assignmentRow(a, reload)));
       } catch (e) {
         list.textContent = "";
         failWith(list, e);
       }
       if (form) form.hidden = true;
+      if (pick) pick.hidden = true;
     }
     form = assignmentForm(c, reload);
     form.hidden = true;
-    const add = btn("btn small primary", "＋ Жаңа тапсырма", () => (form.hidden = !form.hidden));
-    wrap.append(h("div", "asg-head", h("b", null, "📝 Тапсырмалар"), add), form, list);
+    pick = levelPicker(c, reload);
+    pick.hidden = true;
+    const addLv = btn("btn small primary", "＋ Дайын тапсырма", () => {
+      pick.hidden = !pick.hidden;
+      form.hidden = true;
+    });
+    const add = btn("btn small", "✍ Өз тапсырмам", () => {
+      form.hidden = !form.hidden;
+      pick.hidden = true;
+    });
+    wrap.append(h("div", "asg-head", h("b", null, "📝 Тапсырмалар"), h("span", "asg-btns", addLv, add)), pick, form, list);
     reload();
     return wrap;
   }

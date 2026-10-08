@@ -520,6 +520,85 @@ begin
   delete from auth.users where id = uid;
 end $$;
 
+-- ---------- Сыныпқа берілген дайын тапсырмалар (сайттағы деңгейлерден) ----------
+-- Мұғалім ештеңе жазбайды: курс пен деңгейді таңдайды. Нәтиже оқушының өз прогресінен (stars) алынады.
+create table if not exists public.class_levels (
+  id uuid primary key default gen_random_uuid(),
+  class_id uuid not null references public.classes(id) on delete cascade,
+  teacher_id uuid not null references public.profiles(id) on delete cascade,
+  course text not null check (course in ('python', 'javascript', 'html', 'css')),
+  level_id text not null check (length(level_id) between 1 and 12),
+  due date,
+  created_at timestamptz not null default now(),
+  unique (class_id, course, level_id)
+);
+alter table public.class_levels enable row level security;
+revoke all on public.class_levels from anon, authenticated;
+
+create or replace function public.assign_level(cid uuid, course_in text, level_in text, due_in date) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare x public.class_levels;
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  if course_in not in ('python', 'javascript', 'html', 'css') or length(coalesce(level_in, '')) not between 1 and 12 then
+    raise exception 'bad_input';
+  end if;
+  insert into public.class_levels (class_id, teacher_id, course, level_id, due)
+  values (cid, auth.uid(), course_in, level_in, due_in)
+  on conflict (class_id, course, level_id) do update set due = excluded.due
+  returning * into x;
+  return jsonb_build_object('id', x.id);
+end $$;
+
+create or replace function public.remove_level(lid uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare cid uuid;
+begin
+  select class_id into cid from public.class_levels where id = lid;
+  if cid is null or not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  delete from public.class_levels where id = lid;
+end $$;
+
+create or replace function public.class_levels_list(cid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', x.id, 'course', x.course, 'level_id', x.level_id, 'due', x.due, 'created_at', x.created_at,
+      'done', (select count(*) from public.class_members m join public.progress p on p.user_id = m.student_id
+               where m.class_id = x.class_id and p.course_id = x.course and p.level_id = x.level_id and p.stars > 0),
+      'total', (select count(*) from public.class_members m where m.class_id = x.class_id)) order by x.created_at desc)
+    from public.class_levels x where x.class_id = cid), '[]'::jsonb);
+end $$;
+
+create or replace function public.level_results(lid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare x public.class_levels;
+begin
+  select * into x from public.class_levels where id = lid;
+  if x.id is null or not public.can_manage_class(x.class_id) then raise exception 'forbidden'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', p.id, 'full_name', p.full_name, 'stars', coalesce(g.stars, 0)) order by p.full_name)
+    from public.class_members m join public.profiles p on p.id = m.student_id
+    left join public.progress g on g.user_id = p.id and g.course_id = x.course and g.level_id = x.level_id
+    where m.class_id = x.class_id), '[]'::jsonb);
+end $$;
+
+create or replace function public.my_levels() returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public.require_role(array['student']);
+  return coalesce((select jsonb_agg(jsonb_build_object(
+      'id', x.id, 'course', x.course, 'level_id', x.level_id, 'due', x.due, 'class', c.name,
+      'stars', coalesce(g.stars, 0))
+      order by (coalesce(g.stars, 0) > 0), x.due nulls last, x.created_at desc)
+    from public.class_members m
+    join public.classes c on c.id = m.class_id
+    join public.class_levels x on x.class_id = c.id
+    left join public.progress g on g.user_id = auth.uid() and g.course_id = x.course and g.level_id = x.level_id
+    where m.student_id = auth.uid()), '[]'::jsonb);
+end $$;
+
 -- ---------- Рұқсаттар: тек кірген пайдаланушы функцияларды шақыра алады ----------
 do $$
 declare f record;
@@ -530,7 +609,8 @@ begin
              'create_class','teacher_classes','delete_class','class_overview','remove_student','student_progress',
              'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
              'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
-             'get_assignment','submit_assignment')
+             'get_assignment','submit_assignment',
+             'assign_level','remove_level','class_levels_list','level_results','my_levels')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);

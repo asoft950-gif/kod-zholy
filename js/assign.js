@@ -62,15 +62,16 @@
     const run = async () => {
       await A.ready;
       if (!A.isActive() || A.profile.role !== "student") return;
-      const list = await A.rpc("my_assignments");
-      const open = list.filter((a) => !a.stars);
+      const [list, lv] = await Promise.all([A.rpc("my_assignments"), A.rpc("my_levels")]);
+      const openLv = lv.filter((x) => !Math.max(x.stars || 0, KZ.progress.stars(x.course, x.level_id)));
+      const open = list.filter((a) => !a.stars).concat(openLv);
       if (!open.length) return;
       const late = open.filter((a) => KZ.assign.overdue(a.due)).length;
       const card = el("section", "card assign-note");
       card.appendChild(h("div", "an-e", "📝"));
       card.appendChild(h("div", "an-t", h("b", null, "Мұғалім " + open.length + " тапсырма берді"), h("small", null, late ? late + " тапсырманың мерзімі өтіп кеткен" : "Орындап, жұлдыз жина")));
       const a = h("a", "btn primary small", "Ашу");
-      a.href = open.length === 1 ? "#/task/" + open[0].id : "#/account";
+      a.href = open.length === 1 ? (open[0].level_id ? "#/" + open[0].course + "/play/" + open[0].level_id + "/open" : "#/task/" + open[0].id) : "#/account";
       card.appendChild(a);
       host.appendChild(card);
     };
