@@ -938,3 +938,23 @@ html[data-theme="dark"] .st-row.new { background: #1f3a3a; }
 .gate-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
 .guest-note { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
 .copyright { margin-top: 8px; font-size: 12px; opacity: .85; letter-spacing: .2px; }
+
+/* ---------- Қайталау ---------- */
+.review-card { display: grid; gap: 6px; }
+.review-card p { margin: 4px 0 8px; font-weight: 700; }
+.rv-top { display: flex; justify-content: space-between; opacity: .75; font-weight: 800; }
+.rv-q { margin: 8px 0 14px; font-size: 20px; line-height: 1.4; }
+.rv-opts { display: grid; gap: 10px; }
+.rv-opt { font: inherit; font-weight: 800; text-align: left; padding: 12px 14px; border: 3px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.rv-opt:hover:not(:disabled) { background: var(--sun); }
+.rv-opt.good { background: var(--mint); }
+.rv-opt.bad { background: #ffb3b3; }
+.rv-opt:disabled { cursor: default; }
+.rv-why { margin: 14px 0 10px; padding: 10px 14px; border: 3px solid var(--line); border-radius: 12px; }
+.rv-why p { margin: 6px 0 0; font-weight: 700; }
+.rv-why.good { background: var(--mint); }
+.rv-why.bad { background: #ffe3cf; }
+html[data-theme="dark"] .rv-opt.bad { background: #5a2530; }
+html[data-theme="dark"] .rv-why.bad { background: #5a4220; }
+html[data-theme="dark"] .rv-opt:hover:not(:disabled) { background: #3a3470; }
+html[data-theme="dark"] .rv-opt.good, html[data-theme="dark"] .rv-why.good { background: #1f3a3a; }

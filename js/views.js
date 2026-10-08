@@ -81,6 +81,8 @@
     );
 
     page.appendChild(KZ.dailyCard());
+    const rc = KZ.reviewCard && KZ.reviewCard();
+    if (rc) page.appendChild(rc);
     if (KZ.assignNotice) {
       const slot = el("div", "slot"); // мұғалім тапсырмалары кейін жүктелгенде осы жерге түседі
       page.appendChild(slot);

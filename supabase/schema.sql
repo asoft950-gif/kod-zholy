@@ -49,6 +49,15 @@ create table if not exists public.progress (
   primary key (user_id, course_id, level_id)
 );
 
+-- Рұқсат етілген деңгейлер тізімі (node tools/gen-catalog.mjs -> supabase/catalog.sql). Бос болса, сүзгі өшірулі.
+create table if not exists public.level_catalog (
+  course_id text not null,
+  level_id text not null,
+  primary key (course_id, level_id)
+);
+alter table public.level_catalog enable row level security;
+alter table public.profiles add column if not exists last_sync timestamptz;
+
 create table if not exists public.lectures_read (
   user_id uuid not null references public.profiles(id) on delete cascade,
   course_id text not null,
@@ -205,16 +214,34 @@ end $$;
 drop function if exists public.sync_progress(jsonb, jsonb);
 create or replace function public.sync_progress(items jsonb default '[]', read jsonb default '[]', days jsonb default '[]') returns jsonb
 language plpgsql security definer set search_path = public as $$
-declare it jsonb; res jsonb; dd date;
+declare it jsonb; res jsonb; dd date; ls timestamptz; allowance numeric; gain int; cur int; want int; cname text; lname text; use_cat boolean;
 begin
   perform public.require_role(array['owner', 'admin', 'teacher', 'student']);
+  -- Жұлдыз қорғанысы: тек каталогтағы деңгейлер қабылданады, ал жаңа жұлдыздар саны өткен уақытқа сәйкес болуы керек
+  -- (бір деңгей — кемінде ~12 секунд). Алғашқы синхронда (ескі қонақ прогресі) үлкенірек қор беріледі.
+  select last_sync into ls from public.profiles where id = auth.uid();
+  if ls is null then allowance := 150;
+  else allowance := least(400, 8 + floor(extract(epoch from (now() - ls)) / 12));
+  end if;
+  use_cat := exists (select 1 from public.level_catalog);
   for it in select * from jsonb_array_elements(coalesce(items, '[]'::jsonb)) loop
+    cname := left(it ->> 'c', 40);
+    lname := left(it ->> 'l', 40);
+    want := least(3, greatest(0, coalesce((it ->> 's')::int, 0)));
+    if want = 0 then continue; end if;
+    if use_cat and not exists (select 1 from public.level_catalog where course_id = cname and level_id = lname) then continue; end if;
+    select stars into cur from public.progress where user_id = auth.uid() and course_id = cname and level_id = lname;
+    gain := want - coalesce(cur, 0);
+    if gain <= 0 then continue; end if;
+    if gain > allowance then continue; end if;
+    allowance := allowance - gain;
     insert into public.progress (user_id, course_id, level_id, stars)
-    values (auth.uid(), left(it ->> 'c', 40), left(it ->> 'l', 40), least(3, greatest(0, coalesce((it ->> 's')::int, 0))))
+    values (auth.uid(), cname, lname, want)
     on conflict (user_id, course_id, level_id) do update
       set stars = greatest(public.progress.stars, excluded.stars),
           updated_at = case when excluded.stars > public.progress.stars then now() else public.progress.updated_at end;
   end loop;
+  update public.profiles set last_sync = now() where id = auth.uid();
   for it in select * from jsonb_array_elements(coalesce(read, '[]'::jsonb)) loop
     insert into public.lectures_read (user_id, course_id, lecture_id)
     values (auth.uid(), left(it ->> 'c', 40), left(it ->> 'l', 40)) on conflict do nothing;
