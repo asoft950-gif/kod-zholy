@@ -523,7 +523,13 @@
           a.href = level.assign.manager ? "#/teacher" : "#/account";
           row.appendChild(a);
         } else if (next) {
-          const a = el("a", "btn primary", "Келесі тапсырма →");
+          const lec = KZ.nextLectureHref(course, level, list, listKind);
+          if (lec) {
+            const l = el("a", "btn primary", "📖 Келесі лекция →");
+            l.href = lec;
+            row.appendChild(l);
+          }
+          const a = el("a", lec ? "btn" : "btn primary", "Келесі тапсырма →");
           a.href = next;
           row.appendChild(a);
         } else {

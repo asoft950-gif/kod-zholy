@@ -338,7 +338,13 @@
     if (ok) {
       const row = el("div", "row");
       const next = nextHref();
-      const a = el("a", "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
+      const lec = next ? KZ.nextLectureHref(course, level, list, listKind) : null;
+      if (lec) {
+        const l = el("a", "btn primary", "📖 Келесі лекция →");
+        l.href = lec;
+        row.appendChild(l);
+      }
+      const a = el("a", next && !lec ? "btn primary" : next ? "btn" : "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
       a.href = next || "#/" + course.id + "/" + listKind;
       row.appendChild(a);
       box.appendChild(row);

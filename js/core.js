@@ -34,6 +34,16 @@ KZ.findLevel = function (course, id) {
   return null;
 };
 KZ.topicOf = (level) => String(level.id).split(".")[0];
+/* Тақырып аяқталып, келесі тақырыптың лекциясы бар болса, соның сілтемесі (тапсырмаға тікелей өтпей, алдымен лекция оқу үшін) */
+KZ.nextLectureHref = (course, level, list, listKind) => {
+  if (listKind !== "tasks") return null;
+  const i = list.findIndex((l) => l.id === level.id);
+  if (i < 0 || i >= list.length - 1) return null;
+  const nxt = KZ.topicOf(list[i + 1]);
+  if (KZ.topicOf(level) === nxt) return null;
+  const lec = (course.lectures || []).find((l) => String(l.topic) === nxt);
+  return lec ? "#/" + course.id + "/lecture/" + lec.id : null;
+};
 KZ.allLevels = (course) => (course.levels || []).concat(course.bonus || []);
 
 /* ---------- Сақтау ---------- */
