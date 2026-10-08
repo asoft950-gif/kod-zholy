@@ -138,7 +138,11 @@
 
   /* Офлайн жұмыс және «Телефонға орнату» */
   const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
-  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+  let swOk = false;
+  try {
+    swOk = "serviceWorker" in navigator && /^https?:$/.test(location.protocol);
+  } catch (e) {}
+  if (swOk) {
     window.addEventListener("load", () => {
       try {
         navigator.serviceWorker.register("sw.js").catch((e) => console.warn("sw:", e.message));

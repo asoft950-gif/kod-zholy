@@ -90,6 +90,54 @@
     return name + ": " + msg;
   }
 
+
+  /* Түзету кеңесі + қате жолының мәтіні */
+  function kzTip(kind, raw, code) {
+    let m;
+    if (kind === "syntax") {
+      if (/[\u201c\u201d\u2018\u2019]/.test(code)) return "Кодта қисық тырнақша “ ” немесе ‘ ’ бар. Тек тік тырнақша \" немесе ' қолдан.";
+      const pairs = { ")": "(", "}": "{", "]": "[" };
+      const stack = [];
+      let q = null;
+      for (let i = 0; i < code.length; i++) {
+        const c = code[i];
+        if (q) { if (c === "\\") i++; else if (c === q) q = null; continue; }
+        if (c === '"' || c === "'" || c === "`") { q = c; continue; }
+        if (c === "/" && code[i + 1] === "/") { while (i < code.length && code[i] !== "\n") i++; continue; }
+        if ("({[".includes(c)) stack.push(c);
+        else if (pairs[c]) { if (stack.pop() !== pairs[c]) return "«" + c + "» белгісіне сәйкес ашатын жақша жоқ. Артық жабылған жақшаны өшір."; }
+      }
+      if (stack.length) {
+        const o = stack[stack.length - 1];
+        const cl = { "(": ")", "{": "}", "[": "]" }[o];
+        return "«" + o + "» ашылған, бірақ жабылмаған. Соңына «" + cl + "» қой.";
+      }
+      if (/Unterminated string/.test(raw)) return "Жолдың басындағы тырнақшамен бірдей тырнақшамен жап.";
+      if (/already been declared/.test(raw)) return "let/const тек бір рет жазылады. Кейін тек атын жаз: x = 10;";
+      if (/Missing initializer/.test(raw)) return "const x = 5; деп бірден мән бер.";
+      if (/Unexpected/.test(raw)) return "Қате көрсетілген жолдың алдындағы жолды да тексер: нүктелі үтір, үтір не жақша түсіп қалған болар.";
+      return "Қате көрсетілген жолды әріп-әріпімен тексер.";
+    }
+    if (kind === "runtime") {
+      if ((m = /^(.+?) is not defined/.exec(raw))) return "«" + m[1] + "» атын қайта қара: бас әріп/кіші әріп маңызды (name ≠ Name). Не алдымен let " + m[1] + " = … деп жаса.";
+      if (/before initialization/.test(raw)) return "let жолын қолданылатын жолдан жоғары жаз.";
+      if (/Assignment to constant/.test(raw)) return "const-ты let-ке ауыстыр.";
+      if ((m = /^(.+?) is not iterable/.exec(raw))) return "for...of тек массив пен мәтінмен жұмыс істейді. «" + m[1] + "» массив екенін тексер.";
+      if ((m = /^(.+?)\.(\w+) is not a function/.exec(raw))) return "«" + m[2] + "» атауын тексер (мысалы: push, length емес!). " + m[1] + " мәнінің түрі басқа болуы мүмкін.";
+      if ((m = /^(.+?) is not a function/.exec(raw))) return "«" + m[1] + "» функция ретінде жарияланбаған. Жақшаны алып таста не атын түзет.";
+      if (/Cannot (?:read|set) propert/.test(raw)) return "Қорапта мән жоқ (undefined/null). Элемент табылды ма? getElementById ішіндегі id дұрыс па? Массивте сондай нөмір бар ма?";
+      if (/call stack/i.test(raw)) return "Рекурсияда тоқтау шарты (if … return) болуы керек.";
+      if (/array length/i.test(raw)) return "Массив ұзындығы теріс емес бүтін сан болуы керек.";
+    }
+    return "";
+  }
+
+  function srcLine(code, line) {
+    if (!line) return "";
+    const l = String(code).split("\n")[line - 1];
+    return l == null ? "" : l.trim().slice(0, 120);
+  }
+
   /* ---------- Кодты талдау және із қосу ---------- */
   function instrument(code) {
     const ast = acorn.parse(code, { ecmaVersion: "latest", locations: true, sourceType: "script" });
@@ -354,6 +402,8 @@
         kind: "syntax", msg: kzSyntax(msg), line: e.loc ? e.loc.line : null,
         detail: msg.replace(/\s*\(\d+:\d+\)$/, ""),
       };
+      error.tip = kzTip("syntax", msg, code);
+      error.src = srcLine(code, error.line);
     }
 
     if (inst) {
@@ -362,9 +412,11 @@
         fn(__t, __end, cons);
       } catch (e) {
         if (e === STOP) {
-          error = { kind: "limit", msg: "Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер.", line: curLine, detail: "" };
+          error = { kind: "limit", msg: "Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер.", line: curLine, detail: "", tip: "while не for циклінің шарты ақыры жалған болуы керек (санауыш өсіп отыруы керек). Рекурсияда тоқтау шарты (if … return) болсын.", src: srcLine(code, curLine) };
         } else {
           error = { kind: "runtime", msg: kzRuntime(e), line: curLine || null, detail: String((e && e.name) || "") + ": " + String((e && e.message) || e) };
+          error.tip = kzTip("runtime", String((e && e.message) || e), code);
+          error.src = srcLine(code, error.line);
         }
       }
     }

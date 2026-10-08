@@ -35,47 +35,201 @@ def _line_of(exc):
     return line
 
 
-def _describe_syntax(e):
+def _src_line(code, line):
+    """Қате шыққан жолдың мәтіні (бос орындарсыз), клиентке көрсету үшін."""
+    if not line:
+        return None
+    lines = code.splitlines()
+    if 1 <= line <= len(lines):
+        return lines[line - 1].strip()[:120]
+    return None
+
+
+def _suggest(word, candidates):
+    """Қате жазылған атқа ұқсас дұрыс атты табу: 'pritn' -> 'print'."""
+    import difflib
+    pool = [c for c in candidates if not str(c).startswith("__")]
+    m = difflib.get_close_matches(str(word), pool, n=1, cutoff=0.72)
+    return m[0] if m else None
+
+
+def _describe_syntax(e, code=""):
     text = e.msg or ""
     low = text.lower()
-    if isinstance(e, IndentationError) or "indent" in low:
-        msg = ("Шегініс дұрыс емес. for, if сияқты жолдың ішіндегі жолдар "
-               "алдында 4 бос орын тұруы керек.")
+    src = _src_line(code, e.lineno) or ""
+    tip = None
+    if "invalid character" in low or any(ch in src for ch in "\u201c\u201d\u2018\u2019\u00ab\u00bb"):
+        msg = "Кодта әдемі (қисық) тырнақша не басқа бөгде таңба тұр."
+        tip = ("Кодта тек тік тырнақша қолдан: \" \" не ' '. Телефонда жиі « » “ ” шығып кетеді. "
+               "Таңбаны өшіріп, қайта жаз.")
+    elif "unexpected indent" in low:
+        msg = "Бұл жолдың алдында артық бос орын тұр."
+        tip = "Егер алдыңғы жол ':' белгісімен бітпесе, келесі жол шегінбеуі керек. Артық бос орынды өшір."
+    elif "unindent does not match" in low:
+        msg = "Шегіністер бір-біріне сәйкес келмейді."
+        tip = "Бір блоктағы барлық жолдың алдында бірдей бос орын саны (мысалы, 4) болуы керек. Tab пен бос орынды араластырма."
+    elif isinstance(e, IndentationError) or "expected an indented block" in low or "indent" in low:
+        msg = "Шегініс жетіспейді: for, if, while, def жолынан кейінгі жол ішке кіруі керек."
+        tip = "Келесі жолдың алдына 4 бос орын қой. Мысалы:\nfor i in range(3):\n    print(i)"
     elif "expected ':'" in low:
         msg = "Жолдың соңында ':' белгісі жетіспейді."
-    elif "never closed" in low or "unterminated" in low or "unmatched" in low:
-        msg = "Жақша немесе тырнақша жабылмаған (не артық тұр)."
+        tip = "if, elif, else, for, while, def жолдарының соңына қос нүкте қой: if x > 3:"
+    elif "never closed" in low:
+        import re
+        m = re.search(r"'(.)' was never closed", text)
+        br = m.group(1) if m else "("
+        msg = "'%s' жақшасы ашылды, бірақ жабылмады." % br
+        tip = "Қарсы жақшаны қой: %s. Ашылған жақша саны мен жабылғаны тең болуы керек." % {"(": ")", "[": "]", "{": "}"}.get(br, ")")
+    elif "unterminated string" in low or "unterminated triple" in low:
+        msg = "Тырнақша жабылмаған."
+        tip = "Мәтіннің басында да, соңында да бірдей тырнақша тұруы керек: print(\"Сәлем\")"
+    elif "unmatched" in low:
+        msg = "Артық жабық жақша тұр."
+        tip = "Оны өшір, не оған сәйкес ашық жақшаны қой."
+    elif "maybe you meant '=='" in low or ("invalid syntax" in low and src.startswith(("if ", "elif ", "while ")) and "=" in src and "==" not in src and "<=" not in src and ">=" not in src and "!=" not in src):
+        msg = "Шартта салыстыру үшін == жазу керек, = емес."
+        tip = "= — қорапқа мән беру. Салыстыру үшін екі теңдік: if x == 5:"
+    elif "missing parentheses in call to 'print'" in low:
+        msg = "print функциясы жақшамен жазылады."
+        tip = "Былай жаз: print(\"Сәлем\")"
     elif "perhaps you forgot a comma" in low:
-        msg = "Бір жерде үтір жетіспейді, не жақша дұрыс емес."
+        msg = "Бір жерде үтір жетіспейді."
+        tip = "Тізімдегі не жақшадағы элементтердің арасына үтір қой: [1, 2, 3]"
+    elif "invalid decimal literal" in low:
+        msg = "Санның жанында әріп тұр."
+        tip = "Көбейту үшін * қой: 2 * x. Атаулар санмен басталмайды."
+    elif "'return' outside function" in low:
+        msg = "return тек def ішінде жазылады."
+        tip = "return жолын функцияның ішіне (шегініспен) қой."
+    elif "cannot assign to" in low or "cannot assign" in low:
+        msg = "Теңдіктің сол жағына мән беруге болмайды."
+        tip = "Сол жақта тек қорап аты тұруы керек: x = 5"
+    elif "eof" in low or "unexpected eof" in low:
+        msg = "Код аяқталмай қалды."
+        tip = "Жабылмаған жақша не аяқталмаған жол бар шығар. Соңғы жолдарды тексер."
     else:
         msg = "Жазылуында қате бар. Осы жолды (және алдыңғы жолды) қайта оқып шық."
+        tip = "Жақша, тырнақша, ':' және үтірлерді тексер. Алдыңғы жолдағы қате келесі жолда көрінуі мүмкін."
     return {"kind": "syntax", "type": type(e).__name__, "line": e.lineno,
-            "msg": msg, "detail": text}
+            "msg": msg, "tip": tip, "src": src or None, "detail": text}
 
 
-def _describe(e):
+def _describe(e, code="", names=()):
+    import re
     name, text = type(e).__name__, str(e)
-    if isinstance(e, NameError):
+    tip = None
+    if isinstance(e, UnboundLocalError):
         who = getattr(e, "name", None) or text
-        msg = ("'%s' деген ат табылмады. Айнымалыны алдымен жасадың ба? "
-               "Әріптері дұрыс па?" % who)
+        msg = "'%s' қорабы функция ішінде әлі мән алмай тұрып қолданылды." % who
+        tip = "Қорапқа алдымен мән бер, не функцияның параметрі етіп жаз. Сыртқы қорапты өзгерту үшін ішінде global %s деп жаз." % who
+    elif isinstance(e, NameError):
+        who = getattr(e, "name", None) or text
+        msg = "'%s' деген ат табылмады." % who
+        sg = _suggest(who, list(names) + dir(builtins))
+        tip = ("Мүмкін, '%s' деп жазғың келген шығар? " % sg) if sg else ""
+        tip += "Қорапты алдымен жасадың ба? Әріптері, үлкен-кіші әріпі дұрыс па? Мәтін болса, тырнақшаға ал: \"%s\"." % who
     elif isinstance(e, ZeroDivisionError):
         msg = "0-ге бөлуге болмайды."
+        tip = "Бөлгіш болып тұрған қорапта 0 тұрған жоқ па? Қадамдап жүріп, қораптың мәнін оң жақтан қара."
     elif isinstance(e, IndexError):
-        msg = "Тізімде мұндай нөмірлі элемент жоқ."
+        if "pop" in text:
+            msg = "Бос тізімнен элемент алуға болмайды."
+            tip = "Алдымен тізімге элемент қос, не тізім бос емес пе деп тексер: if len(x) > 0:"
+        else:
+            msg = "Тізімде (мәтінде) мұндай нөмірлі элемент жоқ."
+            tip = "Нөмір 0-ден басталады: 3 элементтің нөмірлері 0, 1, 2. Соңғы элемент үшін x[-1] не x[len(x) - 1] жаз."
     elif isinstance(e, KeyError):
         msg = "Сөздікте мұндай кілт жоқ: %s" % text
+        tip = "Кілттің жазылуын тексер (үлкен-кіші әріп, тырнақша). Тексеру үшін: if кілт in сөздік:"
+    elif isinstance(e, AttributeError):
+        attr = getattr(e, "name", None)
+        obj = getattr(e, "obj", None)
+        tname = type(obj).__name__ if obj is not None else ""
+        kz_type = {"list": "тізімде", "str": "мәтінде", "int": "санда", "float": "бөлшек санда", "dict": "сөздікте", "NoneType": "None мәнінде"}.get(tname, "бұл нысанда")
+        msg = "%s '%s' деген әрекет/қасиет жоқ." % (kz_type[0].upper() + kz_type[1:], attr or "?")
+        hints = {"push": "append", "length": "len(...)", "size": "len(...)", "add": "append", "toUpperCase": "upper", "toLowerCase": "lower"}
+        sg = hints.get(attr) or (_suggest(attr, dir(obj)) if obj is not None and attr else None)
+        if tname == "NoneType":
+            tip = "Қорап None болып тұр: алдыңғы функция ештеңе қайтармаған (return ұмытылған)."
+        elif sg:
+            tip = "Python-да: %s. Атты дұрыс жаздың ба?" % (("len(x) жазу керек" if sg == "len(...)" else "'%s' қолдан" % sg))
+        else:
+            tip = "Атын дұрыс жаздың ба? Әрекеттер тізімін анықтамалықтан қара."
     elif isinstance(e, TypeError):
-        msg = ("Типтер сәйкес келмейді (мысалы, санды мәтінмен қосуға болмайды). "
-               "Қатенің мәтіні: %s" % text)
+        low = text
+        if "can only concatenate str" in low or ("unsupported operand" in low and "'str'" in low) or "must be str, not" in low:
+            msg = "Мәтінді санмен қосуға болмайды."
+            tip = "Санды мәтінге айналдыр: \"Жасым: \" + str(x). Не f-мәтін қолдан: f\"Жасым: {x}\""
+        elif "not callable" in low:
+            m = re.search(r"'(\w+)' object is not callable", low)
+            msg = "Қорапты функция сияқты жақшамен шақырып тұрсың."
+            tip = ("Қорап атының жанындағы жақшаны өшір. Көбейткің келсе, * қой: 2 * x. "
+                   "Функция атымен бірдей ат қорапқа берілген болуы мүмкін (мысалы, print = 5).")
+        elif "not subscriptable" in low:
+            msg = "Бұл мәнге [ ] арқылы элемент алуға болмайды."
+            tip = "[ ] тек тізімге, мәтінге және сөздікке қолданылады. Қорапта басқа мән (сан не None) тұр ма, тексер."
+        elif "nonetype" in low:
+            msg = "Мән жоқ (None) болып тұр, онымен жұмыс істеуге болмайды."
+            tip = "Функция ештеңе қайтармаған болуы мүмкін: оның соңына return жаз."
+        elif "positional argument" in low or "required positional" in low or "takes" in low and "given" in low:
+            msg = "Функцияға берілген мәндер саны дұрыс емес."
+            tip = "Функцияны жасағанда жақшада қанша параметр жазылса, шақырғанда сонша мән бер. (%s)" % text
+        elif "not iterable" in low:
+            msg = "Бұл мәнді for арқылы тізіп шығуға болмайды."
+            tip = "for-ға тізім, мәтін не range(...) керек. Сан болса, range(сан) жаз: for i in range(5):"
+        elif "not supported between" in low:
+            msg = "Бұл екі мәнді салыстыруға болмайды (мысалы, мәтін мен сан)."
+            tip = "Біреуін екіншісінің түріне айналдыр: int(\"5\") мәтінді санға, str(5) санды мәтінге айналдырады."
+        elif "has no len" in low:
+            msg = "len() тек тізімге, мәтінге, сөздікке қолданылады."
+            tip = "Санның ұзындығы болмайды. Цифр санын білгің келсе, len(str(x)) жаз."
+        elif "unsupported operand" in low:
+            msg = "Бұл екі мәнге мұндай амал қолдануға болмайды."
+            tip = "Мәндердің түрлері үйлеспейді (сан, мәтін, тізім). Қайсысының түрі қандай екенін оң жақтағы қораптардан қара."
+        elif "can't multiply sequence" in low:
+            msg = "Мәтінді (тізімді) тек бүтін санға көбейтуге болады."
+            tip = "\"ab\" * 3 жұмыс істейді, \"ab\" * \"3\" істемейді. Мәтінді int(...) арқылы санға айналдыр."
+        else:
+            msg = "Мәндердің түрлері сәйкес келмейді."
+            tip = "Қатенің мәтіні: %s" % text
     elif isinstance(e, ValueError):
-        msg = "Мән дұрыс емес: %s" % text
+        if "invalid literal for int" in text or "could not convert string to float" in text:
+            m = re.search(r": '(.*)'", text)
+            msg = "«%s» мәтінін санға айналдыру мүмкін емес." % (m.group(1) if m else "")
+            tip = "int(...) тек цифрлардан тұратын мәтінді айналдырады: int(\"42\"). Бос орын не әріп болмауы керек."
+        elif "math domain" in text:
+            msg = "Бұл санға мұндай математикалық амал жоқ (мысалы, теріс санның түбірі)."
+            tip = "Санның таңбасын тексер: sqrt-қа теріс сан беруге болмайды."
+        elif "not enough values" in text or "too many values" in text:
+            msg = "Мәндер саны қораптар санына тең емес."
+            tip = "a, b = [1, 2] жұмыс істейді: екі жағында да бірдей санда болуы керек."
+        elif "not in list" in text:
+            msg = "Тізімде мұндай мән жоқ, сондықтан өшіре алмаймын."
+            tip = "Алдымен тексер: if мән in тізім:"
+        elif "must not be zero" in text:
+            msg = "range үшін қадам 0 бола алмайды."
+            tip = "Үшінші сан 1, 2, -1 сияқты болуы керек."
+        else:
+            msg = "Мән дұрыс емес: %s" % text
+            tip = "Функцияға берген мәніңді тексер: түрі мен шамасы сәйкес пе?"
     elif isinstance(e, RecursionError):
         msg = "Функция өзін тым көп қайталап шақырды."
+        tip = "Рекурсияда тоқтайтын шарт болуы керек: if n == 0: return. Ол орындалатынына көз жеткіз."
+    elif isinstance(e, (ImportError, ModuleNotFoundError)):
+        msg = "Бұл модуль табылмады."
+        tip = "Мұнда тек Python-ның стандартты модульдері (math, random…) жұмыс істейді."
+    elif isinstance(e, OverflowError):
+        msg = "Сан тым үлкен болып кетті."
+        tip = "Цикл тоқтап, санның шексіз өсіп кетпегенін тексер."
+    elif isinstance(e, AssertionError):
+        msg = "Тексеру (assert) орындалмады."
+        tip = text or None
     else:
         msg = text or name
-    return {"kind": "runtime", "type": name, "line": _line_of(e),
-            "msg": msg, "detail": "%s: %s" % (name, text)}
+        tip = "Қатенің түрі: %s. Айтылған жолды және оның алдындағы жолды қара." % name
+    line = _line_of(e)
+    return {"kind": "runtime", "type": name, "line": line, "msg": msg, "tip": tip,
+            "src": _src_line(code, line), "detail": "%s: %s" % (name, text)}
 
 
 def _count_lines(code):
@@ -253,7 +407,7 @@ def run(code, cfg_json=None):
         features = _features(tree)
         compiled = compile(tree, FILENAME, "exec")
     except SyntaxError as e:
-        err = _describe_syntax(e)
+        err = _describe_syntax(e, code)
         compiled = None
     except ValueError as e:  # мысалы, null байт
         err = {"kind": "syntax", "type": "ValueError", "line": None,
@@ -275,7 +429,7 @@ def run(code, cfg_json=None):
             err = {"kind": "robot", "type": "RobotError", "line": _line_of(e),
                    "msg": str(e), "detail": str(e)}
         except Exception as e:
-            err = _describe(e)
+            err = _describe(e, code, list(user_globals))
         finally:
             sys.settrace(None)
 

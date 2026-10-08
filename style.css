@@ -700,3 +700,6 @@ a.score.streak:not(.hot) { opacity: 0.85; }
 
 /* ---------- Орнату ---------- */
 .linklike { font: inherit; font-weight: 800; color: var(--violet); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+.err-line{margin:6px 0;padding:6px 10px;border-left:3px solid #e5484d;background:rgba(229,72,77,.08);border-radius:6px;font:13px/1.4 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-x:auto}
+.err-tip{margin:6px 0 0;padding:8px 10px;border-radius:8px;background:rgba(255,196,0,.14);font-size:14px}

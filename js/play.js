@@ -448,6 +448,8 @@
         box.appendChild(el("h2", null, "🙈 Қате шықты"));
         box.appendChild(el("p", null, e.msg));
         box.appendChild(el("small", null, (e.line ? e.line + "-жол · " : "") + (e.detail || "")));
+        if (e.src) box.appendChild(el("pre", "err-line", e.src));
+        if (e.tip) box.appendChild(el("p", "err-tip", "💡 " + e.tip));
       });
     } else if (level.sandbox) {
       hideResult();
