@@ -135,4 +135,31 @@
 
   window.addEventListener("hashchange", route);
   route();
+
+  /* Офлайн жұмыс және «Телефонға орнату» */
+  const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener("load", () => {
+      try {
+        navigator.serviceWorker.register("sw.js").catch((e) => console.warn("sw:", e.message));
+      } catch (e) {
+        console.warn("sw:", e.message); // кукиге тыйым салынған не жеке режим
+      }
+    });
+  }
+  let installEvent = null;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    installEvent = e;
+    if (!standalone) $("#installRow").hidden = false;
+  });
+  window.addEventListener("appinstalled", () => ($("#installRow").hidden = true));
+  $("#installBtn").addEventListener("click", async () => {
+    if (!installEvent) return;
+    installEvent.prompt();
+    await installEvent.userChoice.catch(() => {});
+    installEvent = null;
+    $("#installRow").hidden = true;
+  });
+  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) $("#iosTip").hidden = false;
 })();

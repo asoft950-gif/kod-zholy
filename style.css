@@ -697,3 +697,6 @@ a.score.streak:not(.hot) { opacity: 0.85; }
 .asg-form .btn { justify-self: start; }
 .field-row { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+
+/* ---------- Орнату ---------- */
+.linklike { font: inherit; font-weight: 800; color: var(--violet); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
