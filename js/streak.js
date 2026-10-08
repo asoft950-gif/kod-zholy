@@ -93,7 +93,7 @@
         (c.levels || []).forEach((l) => {
           if (l.sandbox) return;
           const s = KZ.progress.stars(c.id, l.id);
-          const open = KZ.progress.topicUnlocked(c, KZ.topicOf(l));
+          const open = KZ.progress.tasksUnlocked(c, KZ.topicOf(l));
           if (open && s === 0) pools[0].push([c.id, l.id]);
           else if (open && s < 3) pools[1].push([c.id, l.id]);
           else if (open) pools[2].push([c.id, l.id]);

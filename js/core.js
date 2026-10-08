@@ -42,6 +42,7 @@ KZ.nextLectureHref = (course, level, list, listKind) => {
   const nxt = KZ.topicOf(list[i + 1]);
   if (KZ.topicOf(level) === nxt) return null;
   const lec = (course.lectures || []).find((l) => String(l.topic) === nxt);
+  if (lec && KZ.progress.tasksUnlocked(course, nxt)) return null; // лекция оқылған: тікелей тапсырмаға өтуге болады
   return lec ? "#/" + course.id + "/lecture/" + lec.id : null;
 };
 KZ.allLevels = (course) => (course.levels || []).concat(course.bonus || []);
@@ -133,6 +134,14 @@ KZ.progress = {
     const i = ids.indexOf(topicId);
     if (i <= 0) return true;
     return (course.levels || []).filter((l) => KZ.topicOf(l) === ids[i - 1]).every((l) => this.stars(course.id, l.id) > 0) && this.topicUnlocked(course, ids[i - 1]);
+  },
+  /* Тапсырмалар ашық па? Тақырып ашық + сол тақырыптың лекциясы «оқылды» деп белгіленген болуы керек (ескі прогресс бар болса, бұғаттамаймыз) */
+  tasksUnlocked(course, topicId) {
+    if (!this.topicUnlocked(course, topicId)) return false;
+    if (this.openAll()) return true;
+    const lecs = (course.lectures || []).filter((l) => String(l.topic) === String(topicId));
+    if (!lecs.length || lecs.every((l) => KZ.read.has(course.id, l.id))) return true;
+    return (course.levels || []).some((l) => KZ.topicOf(l) === String(topicId) && this.stars(course.id, l.id) > 0);
   },
   /* Алдыңғы тақырып атауы (құлып хабары үшін) */
   prevTopic(course, topicId) {

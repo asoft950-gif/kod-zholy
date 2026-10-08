@@ -344,9 +344,11 @@
         l.href = lec;
         row.appendChild(l);
       }
-      const a = el("a", next && !lec ? "btn primary" : next ? "btn" : "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
-      a.href = next || "#/" + course.id + "/" + listKind;
-      row.appendChild(a);
+      if (!lec) {
+        const a = el("a", "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
+        a.href = next || "#/" + course.id + "/" + listKind;
+        row.appendChild(a);
+      }
       box.appendChild(row);
     } else {
       checkedOnce = true;

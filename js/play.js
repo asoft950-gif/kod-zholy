@@ -529,9 +529,11 @@
             l.href = lec;
             row.appendChild(l);
           }
-          const a = el("a", lec ? "btn" : "btn primary", "Келесі тапсырма →");
-          a.href = next;
-          row.appendChild(a);
+          if (!lec) {
+            const a = el("a", "btn primary", "Келесі тапсырма →");
+            a.href = next;
+            row.appendChild(a);
+          }
         } else {
           const a = el("a", "btn primary", "← Курсқа оралу");
           a.href = "#/" + course.id + "/" + listKind;

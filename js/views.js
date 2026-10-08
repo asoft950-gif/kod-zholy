@@ -158,7 +158,8 @@
       const items = c.levels.filter((l) => KZ.topicOf(l) === t.id);
       if (!items.length) return;
       const got = items.reduce((a, l) => a + KZ.progress.stars(c.id, l.id), 0);
-      const open = KZ.progress.topicUnlocked(c, t.id);
+      const topicOpen = KZ.progress.topicUnlocked(c, t.id);
+      const open = KZ.progress.tasksUnlocked(c, t.id);
       const card = el("section", "card topic" + (open ? "" : " locked"));
       card.appendChild(
         h(
@@ -169,6 +170,13 @@
           h("span", "topic-stars", open ? "⭐ " + got + "/" + items.length * 3 : "🔒")
         )
       );
+      if (!open && topicOpen) {
+        const lec = (c.lectures || []).find((l) => String(l.topic) === t.id);
+        card.appendChild(h("p", "lock-note", "Алдымен осы тақырыптың лекциясын оқып, «Оқыдым деп белгіле» батырмасын бас."));
+        if (lec) card.appendChild(A("btn primary small", "#/" + c.id + "/lecture/" + lec.id, "📖 Лекцияға өту →"));
+        box.appendChild(card);
+        return;
+      }
       if (!open) {
         const prev = KZ.progress.prevTopic(c, t.id);
         card.appendChild(h("p", "lock-note", "«" + (prev ? prev.title : "Алдыңғы тақырып") + "» тақырыбының барлық тапсырмасын өткенде ашылады."));
@@ -454,11 +462,24 @@
     foot.appendChild(readBtn);
 
     const firstTask = c.levels.find((x) => KZ.topicOf(x) === l.topic);
-    if (firstTask) foot.appendChild(A("btn primary", "#/" + c.id + "/play/" + firstTask.id, "🎮 Тапсырмаға өту →"));
+    let taskLink = null;
+    if (firstTask) {
+      taskLink = A("btn primary", "#/" + c.id + "/play/" + firstTask.id, "🎮 Тапсырмаға өту →");
+      foot.appendChild(taskLink);
+    }
+    const hint = h("p", "lock-note", "Тапсырмаға өту үшін алдымен лекцияны оқып, «Оқыдым деп белгіле» батырмасын бас.");
+    const gate = () => {
+      const ok = KZ.progress.tasksUnlocked(c, l.topic);
+      if (taskLink) taskLink.style.display = ok ? "" : "none";
+      hint.style.display = ok || !taskLink ? "none" : "";
+    };
+    readBtn.addEventListener("click", gate);
+    gate();
     const i = c.lectures.findIndex((x) => x.id === l.id);
-    if (i < c.lectures.length - 1) {
+    if (i < c.lectures.length - 1 && KZ.progress.topicUnlocked(c, c.lectures[i + 1].topic)) {
       foot.appendChild(A("btn", "#/" + c.id + "/lecture/" + c.lectures[i + 1].id, "Келесі лекция →"));
     }
+    foot.appendChild(hint);
     page.appendChild(foot);
     root.appendChild(page);
     return true;

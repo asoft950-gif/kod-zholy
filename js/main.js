@@ -92,7 +92,7 @@
     }
     const guard = (levelId) => {
       const f = parts[2] !== "free" && parts[3] !== "open" && KZ.findLevel(course, levelId); // /open: мұғалім берген тапсырма құлыпсыз ашылады
-      return !f || f.kind === "bonus" || KZ.progress.topicUnlocked(course, KZ.topicOf(f.level));
+      return !f || f.kind === "bonus" || KZ.progress.tasksUnlocked(course, KZ.topicOf(f.level));
     };
     if (parts[1] === "play" && parts[2]) {
       if (!guard(parts[2])) {
