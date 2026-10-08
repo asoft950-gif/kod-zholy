@@ -219,7 +219,7 @@
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
-    renderVars(f.vars || []);
+    renderVars(f.vars || [], loopInfoAt(i));
     $("#console").textContent = f.out || "";
     renderNote(f);
     showDom(f, i === lastIdx());
@@ -306,27 +306,33 @@
   }
 
   /* ---------- Қораптар (жад) ---------- */
-  function renderVars(vars) {
+  function renderVars(vars, loopInfo) {
     const box = $("#memory");
     box.textContent = "";
+    const prev = shownVars;
+    if (loopInfo) box.appendChild(loopCard(loopInfo));
     if (!vars.length) {
-      box.appendChild(
-        el("p", "empty", "Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады.")
-      );
+      if (!loopInfo)
+        box.appendChild(el("p", "empty", "Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады."));
       shownVars = {};
       return;
     }
     vars.forEach((v) => {
-      const changed = shownVars[v.n] !== v.r;
-      const card = el("div", "var" + (changed ? " changed" : ""));
+      const old = prev[v.n];
+      const isNew = !old;
+      const changed = !isNew && old.r !== v.r;
+      const card = el("div", "var" + (isNew ? " fresh" : changed ? " changed" : ""));
       card.style.setProperty("--c", KZ.colorFor(v.n));
       const name = el("div", "var-name", v.n);
       name.appendChild(el("small", null, v.t));
+      if (v.i) name.appendChild(el("small", "len", "· " + (v.more ? v.i.length + "+" : v.i.length) + " элемент"));
       card.appendChild(name);
       if (v.i) {
         const row = el("div", "var-cells");
         v.i.forEach((item, k) => {
-          const cell = el("div", "var-cell");
+          const was = old && old.i;
+          const cls = !was || k >= was.length ? (isNew ? "" : " new") : was[k] !== item ? " hot" : "";
+          const cell = el("div", "var-cell" + cls);
           cell.appendChild(el("div", "v", item));
           cell.appendChild(el("div", "i", String(k)));
           row.appendChild(cell);
@@ -334,12 +340,45 @@
         if (v.more) row.appendChild(el("div", "var-cell", "…"));
         card.appendChild(row);
       } else {
+        if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
         card.appendChild(el("div", "var-box", v.r));
       }
       box.appendChild(card);
     });
     shownVars = {};
-    vars.forEach((v) => (shownVars[v.n] = v.r));
+    vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i }));
+  }
+
+  /* Цикл көрсеткіші: for/while жолына неше рет келді */
+  function loopInfoAt(i) {
+    const f = run && run.frames[i];
+    if (!f || !f.line || f.kind === "error") return null;
+    const src = (editor.getLine(f.line - 1) || "").trim();
+    const m = /^(for|while)\b/.exec(src);
+    if (!m) return null;
+    let total = 0;
+    let upto = 0;
+    run.frames.forEach((g, k) => {
+      if (g.line === f.line && g.kind !== "error") {
+        total++;
+        if (k <= i) upto++;
+      }
+    });
+    const rounds = Math.max(total - 1, 0); // соңғы келу: цикл аяқталатын тексеру
+    return { src, upto, rounds, done: upto > rounds, kw: m[1] };
+  }
+  function loopCard(info) {
+    const card = el("div", "loopbox");
+    const cur = Math.min(info.upto, info.rounds);
+    card.appendChild(
+      el("div", "loop-t", info.done ? "🔁 Цикл аяқталды · " + info.rounds + " айналым" : "🔁 " + cur + "-айналым / " + info.rounds)
+    );
+    const dots = el("div", "loop-dots");
+    for (let k = 1; k <= Math.min(info.rounds, 40); k++) {
+      dots.appendChild(el("span", "ld" + (k < cur || info.done ? " done" : k === cur ? " now" : "")));
+    }
+    card.appendChild(dots);
+    return card;
   }
 
   /* ---------- Робот алаңы ---------- */
@@ -444,6 +483,7 @@
 
     if (run.error) {
       const e = run.error;
+      if (window.KZS && run.error.kind !== "crash") KZS.beep("error");
       showResult("err", (box) => {
         box.appendChild(el("h2", null, "🙈 Қате шықты"));
         box.appendChild(el("p", null, e.msg));
@@ -460,6 +500,7 @@
         box.appendChild(el("small", null, "Кодты өзгертіп, қайта іске қосып көр."));
       });
     } else {
+      if (window.KZS) KZS.beep("win");
       showResult("ok", (box) => {
         box.appendChild(el("h2", null, "🎉 Тамаша!"));
         box.appendChild(el("div", "big-stars", "⭐".repeat(ev.stars) + "☆".repeat(3 - ev.stars)));

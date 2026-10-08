@@ -85,6 +85,11 @@
     KZ.courses.forEach((c) => grid.appendChild(courseCard(c)));
     page.appendChild(grid);
 
+    const tile = A("card algo-tile", "#/algo");
+    tile.appendChild(h("div", "e", "🎬"));
+    tile.appendChild(h("div", null, h("b", null, "Алгоритм көрінісі"), h("small", null, "Сұрыптау, іздеу және рекурсияны қадам-қадамымен көр")));
+    page.appendChild(tile);
+
     page.appendChild(
       h(
         "section",

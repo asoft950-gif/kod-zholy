@@ -67,6 +67,10 @@
       openTask(parts[1]);
       return;
     }
+    if (parts[0] === "algo") {
+      KZ.algoPage(views.cab, parts[1]);
+      return show("cab", "Алгоритм көрінісі");
+    }
     if (parts[0] === "achievements") {
       KZ.achievementsPage(views.cab);
       return show("cab", "Жетістіктер");

@@ -235,6 +235,21 @@ KZ.makeBoard = function (cfg) {
   place(robotEl, cfg.start.x, cfg.start.y);
   root.appendChild(robotEl);
   let angle = (cfg.start.d == null ? 1 : cfg.start.d) * 90;
+  let px = cfg.start.x;
+  let py = cfg.start.y;
+  /* Жұлдыз алынғанда ұшқын шашырайды */
+  const burst = (key) => {
+    const [x, y] = key.split(",").map(Number);
+    for (let i = 0; i < 8; i++) {
+      const sp = KZ.el("div", "spark");
+      place(sp, x, y);
+      const a = (i / 8) * Math.PI * 2;
+      sp.style.setProperty("--dx", Math.round(Math.cos(a) * 34) + "px");
+      sp.style.setProperty("--dy", Math.round(Math.sin(a) * 34) + "px");
+      root.appendChild(sp);
+      setTimeout(() => sp.remove(), 700);
+    }
+  };
   innerEl.style.transform = "rotate(" + angle + "deg)";
 
   return {
@@ -245,14 +260,43 @@ KZ.makeBoard = function (cfg) {
     /* r: { x, y, d, stars: [[x, y], ...] }; kind: кадр түрі */
     setState(r, kind) {
       if (!r) return;
-      robotEl.style.left = (r.x * 100) / cfg.cols + "%";
-      robotEl.style.top = (r.y * 100) / cfg.rows + "%";
+      const moved = r.x !== px || r.y !== py;
       const target = r.d * 90;
       const delta = ((((target - angle) % 360) + 540) % 360) - 180; // ең қысқа бұрылыс
+      const left = new Set(r.stars.map((s) => s[0] + "," + s[1]));
+      const live = kind != null; // null: қайта бастау, дыбыс пен із қажет емес
+      const sound = window.KZS ? window.KZS.beep : () => {};
+      if (live && moved) {
+        // өткен ұяшықта із қалады
+        const t = KZ.el("div", "trail");
+        place(t, px, py);
+        root.insertBefore(t, robotEl);
+        setTimeout(() => t.remove(), 1400);
+        robotEl.classList.remove("walk");
+        void robotEl.offsetWidth;
+        robotEl.classList.add("walk");
+      }
+      robotEl.style.left = (r.x * 100) / cfg.cols + "%";
+      robotEl.style.top = (r.y * 100) / cfg.rows + "%";
       angle += delta;
       innerEl.style.transform = "rotate(" + angle + "deg)";
-      const left = new Set(r.stars.map((s) => s[0] + "," + s[1]));
-      stars.forEach((node, key) => node.classList.toggle("got", !left.has(key)));
+      let gotNew = false;
+      stars.forEach((node, key) => {
+        const got = !left.has(key);
+        if (got && !node.classList.contains("got") && live) {
+          gotNew = true;
+          burst(key);
+        }
+        node.classList.toggle("got", got);
+      });
+      if (live) {
+        if (kind === "crash") sound("crash");
+        else if (gotNew) sound("star");
+        else if (moved) sound("move");
+        else if (delta) sound("turn");
+      }
+      px = r.x;
+      py = r.y;
       if (kind === "crash") {
         robotEl.classList.remove("crash");
         void robotEl.offsetWidth; // анимацияны қайта іске қосу
