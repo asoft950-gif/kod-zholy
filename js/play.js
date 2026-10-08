@@ -47,6 +47,7 @@
     smartIndent: true,
     viewportMargin: Infinity,
     inputStyle: "contenteditable",
+    autoCloseBrackets: true,
     extraKeys: {
       Tab: (cm) => cm.execCommand("insertSoftTab"),
       "Ctrl-Enter": () => runBtn.click(),

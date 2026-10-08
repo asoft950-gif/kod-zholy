@@ -28,6 +28,7 @@
     viewportMargin: Infinity,
     inputStyle: "contenteditable",
     autoCloseTags: true,
+    autoCloseBrackets: true,
     extraKeys: { Tab: (cm) => cm.execCommand("insertSoftTab") },
   });
   const viewer = CodeMirror.fromTextArea($("#webHtmlCode"), {
