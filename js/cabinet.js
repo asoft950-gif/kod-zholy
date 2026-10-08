@@ -125,7 +125,7 @@
       const pw = field("Құпиясөз", "password", "password", { auto: "current-password" });
       const go = el("button", "btn primary big", "Кіру");
       go.type = "submit";
-      f.append(em.wrap, pw.wrap, go, msg);
+      f.append(em.wrap, pw.wrap, go, h("p", "forgot", "Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді."), msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         go.disabled = true;
@@ -272,6 +272,42 @@
       }
     }
 
+    if (A.isActive()) {
+      const det = el("details", "card pw-change");
+      det.appendChild(h("summary", null, "🔑 Құпиясөзді өзгерту"));
+      const f = el("form");
+      const i = el("input");
+      i.type = "password";
+      i.autocomplete = "new-password";
+      i.placeholder = "Жаңа құпиясөз (кемінде 6 таңба)";
+      i.required = true;
+      const go = el("button", "btn primary", "Сақтау");
+      go.type = "submit";
+      const m = el("p", "form-msg");
+      m.hidden = true;
+      f.append(i, go, m);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        m.hidden = false;
+        if (i.value.length < 6) {
+          m.className = "form-msg bad";
+          m.textContent = "Құпиясөз кемінде 6 таңбадан тұруы керек.";
+          return;
+        }
+        try {
+          await A.changePassword(i.value);
+          i.value = "";
+          m.className = "form-msg good";
+          m.textContent = "Құпиясөз жаңартылды ✅";
+        } catch (err) {
+          m.className = "form-msg bad";
+          m.textContent = err.message;
+        }
+      });
+      det.appendChild(f);
+      page.appendChild(det);
+    }
+
     page.appendChild(btn("btn ghost", "Аккаунттан шығу", async () => {
       await A.signOut();
       location.hash = "#/";
@@ -371,12 +407,45 @@
     return wrap;
   }
 
+  /* Құпиясөзді ұмытқан адамға мұғалім/админ жаңа уақытша құпиясөз береді */
+  function tempPassword() {
+    const abc = "abcdefghjkmnpqrstuvwxyz23456789";
+    const a = new Uint32Array(8);
+    crypto.getRandomValues(a);
+    return Array.from(a, (x) => abc[x % abc.length]).join("");
+  }
+  function resetPwButton(sid, name) {
+    const wrap = el("span", "pw-reset");
+    wrap.appendChild(
+      confirmBtn("btn small ghost", "🔑 Жаңа құпиясөз", "Растау?", async () => {
+        wrap.textContent = "…";
+        try {
+          const pw = tempPassword();
+          await A.rpc("reset_password", { sid, new_pw: pw });
+          wrap.textContent = "";
+          const code = h("button", "code-box pw-box", pw);
+          code.type = "button";
+          code.title = "Көшіру";
+          code.addEventListener("click", () => {
+            if (navigator.clipboard) navigator.clipboard.writeText(pw).catch(() => {});
+          });
+          wrap.append(h("small", null, name + " үшін жаңа құпиясөз (тек қазір көрінеді, оқушыға айт — кіргеннен кейін кабинетінен өзгертсін): "), code);
+        } catch (e) {
+          wrap.textContent = "";
+          wrap.appendChild(h("small", "bad", e.message));
+        }
+      })
+    );
+    return wrap;
+  }
+
   async function studentDetail(box, sid) {
     box.textContent = "Жүктелуде…";
     try {
       const r = await A.rpc("student_progress", { sid });
       box.textContent = "";
       box.appendChild(h("h3", null, r.profile.full_name + " · " + ago(r.profile.last_seen)));
+      if (sid !== (A.profile && A.profile.id)) box.appendChild(resetPwButton(sid, r.profile.full_name));
       const map = {};
       r.progress.forEach((x) => ((map[x.c] = map[x.c] || {})[x.l] = x.s));
       KZ.courses.filter((c) => c.status === "ready").forEach((c) => {
@@ -701,6 +770,54 @@
     return wrap;
   }
 
+  /* ---------- Сынып статистикасы ---------- */
+  const STATUS = { stuck: ["🧱", "тұрып қалған"], idle: ["💤", "кірмей кеткен"], new: ["🌱", "әлі бастамаған"], done: ["🏁", "бітірген"], ok: ["✅", "жақсы"] };
+
+  async function statsPanel(c, box) {
+    box.textContent = "Жүктелуде…";
+    try {
+      const data = await A.rpc("class_stats", { cid: c.id });
+      const courses = KZ.courses.filter((x) => x.status === "ready");
+      const r = KZ.classStats.compute(data, courses);
+      box.textContent = "";
+      if (!r.n) {
+        box.appendChild(h("p", "empty-note", "Әзірге оқушы жоқ."));
+        return;
+      }
+      const chips = el("div", "chips-row");
+      [["👥 " + r.n + " оқушы"], ["🔥 Осы аптада кірген: " + r.active7 + "/" + r.n], ["⭐ Барлығы: " + r.totalStars], ["⚠ Назар керек: " + r.attention.length]].forEach(([t]) => chips.appendChild(h("span", "mini has", t)));
+      box.appendChild(chips);
+
+      box.appendChild(h("h4", "st-h", "⚠ Назар аудару керек"));
+      if (!r.attention.length) box.appendChild(h("p", "empty-note", "Бәрі жақсы: тұрып қалған не кірмей кеткен оқушы жоқ 🎉"));
+      r.attention.forEach((p) => {
+        const [emo] = STATUS[p.status];
+        const where = p.cur ? " · қазір: " + KZ.getCourse(p.cur.c).emoji + " " + levelTitle(p.cur.c, p.cur.l) : "";
+        box.appendChild(h("div", "st-row " + p.status, h("b", null, emo + " " + p.name), h("small", null, p.note + where)));
+      });
+
+      box.appendChild(h("h4", "st-h", "🧗 Қиын тапсырмалар"));
+      if (!r.hard.length) box.appendChild(h("p", "empty-note", "Әзірге қиын болған тапсырма байқалмайды."));
+      r.hard.forEach((x) => {
+        const course = KZ.getCourse(x.c);
+        const parts = [x.done + " оқушы өткен", "орташа ⭐ " + x.avg];
+        if (x.stuck.length) parts.push("тұрып қалғандар: " + x.stuck.join(", "));
+        box.appendChild(h("div", "st-row", h("b", null, course.emoji + " " + levelTitle(x.c, x.l)), h("small", null, parts.join(" · "))));
+      });
+
+      box.appendChild(h("h4", "st-h", "📅 Белсенділік (соңғы 7 күн)"));
+      r.people.forEach((p) => {
+        const dots = el("span", "st-dots");
+        for (let i = 0; i < 7; i++) dots.appendChild(h("i", i < p.days7 ? "on" : ""));
+        box.appendChild(h("div", "st-act", h("span", null, p.name), dots, h("small", null, p.days7 + "/7 · ⭐ " + p.stars)));
+      });
+      box.appendChild(h("small", "st-note", "«Тұрып қалған» — соңғы күндері кіріп жүр, бірақ 3 күннен бері жаңа жұлдыз алмаған оқушы. «Қиын тапсырма» — орташа жұлдызы төмен не оқушылар қазір тұрған тапсырма."));
+    } catch (e) {
+      box.textContent = "";
+      failWith(box, e);
+    }
+  }
+
   async function classCard(root, c) {
     const card = el("section", "card cls-card");
     const top = el("div", "cls-top");
@@ -751,13 +868,21 @@
         failWith(body, e);
       }
     }
+    const statsBox = el("div", "cls-body stats-box");
+    statsBox.hidden = true;
+    const statsBtn = btn("btn small", "📊 Статистика", async () => {
+      statsBox.hidden = !statsBox.hidden;
+      statsBtn.textContent = statsBox.hidden ? "📊 Статистика" : "📊 Жасыру";
+      if (!statsBox.hidden) await statsPanel(c, statsBox);
+    });
     const actions = el("div", "cls-actions");
     actions.appendChild(open);
+    actions.appendChild(statsBtn);
     actions.appendChild(confirmBtn("btn small ghost", "Сыныпты өшіру", "Расымен өшіру?", async () => {
       await A.rpc("delete_class", { cid: c.id });
       teacher(root);
     }));
-    card.append(actions, body, assignmentsPanel(c));
+    card.append(actions, statsBox, body, assignmentsPanel(c));
     return card;
   }
 
@@ -895,6 +1020,7 @@
                 rs.addEventListener("change", act(() => A.rpc("admin_set_role", { uid: u.id, new_role: rs.value })));
                 actions.appendChild(rs);
               }
+              if (isOwner || u.role === "student" || u.role === "teacher") actions.appendChild(resetPwButton(u.id, u.full_name));
               actions.appendChild(confirmBtn("btn small ghost", "🗑", "Өшіру?", act(() => A.rpc("admin_delete_user", { uid: u.id }))));
             }
             list.appendChild(

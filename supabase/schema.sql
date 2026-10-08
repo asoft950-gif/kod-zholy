@@ -599,6 +599,45 @@ begin
     where m.student_id = auth.uid()), '[]'::jsonb);
 end $$;
 
+-- ---------- Сынып статистикасы (мұғалімге) ----------
+create or replace function public.class_stats(cid uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.can_manage_class(cid) then raise exception 'forbidden'; end if;
+  return jsonb_build_object(
+    'students', coalesce((select jsonb_agg(jsonb_build_object(
+        'id', p.id, 'name', p.full_name, 'last_seen', p.last_seen,
+        'last_day', (select max(a.day) from public.activity_days a where a.user_id = p.id),
+        'days7', (select count(*) from public.activity_days a where a.user_id = p.id and a.day > current_date - 7),
+        'days30', (select count(*) from public.activity_days a where a.user_id = p.id and a.day > current_date - 30)
+      ) order by p.full_name)
+      from public.class_members m join public.profiles p on p.id = m.student_id where m.class_id = cid), '[]'::jsonb),
+    'progress', coalesce((select jsonb_agg(jsonb_build_object('u', g.user_id, 'c', g.course_id, 'l', g.level_id, 's', g.stars, 'at', g.updated_at))
+      from public.progress g join public.class_members m on m.student_id = g.user_id
+      where m.class_id = cid and g.stars > 0), '[]'::jsonb));
+end $$;
+
+-- ---------- Құпиясөзді қалпына келтіру (пошта керек емес) ----------
+-- Оқушының мұғалімі не админ уақытша құпиясөз қояды. Мұғалім тек өз сыныбындағы оқушыға, админ оқушы мен мұғалімге, құрушы кез келгенге (өзінен басқа құрушыдан).
+create or replace function public.reset_password(sid uuid, new_pw text) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+declare r text := public.active_role(); target public.profiles; ok boolean := false;
+begin
+  if r is null then raise exception 'not_active'; end if;
+  if length(coalesce(new_pw, '')) < 6 or length(new_pw) > 72 then raise exception 'bad_password'; end if;
+  select * into target from public.profiles where id = sid;
+  if target.id is null then raise exception 'no_user'; end if;
+  if target.id = auth.uid() or target.role = 'owner' then raise exception 'forbidden'; end if;
+  if r = 'owner' then ok := true;
+  elsif r = 'admin' then ok := target.role in ('student', 'teacher');
+  elsif r = 'teacher' then
+    ok := target.role = 'student' and exists (select 1 from public.class_members m join public.classes c on c.id = m.class_id
+                                              where m.student_id = sid and c.teacher_id = auth.uid());
+  end if;
+  if not ok then raise exception 'forbidden'; end if;
+  update auth.users set encrypted_password = extensions.crypt(new_pw, extensions.gen_salt('bf')), updated_at = now() where id = sid;
+end $$;
+
 -- ---------- Рұқсаттар: тек кірген пайдаланушы функцияларды шақыра алады ----------
 do $$
 declare f record;
@@ -610,7 +649,7 @@ begin
              'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
              'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
              'get_assignment','submit_assignment',
-             'assign_level','remove_level','class_levels_list','level_results','my_levels')
+             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);

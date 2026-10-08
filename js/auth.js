@@ -21,6 +21,8 @@
     owner_exists: "Құрушы бұрыннан бар.",
     bad_input: "Деректер дұрыс толтырылмаған. Тақырыбы мен нәтижені тексер.",
     no_assignment: "Мұндай тапсырма табылмады (өшірілген болуы мүмкін).",
+    "should be different from the old password": "Жаңа құпиясөз ескісінен өзгеше болуы керек.",
+    bad_password: "Құпиясөз 6–72 таңбадан тұруы керек.",
     "Invalid login credentials": "Email не құпиясөз қате.",
     "User already registered": "Бұл email бұрын тіркелген. «Кіру» бетіне өт.",
     "Email not confirmed": "Email әлі расталмаған. Поштаңды тексеріп, сілтемені бас.",
@@ -128,6 +130,12 @@
       const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw new Error(kz(error.message));
       await loadProfile();
+    },
+
+    /* Өз құпиясөзін ауыстыру (кірген пайдаланушы) */
+    async changePassword(password) {
+      const { error } = await client.auth.updateUser({ password });
+      if (error) throw new Error(kz(error.message));
     },
 
     async signOut() {

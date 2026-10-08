@@ -906,3 +906,27 @@ html[data-theme="dark"] .btn.primary, html[data-theme="dark"] .btn.danger { colo
 pre code, .code-block code {
   background: none; border: 0; border-radius: 0; padding: 0; font-size: inherit; font-weight: inherit; color: inherit;
 }
+
+/* ---------- Сынып статистикасы ---------- */
+.stats-box { display: grid; gap: 6px; }
+.st-h { margin: 12px 0 2px; font-size: 16px; }
+.st-row { display: grid; gap: 2px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper2); }
+.st-row small { opacity: .8; font-weight: 700; }
+.st-row.stuck { background: #ffe3cf; }
+.st-row.idle { background: #e8e6f8; }
+.st-row.new { background: var(--mint); }
+.st-act { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 4px 2px; font-weight: 700; }
+.st-act small { opacity: .75; min-width: 70px; text-align: right; }
+.st-dots { display: inline-flex; gap: 3px; }
+.st-dots i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); background: transparent; }
+.st-dots i.on { background: #ffb400; }
+.st-note { display: block; margin-top: 8px; opacity: .7; }
+html[data-theme="dark"] .st-row.stuck { background: #5a4220; }
+html[data-theme="dark"] .st-row.idle { background: #2c2750; }
+html[data-theme="dark"] .st-row.new { background: #1f3a3a; }
+
+.forgot { display: inline-block; margin: 10px 0 0; font-weight: 700; font-size: 14px; color: var(--muted); }
+.pw-reset { display: block; margin: 6px 0; }
+.pw-box { display: inline-block; margin-left: 6px; font-size: 18px; }
+.pw-change summary { cursor: pointer; font-weight: 800; }
+.pw-change form { display: grid; gap: 8px; margin-top: 10px; }
