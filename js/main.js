@@ -71,7 +71,7 @@
       return;
     }
     /* Курстар, лекциялар, тапсырмалар және жетістіктер тек тіркелген/кірген пайдаланушыға (аккаунттар қосулы болса) */
-    const needLogin = parts[0] === "achievements" || parts[0] === "review" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
+    const needLogin = parts[0] === "achievements" || parts[0] === "hero" || parts[0] === "review" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
     if (needLogin && KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
       if (!KZ.auth.settled) {
         views.cab.textContent = "Жүктелуде…";
@@ -94,6 +94,10 @@
     if (parts[0] === "review") {
       KZ.reviewPage(views.cab);
       return show("cab", "Қайталау");
+    }
+    if (parts[0] === "hero") {
+      KZ.heroPage(views.cab);
+      return show("cab", "Менің кейіпкерім");
     }
     if (parts[0] === "achievements") {
       KZ.achievementsPage(views.cab);

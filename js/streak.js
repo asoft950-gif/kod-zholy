@@ -331,6 +331,7 @@
     const page = el("div", "page");
     page.appendChild(A("back", "#/", "← Басты бет"));
     const s = act.streak();
+    if (KZ.hero) page.appendChild(A("card hero-banner", "#/hero", KZ.hero.node("sm"), h("div", null, h("b", null, "🎽 Менің кейіпкерім"), h("small", null, "Жетістіктер мен серия арқылы ашылған киімдерді киіп көр"))));
 
     page.appendChild(
       h(

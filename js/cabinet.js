@@ -281,7 +281,12 @@
     const page = shell(root, null, ["#/", "← Басты бет"]);
 
     const head = el("section", "card profile-head");
-    head.appendChild(h("div", "avatar", ROLE_EMOJI[p.role] || "🙂"));
+    if (p.role === "student" && KZ.hero) {
+      const av = h("a", "avatar hero-avatar", KZ.hero.node());
+      av.href = "#/hero";
+      av.title = "Менің кейіпкерім";
+      head.appendChild(av);
+    } else head.appendChild(h("div", "avatar", ROLE_EMOJI[p.role] || "🙂"));
     const info = el("div", "ph-info");
     const nameRow = el("div", "name-row");
     const nameEl = h("h1", null, p.full_name || p.email);

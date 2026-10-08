@@ -10,6 +10,16 @@
   };
   const starsText = (n) => "⭐".repeat(n) + "☆".repeat(3 - n);
 
+  /* Басты беттегі кейіпкер: басса, гардероб ашылады */
+  function heroBot() {
+    if (!KZ.hero) return h("div", "hero-bot", "🤖");
+    const a = h("a", "hero-bot hero-link", KZ.hero.node());
+    a.href = "#/hero";
+    a.title = "Менің кейіпкерім";
+    a.setAttribute("aria-label", "Менің кейіпкерім");
+    return a;
+  }
+
   function bar(pct) {
     const b = el("div", "bar");
     const f = el("div", "bar-fill");
@@ -65,7 +75,7 @@
       h(
         "section",
         "card hero",
-        h("div", "hero-bot", "🤖"),
+        heroBot(),
         h(
           "div",
           "hero-text",

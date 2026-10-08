@@ -2,13 +2,13 @@
    - Сайттың өз файлдары: алдымен желіден (жаңа нұсқа), желі жоқ болса, кэштен.
    - CDN файлдары (Pyodide, CodeMirror, қаріптер): кэштен, жоқ болса, желіден алып сақтайды.
    - Supabase сұраулары (аккаунт, прогресс) ешқашан кэштелмейді. */
-const VERSION = "botakod-v12";
+const VERSION = "botakod-v13";
 const SHELL = [
   "./", "index.html", "style.css", "manifest.webmanifest", "py/runner.py",
   "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
   "assets/icon-192.png", "assets/icon-512.png", "assets/apple-touch-icon.png",
   "js/core.js", "js/main.js", "js/views.js", "js/play.js", "js/jsrunner.js", "js/web.js", "js/webdoc.js",
-  "js/streak.js", "js/offline.js", "js/algo.js", "js/review.js", "js/review-content.js", "js/cert.js", "js/classstats.js", "js/settings.js", "js/config.js", "js/auth.js", "js/assign.js", "js/cabinet.js",
+  "js/streak.js", "js/offline.js", "js/hero.js", "js/algo.js", "js/review.js", "js/review-content.js", "js/cert.js", "js/classstats.js", "js/settings.js", "js/config.js", "js/auth.js", "js/assign.js", "js/cabinet.js",
   "js/courses/python.js", "js/courses/python-content.js", "js/courses/html.js", "js/courses/html-content.js",
   "js/courses/css.js", "js/courses/css-content.js", "js/courses/debug-content.js", "js/sqlcore.js", "js/sql.js", "js/courses/sql.js", "js/courses/sql-content.js", "js/courses/projects.js", "js/courses/projects-content.js", "js/courses/javascript.js", "js/courses/javascript-content.js",
 ];
