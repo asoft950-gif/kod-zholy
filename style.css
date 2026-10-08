@@ -901,3 +901,8 @@ html[data-theme="dark"] .btn.primary, html[data-theme="dark"] .btn.danger { colo
 .asg-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .asg-auto { padding: 6px 10px; border: 2px dashed var(--line); border-radius: 10px; }
 .asg-auto summary { cursor: pointer; font-weight: 800; }
+
+/* Код блогының ішіндегі code: инлайн сары фонды алып тастау */
+pre code, .code-block code {
+  background: none; border: 0; border-radius: 0; padding: 0; font-size: inherit; font-weight: inherit; color: inherit;
+}
