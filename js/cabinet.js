@@ -892,6 +892,69 @@
   /* ---------- Сынып статистикасы ---------- */
   const STATUS = { stuck: ["🧱", "тұрып қалған"], idle: ["💤", "кірмей кеткен"], new: ["🌱", "әлі бастамаған"], done: ["🏁", "бітірген"], ok: ["✅", "жақсы"] };
 
+  /* Апталық есеп: басып шығаруға (не PDF-ке сақтауға) ыңғайлы бет */
+  function reportDialog(cls, r) {
+    const old = document.getElementById("reportDlg");
+    if (old) old.remove();
+    const dlg = el("dialog", "report-dlg");
+    dlg.id = "reportDlg";
+    const MONTHS = ["қаңтар", "ақпан", "наурыз", "сәуір", "мамыр", "маусым", "шілде", "тамыз", "қыркүйек", "қазан", "қараша", "желтоқсан"];
+    const fmt = (d) => d.getDate() + " " + MONTHS[d.getMonth()];
+    const now = new Date();
+    const from = new Date(now.getTime() - 6 * 864e5);
+    const bar = el("div", "report-bar");
+    const printBtn = btn("btn primary", "🖨 Басып шығару / PDF", () => {
+      document.body.classList.add("printing-report");
+      const done = () => document.body.classList.remove("printing-report");
+      window.addEventListener("afterprint", done, { once: true });
+      window.print();
+      setTimeout(done, 1500);
+    });
+    const closeBtn = btn("btn ghost", "✕ Жабу", () => {
+      dlg.close();
+      dlg.remove();
+    });
+    bar.append(printBtn, closeBtn);
+    const sheet = el("div", "report-sheet");
+    sheet.appendChild(h("h2", null, "Ботакод · апталық есеп"));
+    sheet.appendChild(h("p", "report-sub", cls.name + " · " + fmt(from) + " – " + fmt(now) + " " + now.getFullYear()));
+    const sum = el("div", "report-sum");
+    [[r.n, "оқушы"], [r.active7 + "/" + r.n, "осы аптада кірген"], [r.weekLevels, "аптада өтілген тапсырма"], [r.weekStars, "аптада алынған ⭐"], [r.totalStars, "жалпы ⭐"]].forEach(([v, l]) =>
+      sum.appendChild(h("div", "report-stat", h("b", null, String(v)), h("small", null, l)))
+    );
+    sheet.appendChild(sum);
+    sheet.appendChild(h("h3", null, "Оқушылар"));
+    const tbl = el("table", "report-table");
+    tbl.appendChild(h("thead", null, h("tr", null, ...["Оқушы", "Кірген күн (7)", "Апта ⭐", "Барлығы ⭐", "Жағдайы"].map((t) => h("th", null, t)))));
+    const body = el("tbody");
+    r.people
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, "kk"))
+      .forEach((p) => {
+        const [emo] = STATUS[p.status];
+        const where = p.cur && ["stuck", "idle"].includes(p.status) ? " (қазір: " + levelTitle(p.cur.c, p.cur.l) + ")" : "";
+        body.appendChild(h("tr", "st-" + p.status, h("td", null, p.name), h("td", null, p.days7 + "/7"), h("td", null, String(p.weekStars)), h("td", null, String(p.stars)), h("td", null, emo + " " + (p.note || "жақсы жүріп жатыр") + where)));
+      });
+    tbl.appendChild(body);
+    sheet.appendChild(tbl);
+    sheet.appendChild(h("h3", null, "Назар аудару керек"));
+    if (!r.attention.length) sheet.appendChild(h("p", null, "Тұрып қалған не кірмей кеткен оқушы жоқ."));
+    else sheet.appendChild(h("p", null, r.attention.map((p) => p.name + ": " + p.note).join("; ") + "."));
+    if (r.hard.length) {
+      sheet.appendChild(h("h3", null, "Қиын болған тапсырмалар"));
+      const ul = el("ul");
+      r.hard.forEach((x) =>
+        ul.appendChild(h("li", null, KZ.getCourse(x.c).emoji + " " + levelTitle(x.c, x.l) + ": " + x.done + " оқушы өткен, орташа ⭐ " + x.avg + (x.stuck.length ? ", тұрып қалғандар: " + x.stuck.join(", ") : "")))
+      );
+      sheet.appendChild(ul);
+    }
+    sheet.appendChild(h("small", "report-foot", "Ботакод by AbySoft · botakod.vercel.app"));
+    dlg.append(bar, sheet);
+    document.body.appendChild(dlg);
+    if (dlg.showModal) dlg.showModal();
+    else dlg.setAttribute("open", "");
+  }
+
   async function statsPanel(c, box) {
     box.textContent = "Жүктелуде…";
     try {
@@ -906,6 +969,7 @@
       const chips = el("div", "chips-row");
       [["👥 " + r.n + " оқушы"], ["🔥 Осы аптада кірген: " + r.active7 + "/" + r.n], ["⭐ Барлығы: " + r.totalStars], ["⚠ Назар керек: " + r.attention.length]].forEach(([t]) => chips.appendChild(h("span", "mini has", t)));
       box.appendChild(chips);
+      box.appendChild(btn("btn small", "🖨 Апталық есеп", () => reportDialog(c, r)));
 
       box.appendChild(h("h4", "st-h", "⚠ Назар аудару керек"));
       if (!r.attention.length) box.appendChild(h("p", "empty-note", "Бәрі жақсы: тұрып қалған не кірмей кеткен оқушы жоқ 🎉"));

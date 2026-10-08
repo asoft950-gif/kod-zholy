@@ -56,7 +56,8 @@
         const st = (levelStat[lvKey(cur.c, cur.l)] = levelStat[lvKey(cur.c, cur.l)] || { done: 0, sum: 0, stuck: [] });
         st.stuck.push(s.name);
       }
-      return { id: s.id, name: s.name, stars, done: mine.length, days7: Number(s.days7) || 0, days30: Number(s.days30) || 0, idle, sinceStar, cur, status, note };
+      const wk = mine.filter((r) => now - (Date.parse(r.at) || 0) < 7 * DAY);
+      return { id: s.id, name: s.name, stars, done: mine.length, weekLevels: wk.length, weekStars: wk.reduce((a, r) => a + r.s, 0), days7: Number(s.days7) || 0, days30: Number(s.days30) || 0, idle, sinceStar, cur, status, note };
     });
     const hard = [];
     Object.keys(levelStat).forEach((k) => {
@@ -73,6 +74,8 @@
       n,
       active7: people.filter((p) => p.days7 > 0).length,
       totalStars: people.reduce((a, p) => a + p.stars, 0),
+      weekLevels: people.reduce((a, p) => a + p.weekLevels, 0),
+      weekStars: people.reduce((a, p) => a + p.weekStars, 0),
       attention: people.filter((p) => ["stuck", "idle", "new"].includes(p.status)),
       hard: hard.slice(0, 6),
       people: people.slice().sort((a, b) => b.days7 - a.days7 || b.stars - a.stars),
