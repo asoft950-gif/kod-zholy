@@ -4,6 +4,6 @@
    Қалай толтыру керегі: SUPABASE.md */
 globalThis.KZ = globalThis.KZ || {};
 KZ.config = {
-  supabaseUrl: "",
-  supabaseKey: "",
+  supabaseUrl: "https://owqamfxdnckpuhodnhqg.supabase.co",
+  supabaseKey: "sb_publishable_3TFnP8lvK4J9Qu4iJXvy0g_kvwsSkHF",
 };
