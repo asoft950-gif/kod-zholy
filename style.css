@@ -958,3 +958,18 @@ html[data-theme="dark"] .rv-opt.bad { background: #5a2530; }
 html[data-theme="dark"] .rv-why.bad { background: #5a4220; }
 html[data-theme="dark"] .rv-opt:hover:not(:disabled) { background: #3a3470; }
 html[data-theme="dark"] .rv-opt.good, html[data-theme="dark"] .rv-why.good { background: #1f3a3a; }
+
+/* ---------- SQL ---------- */
+#sqlView:not([hidden]) { display: grid; }
+.sql-out, .sql-schema { display: grid; gap: 8px; }
+.sql-table-wrap { overflow-x: auto; max-width: 100%; }
+.sql-table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+.sql-table th, .sql-table td { border: 2px solid var(--line); padding: 4px 10px; text-align: left; white-space: nowrap; }
+.sql-table th { background: var(--sun); font-weight: 800; }
+.sql-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.sql-table td.null { opacity: .55; font-style: italic; }
+.sql-err { margin: 0; padding: 10px 12px; border: 3px solid var(--line); border-radius: 12px; background: #ffe3cf; font-weight: 800; }
+.sql-tbl summary { cursor: pointer; margin-bottom: 6px; }
+.sql-tbl small { font-weight: 700; opacity: .75; }
+html[data-theme="dark"] .sql-table th { background: #5a4d1c; color: #fff1a8; }
+html[data-theme="dark"] .sql-err { background: #5a4220; }

@@ -162,6 +162,48 @@
     </div>
   </main>
 
+  <main id="sqlView" class="view" hidden>
+    <div class="col left">
+      <section class="card task">
+        <a id="sqlBack" class="back" href="#/">← Тапсырмалар</a>
+        <div class="task-head">
+          <span class="badge" id="sqlBadge">Деңгей</span>
+          <span class="level-stars" id="sqlStars" aria-label="Осы тапсырманың жұлдыздары"></span>
+        </div>
+        <h1 id="sqlTitle">Тапсырма</h1>
+        <div id="sqlTaskBody" class="task-body"></div>
+        <div class="task-actions">
+          <button id="sqlHintBtn" class="btn ghost small" type="button">💡 Кеңес</button>
+          <button id="sqlSolutionBtn" class="btn ghost small" type="button" hidden>🔑 Шешімді көру</button>
+        </div>
+        <p id="sqlHint" class="hint" hidden></p>
+        <pre id="sqlSolution" class="solution" hidden></pre>
+      </section>
+
+      <section class="card editor-card">
+        <div class="card-title">SQL сұраныс</div>
+        <textarea id="sqlCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        <div class="controls">
+          <button id="sqlRun" class="btn primary" type="button" disabled>▶ Орындау</button>
+          <button id="sqlReset" class="btn ghost" type="button" title="Бастапқы күйге қайту">↺</button>
+        </div>
+        <p class="live-note" id="sqlStatus">SQL қозғалтқышы жүктелуде…</p>
+      </section>
+    </div>
+
+    <div class="col right">
+      <section id="sqlResult" class="card result" hidden></section>
+      <section class="card">
+        <div class="card-title">Нәтиже</div>
+        <div id="sqlOut" class="sql-out"><p class="empty-note">Сұранысты орындасаң, нәтиже осында шығады.</p></div>
+      </section>
+      <section class="card">
+        <div class="card-title">Кестелер</div>
+        <div id="sqlSchema" class="sql-schema"></div>
+      </section>
+    </div>
+  </main>
+
   <dialog id="menu" class="menu">
     <div class="menu-head">
       <b>Деңгейлер</b>
@@ -180,6 +222,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
   <script src="js/core.js"></script>
   <script src="js/courses/python.js"></script>
   <script src="js/courses/python-content.js"></script>
@@ -191,11 +234,15 @@
   <script src="js/courses/javascript-content.js"></script>
   <script src="js/courses/projects.js"></script>
   <script src="js/courses/projects-content.js"></script>
+  <script src="js/sqlcore.js"></script>
+  <script src="js/courses/sql.js"></script>
+  <script src="js/courses/sql-content.js"></script>
   <script src="js/courses/debug-content.js"></script>
   <script src="js/jsrunner.js"></script>
   <script src="js/play.js"></script>
   <script src="js/webdoc.js"></script>
   <script src="js/web.js"></script>
+  <script src="js/sql.js"></script>
   <script src="js/streak.js"></script>
   <script src="js/review.js"></script>
   <script src="js/review-content.js"></script>

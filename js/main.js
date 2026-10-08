@@ -10,6 +10,7 @@
     cab: $("#cabView"),
     play: $("#playView"),
     web: $("#webView"),
+    sql: $("#sqlView"),
   };
 
   function show(name, title) {
@@ -55,6 +56,7 @@
   function route() {
     if (KZ.play) KZ.play.leave();
     if (KZ.web) KZ.web.leave();
+    if (KZ.sql) KZ.sql.leave();
     const parts = decodeURIComponent(location.hash.replace(/^#\/?/, ""))
       .split("/")
       .filter(Boolean);
@@ -119,6 +121,7 @@
       }
       if ((course.engine === "python" || course.engine === "js") && KZ.play.open(course.id, parts[2])) return show("play", course.name);
       if (course.engine === "web" && KZ.web && KZ.web.open(course.id, parts[2])) return show("web", course.name);
+      if (course.engine === "sql" && KZ.sql && KZ.sql.open(course.id, parts[2])) return show("sql", course.name);
       location.hash = "#/" + course.id;
       return;
     }
