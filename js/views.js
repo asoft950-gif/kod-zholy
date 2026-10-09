@@ -295,7 +295,7 @@
     if (ready) {
       info.appendChild(bar(total ? (done / total) * 100 : 0));
       info.appendChild(h("small", null, done + " / " + total + " тапсырма · ⭐ " + KZ.progress.courseStars(c.id)));
-      if (c.engine === "python" || c.engine === "web" || c.engine === "js" || c.engine === "sql") info.appendChild(A("btn small", "#/" + c.id + "/play/free", "🧪 Еркін алаң"));
+      if (c.engine === "python" || c.engine === "web" || c.engine === "js" || c.engine === "kt" || c.engine === "sql") info.appendChild(A("btn small", "#/" + c.id + "/play/free", "🧪 Еркін алаң"));
     }
     head.appendChild(info);
     page.appendChild(head);
@@ -338,7 +338,7 @@
       });
       wrap.appendChild(btn);
     }
-    if (withTry && (c.engine === "python" || c.engine === "js")) {
+    if (withTry && (c.engine === "python" || c.engine === "js" || c.engine === "kt")) {
       const btn = el("button", "btn small primary", "▶ Өзің көр");
       btn.type = "button";
       btn.addEventListener("click", () => {

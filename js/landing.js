@@ -35,7 +35,7 @@
     const txt = el("div", "lp-hero-text");
     txt.appendChild(h("span", "lp-pill", "🇰🇿 Қазақ тілінде · браузерде · ештеңе орнатпай"));
     txt.appendChild(h("h1", null, "Кодты ", h("mark", null, "көзбен көріп"), " үйрен"));
-    txt.appendChild(h("p", null, "Python, HTML, CSS, JavaScript және SQL: код жаз, ол қалай жұмыс істейтінін бірден көр. Тапсырма шешіп ⭐ жина, кейіпкерің Бит-ті киіндір."));
+    txt.appendChild(h("p", null, "Python, HTML, CSS, JavaScript, Kotlin және SQL: код жаз, ол қалай жұмыс істейтінін бірден көр. Тапсырма шешіп ⭐ жина, кейіпкерің Бит-ті киіндір."));
     txt.appendChild(h("div", "lp-cta", A("btn primary big", "#/login/register", "✨ Тегін бастау"), A("btn big", "#/login", "🔑 Кіру")));
     txt.appendChild(h("small", "lp-note", "Тіркелу бір минут алады. Прогресің барлық құрылғыда сақталады."));
     hero.appendChild(txt);

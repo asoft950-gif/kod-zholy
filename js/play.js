@@ -95,14 +95,14 @@
       pyState = "idle";
     }
     if (runFn || pyState === "loading") return;
-    const isJs = engine === "js";
-    const name = isJs ? "JavaScript" : "Python";
+    const isJs = engine === "js" || engine === "kt";
+    const name = engine === "kt" ? "Kotlin" : isJs ? "JavaScript" : "Python";
     pyState = "loading";
     setStatus("loading", name + " жүктелуде…" + (isJs ? "" : " (алғашқы жолы 10–20 секунд)"));
     updateButtons();
     const mine = engine;
     try {
-      const fn = await (isJs ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      const fn = await (engine === "kt" ? KZ.ktRunner.load() : isJs ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
       if (mine !== engine) return; // жүктеу кезінде басқа курсқа өтіп кеттік
       runFn = fn;
       loadedEngine = mine;
@@ -562,7 +562,8 @@
     const s = KZ.store.getSession("kodzholy.sandbox", null);
     KZ.store.setSession("kodzholy.sandbox", null);
     const isJs = engine === "js";
-    const robot = isJs || (s && s.robot === false) ? null : (s && s.robot) || DEFAULT_ROBOT;
+    const isKt = engine === "kt";
+    const robot = isJs || isKt || (s && s.robot === false) ? null : (s && s.robot) || DEFAULT_ROBOT;
     return {
       id: "free",
       sandbox: true,
@@ -571,7 +572,7 @@
         "<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Қателесуден қорықпа!</p>" +
         "<p class='tip'>Кодты ⏭ «Қадам» арқылы бір-бірден орындап, оң жақтағы қораптарға қара.</p>",
       hint: "",
-      starter: isJs ? "// өз кодыңды жаз\n" : "# өз кодыңды жаз\n",
+      starter: isKt ? "fun main() {\n    // өз кодыңды жаз\n    \n}\n" : isJs ? "// өз кодыңды жаз\n" : "# өз кодыңды жаз\n",
       solution: "",
       par: 99,
       robot,
@@ -594,12 +595,13 @@
       ? "Қосымша " + level.id
       : "Деңгей " + level.id;
     const isJs = engine === "js";
-    editor.setOption("mode", isJs ? "javascript" : "python");
+    const isKt = engine === "kt";
+    editor.setOption("mode", isKt ? "text/x-kotlin" : isJs ? "javascript" : "python");
     editor.setOption("indentUnit", isJs ? 2 : 4);
     editor.setOption("tabSize", isJs ? 2 : 4);
-    $("#editorTitle").textContent = isJs ? "JavaScript коды" : "Python коды";
-    $("#consoleTitle").textContent = isJs ? "Экран (console.log)" : "Экран (print)";
-    $("#console").dataset.ph = isJs ? "Мұнда console.log жазғаныңның нәтижесі шығады" : "Мұнда print жазғаныңның нәтижесі шығады";
+    $("#editorTitle").textContent = isKt ? "Kotlin коды" : isJs ? "JavaScript коды" : "Python коды";
+    $("#consoleTitle").textContent = isKt ? "Экран (println)" : isJs ? "Экран (console.log)" : "Экран (print)";
+    $("#console").dataset.ph = isKt ? "Мұнда println жазғаныңның нәтижесі шығады" : isJs ? "Мұнда console.log жазғаныңның нәтижесі шығады" : "Мұнда print жазғаныңның нәтижесі шығады";
     $("#domCard").hidden = !(isJs && typeof level.html === "string");
     $("#taskTitle").textContent = level.title;
     $("#taskBody").innerHTML = level.task;
@@ -734,7 +736,7 @@
       else found = KZ.findLevel(c, levelId);
       if (!found) return false;
       course = c;
-      engine = c.engine === "js" ? "js" : "python";
+      engine = c.engine === "js" ? "js" : c.engine === "kt" ? "kt" : "python";
       listKind = found.kind;
       list = listKind === "bonus" ? c.bonus : c.levels;
       level = found.level || sandboxLevel();
@@ -750,7 +752,7 @@
       const c = KZ.getCourse(a.course);
       if (!c) return false;
       course = c;
-      engine = c.engine === "js" ? "js" : "python";
+      engine = c.engine === "js" ? "js" : c.engine === "kt" ? "kt" : "python";
       listKind = "assign";
       list = [];
       level = {
@@ -771,8 +773,8 @@
     },
     /* Кодты бір рет орындап, экран нәтижесін қайтару (мұғалім шешімін тексеруі үшін) */
     async runOnce(eng, code) {
-      const key = eng === "js" ? "js" : "python";
-      if (!onceFns[key]) onceFns[key] = await (key === "js" ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      const key = eng === "js" ? "js" : eng === "kt" ? "kt" : "python";
+      if (!onceFns[key]) onceFns[key] = await (key === "kt" ? KZ.ktRunner.load() : key === "js" ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
       const raw = onceFns[key](code, JSON.stringify({}));
       const res = typeof raw === "string" ? JSON.parse(raw) : raw;
       return { output: res.output || "", lines: res.lines || 0, error: res.error || null };

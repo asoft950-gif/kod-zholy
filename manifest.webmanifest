@@ -1,7 +1,7 @@
 {
   "name": "Bitlings: кодты көзбен көр",
   "short_name": "Bitlings",
-  "description": "Python, HTML, CSS, JavaScript: кодты жазып, ол қалай жұмыс істейтінін көзбен көр.",
+  "description": "Python, HTML, CSS, JavaScript, Kotlin: кодты жазып, ол қалай жұмыс істейтінін көзбен көр.",
   "lang": "kk",
   "start_url": "./",
   "scope": "./",
