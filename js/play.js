@@ -85,6 +85,15 @@
     return (code, cfg) => fn(code, cfg);
   }
 
+  /* Лекциядағы шағын редактор да осыны қолданады: Pyodide бір рет қана жүктеледі */
+  let pyPromise = null;
+  KZ.loadPython = () =>
+    pyPromise ||
+    (pyPromise = (KZ.pyLoader || defaultLoader)().catch((e) => {
+      pyPromise = null;
+      throw e;
+    }));
+
   function setStatus(kind, text) {
     pyStatus.className = "py-status " + kind;
     pyStatus.textContent = text || "";
@@ -103,7 +112,7 @@
     updateButtons();
     const mine = engine;
     try {
-      const fn = await (engine === "kt" ? KZ.ktRunner.load() : isJs ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      const fn = await (engine === "kt" ? KZ.ktRunner.load() : isJs ? KZ.jsRunner.load() : KZ.loadPython());
       if (mine !== engine) return; // жүктеу кезінде басқа курсқа өтіп кеттік
       runFn = fn;
       loadedEngine = mine;
@@ -775,7 +784,7 @@
     /* Кодты бір рет орындап, экран нәтижесін қайтару (мұғалім шешімін тексеруі үшін) */
     async runOnce(eng, code) {
       const key = eng === "js" ? "js" : eng === "kt" ? "kt" : "python";
-      if (!onceFns[key]) onceFns[key] = await (key === "kt" ? KZ.ktRunner.load() : key === "js" ? KZ.jsRunner.load() : (KZ.pyLoader || defaultLoader)());
+      if (!onceFns[key]) onceFns[key] = await (key === "kt" ? KZ.ktRunner.load() : key === "js" ? KZ.jsRunner.load() : KZ.loadPython());
       const raw = onceFns[key](code, JSON.stringify({}));
       const res = typeof raw === "string" ? JSON.parse(raw) : raw;
       return { output: res.output || "", lines: res.lines || 0, error: res.error || null };

@@ -1182,3 +1182,30 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
   .top #menuBtn { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .top .brand { flex: 0 0 auto; }
 }
+
+/* Лекция ішіндегі шағын редактор («Өзің көр») */
+.itry { width: 100%; margin: 4px 0; border: 3px solid var(--line, #1f1d36); border-radius: 16px; padding: 10px; background: var(--paper); box-sizing: border-box; }
+.itry-head { margin-bottom: 6px; }
+.itry-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 720px) { .itry-row { grid-template-columns: 1fr 1fr; } }
+.itry-left, .itry-out { min-width: 0; }
+.itry .CodeMirror { height: auto; min-height: 90px; max-height: 340px; border: 3px solid var(--line, #1f1d36); border-radius: 12px; font-size: 14px; }
+.itry .CodeMirror-scroll { max-height: 340px; }
+.itry-left textarea { width: 100%; min-height: 120px; font-family: "JetBrains Mono", monospace; box-sizing: border-box; }
+.itry-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.itry-out { border: 3px dashed var(--line, #1f1d36); border-radius: 12px; padding: 10px; background: var(--paper2); display: grid; gap: 8px; align-content: start; min-height: 120px; }
+.itry-empty { margin: 0; opacity: .6; font-weight: 700; font-size: 14px; }
+.itry-h { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; opacity: .65; }
+.itry-console { margin: 0; padding: 8px 10px; background: #1f1d36; color: #fff; border-radius: 10px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+.itry-vars { display: flex; flex-wrap: wrap; gap: 8px; }
+.itry-board { max-width: 100%; }
+.itry-note { padding: 8px 10px; border-radius: 10px; font-weight: 700; font-size: 14px; background: var(--paper); border: 2px solid var(--line, #1f1d36); }
+.itry-note.bad { border-color: #e5484d; }
+.itry-note.good { border-color: #2ec4b6; }
+.itry-frame { width: 100%; min-height: 150px; border: 3px solid var(--line, #1f1d36); border-radius: 12px; background: #fff; box-sizing: border-box; }
+.itry-frame.tall { min-height: 220px; }
+.itry-tbl { border-collapse: collapse; font-size: 13px; width: 100%; background: var(--paper); }
+.itry-tbl th, .itry-tbl td { border: 2px solid var(--line, #1f1d36); padding: 4px 8px; text-align: left; }
+.itry-tbl th { background: var(--yellow, #ffd23f); color: #1f1d36; }
+.itry-tbl td.num { text-align: right; }
+.itry-tbl td.null { opacity: .5; font-style: italic; }

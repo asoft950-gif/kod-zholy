@@ -329,21 +329,12 @@
     pre.appendChild(code);
     wrap.appendChild(pre);
     if (b.note) wrap.appendChild(h("p", "try-note", b.note));
-    if (withTry && (c.engine === "web" || c.engine === "sql")) {
+    if (withTry && ["web", "sql", "python", "js", "kt"].includes(c.engine)) {
       const btn = el("button", "btn small primary", KZ.t("▶ Өзің көр"));
       btn.type = "button";
       btn.addEventListener("click", () => {
-        KZ.store.setSession("kodzholy.sandbox", { code: b.code });
-        location.hash = "#/" + c.id + "/play/free";
-      });
-      wrap.appendChild(btn);
-    }
-    if (withTry && (c.engine === "python" || c.engine === "js" || c.engine === "kt")) {
-      const btn = el("button", "btn small primary", KZ.t("▶ Өзің көр"));
-      btn.type = "button";
-      btn.addEventListener("click", () => {
-        KZ.store.setSession("kodzholy.sandbox", { code: b.code, robot: b.robot });
-        location.hash = "#/" + c.id + "/play/free";
+        const ed = KZ.inlineTry(c, b);
+        btn.replaceWith(ed);
       });
       wrap.appendChild(btn);
     }

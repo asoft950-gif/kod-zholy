@@ -253,6 +253,7 @@
   });
 
   KZ.sql = {
+    loadEngine,
     open(courseId, levelId) {
       const c = KZ.getCourse(courseId);
       if (!c) return false;
