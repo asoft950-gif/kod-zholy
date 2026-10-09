@@ -86,6 +86,35 @@ KZ.store = {
 };
 
 /* ---------- Прогресс: { курс: { деңгей: жұлдыз } } ---------- */
+/* Кеңес/шешім қолданғаны деңгейге сақталады (бетті жауып-ашса, жаңартса да жоғалмайды).
+   Деңгей сәтті аяқталғанда ғана тазаланады. cap: ең көп алатын жұлдыз (3 / 2 кеңес / 1 шешім) */
+KZ.penalty = {
+  _k: (cid, lid) => cid + "/" + lid,
+  _all() {
+    const d = KZ.store.get("kodzholy.penalty.v1", {});
+    return d && typeof d === "object" ? d : {};
+  },
+  cap(cid, lid) {
+    return this._all()[this._k(cid, lid)] || 3;
+  },
+  _lower(cid, lid, n) {
+    const d = this._all();
+    const k = this._k(cid, lid);
+    if ((d[k] || 3) <= n) return;
+    d[k] = n;
+    KZ.store.set("kodzholy.penalty.v1", d);
+  },
+  hint(cid, lid) { this._lower(cid, lid, 2); },
+  solution(cid, lid) { this._lower(cid, lid, 1); },
+  clear(cid, lid) {
+    const d = this._all();
+    if (this._k(cid, lid) in d) {
+      delete d[this._k(cid, lid)];
+      KZ.store.set("kodzholy.penalty.v1", d);
+    }
+  },
+};
+
 KZ.progress = {
   _d: null,
   _load() {

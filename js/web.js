@@ -15,7 +15,6 @@
   let chips = new Map();
   let timer = null;
   let checkedOnce = false;
-  let starCap = 3; // кеңес: ең көбі 2 ⭐, шешім: 1 ⭐
 
   const preview = $("#webPreview");
 
@@ -326,13 +325,15 @@
     if (KZ.hero && KZ.hero.react) KZ.hero.react(ok ? "ok" : "bad");
     box.appendChild(el("h2", null, ok ? KZ.t("🎉 Тамаша!") : KZ.t("🤔 Әлі толық емес")));
     if (ok) {
-      const stars = Math.min(KZ.starsFor(level, lines), starCap);
+      const cap = level.sandbox ? 3 : KZ.penalty.cap(course.id, level.id);
+      const stars = Math.min(KZ.starsFor(level, lines), cap);
       KZ.progress.set(course.id, level.id, stars);
+      KZ.penalty.clear(course.id, level.id);
       KZ.updateTotal();
       refreshStars();
       box.appendChild(el("div", "big-stars", "⭐".repeat(stars) + "☆".repeat(3 - stars)));
       box.appendChild(
-        el("p", null, stars === 3 ? KZ.t("Ең қысқа шешім! Керемет.") : starCap === 1 ? KZ.t("Шешімді қарағандықтан 1 ⭐. Келесі тапсырманы өзің шешіп көр!") : starCap === 2 && stars === 2 ? KZ.t("Кеңес қолданылды, сондықтан ең көбі 2 ⭐. Келесі жолы кеңессіз 3 ⭐ ал!") : KZ.t("3 ⭐ алу үшін кодты ") + level.par + KZ.nt(level.par, " жолға дейін қысқартып көр (қазір ") + lines + KZ.nt(lines, " жол)."))
+        el("p", null, stars === 3 ? KZ.t("Ең қысқа шешім! Керемет.") : cap === 1 ? KZ.t("Шешімді қарағандықтан 1 ⭐. Келесі тапсырманы өзің шешіп көр!") : cap === 2 && stars === 2 ? KZ.t("Кеңес қолданылды, сондықтан ең көбі 2 ⭐. Келесі жолы кеңессіз 3 ⭐ ал!") : KZ.t("3 ⭐ алу үшін кодты ") + level.par + KZ.nt(level.par, " жолға дейін қысқартып көр (қазір ") + lines + KZ.nt(lines, " жол)."))
       );
     }
     const checklist = el("ul", "checklist");
@@ -394,7 +395,6 @@
 
   function loadLevel() {
     clearTimeout(timer);
-    starCap = 3;
     selKey = null;
     selected = null;
     hlLine = null;
@@ -443,12 +443,12 @@
   $("#webHintBtn").addEventListener("click", () => {
     const h = $("#webHint");
     h.hidden = !h.hidden;
-    if (!h.hidden && level && !level.sandbox) starCap = Math.min(starCap, 2);
+    if (!h.hidden && level && !level.sandbox) KZ.penalty.hint(course.id, level.id);
   });
   $("#webSolutionBtn").addEventListener("click", () => {
     const s = $("#webSolution");
     s.hidden = !s.hidden;
-    if (!s.hidden && level && !level.sandbox) starCap = 1;
+    if (!s.hidden && level && !level.sandbox) KZ.penalty.solution(course.id, level.id);
   });
 
   /* ---------- Сыртқы API ---------- */

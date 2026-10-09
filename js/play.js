@@ -22,7 +22,9 @@
   let playing = false;
   let timer = null;
   let attempts = 0;
-  let starCap = 3; // кеңес қарағанда ең көбі 2 ⭐, шешімді қарағанда 1 ⭐
+  /* Кеңес/шешім қолданылса, жұлдыз азаяды; бұл деңгейге сақталады (KZ.penalty) */
+  const pkey = () => (level.assign ? ["assign", "a:" + level.assign.id] : [course.id, level.id]);
+  const capNow = () => (level && !level.sandbox ? KZ.penalty.cap(...pkey()) : 3);
   let shownVars = {};
   let activeLine = null;
   let activeCls = null;
@@ -452,10 +454,12 @@
       if (level.assign && !run.error) {
         const r = run;
         const lv = level;
+        r.cap = capNow();
         r.evaluated = { pending: true };
         evalAssign(r, lv.assign).then((ev) => {
           if (run !== r) return;
-          if (ev.ok && ev.stars) ev.stars = Math.min(ev.stars, starCap);
+          if (ev.ok && ev.stars) ev.stars = Math.min(ev.stars, r.cap);
+          if (ev.ok && !lv.assign.manager) KZ.penalty.clear("assign", "a:" + lv.assign.id);
           r.evaluated = ev;
           if (ev.ok) {
             if (!lv.assign.manager) {
@@ -478,10 +482,12 @@
       if (run.error) run.evaluated = { ok: false, error: true };
       else if (level.sandbox) run.evaluated = { ok: true, sandbox: true };
       else run.evaluated = KZ.evaluate(level, run);
-      if (run.evaluated.ok && run.evaluated.stars) run.evaluated.stars = Math.min(run.evaluated.stars, starCap);
+      run.cap = capNow();
+      if (run.evaluated.ok && run.evaluated.stars) run.evaluated.stars = Math.min(run.evaluated.stars, run.cap);
 
       if (run.evaluated.ok && !level.sandbox) {
         KZ.progress.set(course.id, level.id, run.evaluated.stars);
+        KZ.penalty.clear(course.id, level.id);
         KZ.updateTotal();
         refreshLevelStars();
       } else if (!run.evaluated.ok) {
@@ -525,9 +531,9 @@
             null,
             ev.stars === 3
               ? KZ.t("Ең қысқа шешім! Керемет.")
-              : starCap === 1
+              : run.cap === 1
               ? KZ.t("Шешімді қарағандықтан 1 ⭐. Келесі тапсырманы өзің шешіп көр!")
-              : starCap === 2 && ev.stars === 2
+              : run.cap === 2 && ev.stars === 2
               ? KZ.t("Кеңес қолданылды, сондықтан ең көбі 2 ⭐. Келесі жолы кеңессіз 3 ⭐ ал!")
               : KZ.t("3 ⭐ алу үшін кодты ") + level.par + KZ.nt(level.par, " жолға дейін қысқартып көр (қазір ") + run.lines + KZ.nt(run.lines, " жол).")
           )
@@ -603,7 +609,6 @@
   function loadLevel() {
     stop();
     attempts = 0;
-    starCap = 3;
     $("#levelBadge").textContent = level.sandbox
       ? KZ.t("Еркін алаң")
       : level.assign
@@ -732,12 +737,12 @@
   $("#hintBtn").addEventListener("click", () => {
     const h = $("#hintText");
     h.hidden = !h.hidden;
-    if (!h.hidden && level && !level.sandbox) starCap = Math.min(starCap, 2);
+    if (!h.hidden && level && !level.sandbox) KZ.penalty.hint(...pkey());
   });
   $("#solutionBtn").addEventListener("click", () => {
     const s = $("#solutionText");
     s.hidden = !s.hidden;
-    if (!s.hidden && level && !level.sandbox) starCap = 1;
+    if (!s.hidden && level && !level.sandbox) KZ.penalty.solution(...pkey());
   });
   editor.on("change", () => {
     if (course && level) KZ.codeStore.set(course.id, level.id, editor.getValue());
