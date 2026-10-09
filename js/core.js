@@ -22,7 +22,10 @@ KZ.h = function (tag, cls, ...kids) {
 /* ---------- Курстар тізілімі ---------- */
 KZ.courses = [];
 KZ.registerCourse = function (c) {
-  KZ.courses.push(c);
+  /* Орысша файлдар (js/courses/ru) сол id-ді қазақша курстың орнына қояды */
+  const i = KZ.courses.findIndex((x) => x.id === c.id);
+  if (i >= 0) KZ.courses[i] = c;
+  else KZ.courses.push(c);
 };
 KZ.getCourse = (id) => KZ.courses.find((c) => c.id === id) || null;
 /* Деңгейді табу: { level, kind: "tasks" | "bonus" } */
@@ -341,36 +344,36 @@ KZ.evaluate = function (level, res) {
   const fails = [];
 
   if (c.output !== undefined && res.output.trim() !== c.output) {
-    fails.push("Экранға «" + c.output + "» шығуы керек, ал сенде: «" + res.output.trim() + "».");
+    fails.push(KZ.t("Экранға «") + c.output + KZ.t("» шығуы керек, ал сенде: «") + res.output.trim() + "».");
   }
   if (c.vars) {
     for (const name of Object.keys(c.vars)) {
       const v = res.vars[name];
-      if (!v) fails.push("«" + name + "» қорабы жасалмаған.");
+      if (!v) fails.push("«" + name + KZ.t("» қорабы жасалмаған."));
       else if (v.r !== c.vars[name]) {
-        fails.push("«" + name + "» қорабында " + c.vars[name] + " болуы керек, ал қазір " + v.r + ".");
+        fails.push("«" + name + KZ.t("» қорабында ") + c.vars[name] + KZ.t(" болуы керек, ал қазір ") + v.r + ".");
       }
     }
   }
   if (c.collectAll && res.robot && res.robot.stars.length > 0) {
     fails.push(
-      "Жұлдыздар: " + res.robot.got + "/" + res.robot.total + " жиналды. Қалғандарына да бар!"
+      KZ.t("Жұлдыздар: ") + res.robot.got + "/" + res.robot.total + KZ.t(" жиналды. Қалғандарына да бар!")
     );
   }
   if (c.requireFor && !res.features.has_for) {
-    fails.push("Бұл тапсырмада for циклін қолдану керек.");
+    fails.push(KZ.t("Бұл тапсырмада for циклін қолдану керек."));
   }
   if (c.requireWhile && !res.features.has_while) {
-    fails.push("Бұл тапсырмада while циклін қолдану керек.");
+    fails.push(KZ.t("Бұл тапсырмада while циклін қолдану керек."));
   }
   if (c.requireIf && !res.features.has_if) {
-    fails.push("Бұл тапсырмада if шартын қолдану керек.");
+    fails.push(KZ.t("Бұл тапсырмада if шартын қолдану керек."));
   }
   if (c.requireDef && !res.features.has_def) {
-    fails.push(res.features.kt ? "Бұл тапсырмада fun арқылы функция жасау керек." : res.features.js ? "Бұл тапсырмада function арқылы функция жасау керек." : "Бұл тапсырмада def арқылы функция жасау керек.");
+    fails.push(res.features.kt ? KZ.t("Бұл тапсырмада fun арқылы функция жасау керек.") : res.features.js ? KZ.t("Бұл тапсырмада function арқылы функция жасау керек.") : KZ.t("Бұл тапсырмада def арқылы функция жасау керек."));
   }
   if (c.requireList && !res.features.has_list) {
-    fails.push(res.features.kt ? "Бұл тапсырмада тізім қолдану керек: listOf(…) не mutableListOf(…)." : res.features.js ? "Бұл тапсырмада массив қолдану керек: квадрат жақша [ ]." : "Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ].");
+    fails.push(res.features.kt ? KZ.t("Бұл тапсырмада тізім қолдану керек: listOf(…) не mutableListOf(…).") : res.features.js ? KZ.t("Бұл тапсырмада массив қолдану керек: квадрат жақша [ ].") : KZ.t("Бұл тапсырмада тізім қолдану керек: квадрат жақша [ ]."));
   }
   if (c.forbid && res.code) {
     c.forbid.forEach((f) => {

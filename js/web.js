@@ -215,7 +215,7 @@
     chips = new Map();
     if (!doc || !doc.body) return;
     if (!doc.body.children.length) {
-      root.appendChild(el("p", "empty", "Әзірге бетте элемент жоқ. Теріп көр: <h1>Сәлем</h1>"));
+      root.appendChild(el("p", "empty", KZ.t("Әзірге бетте элемент жоқ. Теріп көр: <h1>Сәлем</h1>")));
       return;
     }
     root.appendChild(nodeFor(doc.body, 0));
@@ -255,7 +255,7 @@
     const box = $("#webInspect");
     box.textContent = "";
     if (!selected) {
-      box.appendChild(el("p", "empty", "Бетте не ағаштағы бір элементті бас: оның коды жарқырап, өлшемдері осында көрінеді."));
+      box.appendChild(el("p", "empty", KZ.t("Бетте не ағаштағы бір элементті бас: оның коды жарқырап, өлшемдері осында көрінеді.")));
       return;
     }
     const tag = selected.tagName.toLowerCase();
@@ -265,7 +265,7 @@
       .join(" ");
     box.appendChild(el("code", "insp-tag", "<" + tag + (attrs ? " " + attrs : "") + ">"));
     const line = lineOf(selected);
-    if (line) box.appendChild(el("p", "insp-line", line + "-жол"));
+    if (line) box.appendChild(el("p", "insp-line", line + KZ.t("-жол")));
     box.appendChild(boxModel(selected));
   }
 
@@ -322,7 +322,7 @@
     box.textContent = "";
     box.className = "card result " + (ok ? "ok" : "bad");
     if (KZ.hero && KZ.hero.react) KZ.hero.react(ok ? "ok" : "bad");
-    box.appendChild(el("h2", null, ok ? "🎉 Тамаша!" : "🤔 Әлі толық емес"));
+    box.appendChild(el("h2", null, ok ? KZ.t("🎉 Тамаша!") : KZ.t("🤔 Әлі толық емес")));
     if (ok) {
       const stars = KZ.starsFor(level, lines);
       KZ.progress.set(course.id, level.id, stars);
@@ -330,7 +330,7 @@
       refreshStars();
       box.appendChild(el("div", "big-stars", "⭐".repeat(stars) + "☆".repeat(3 - stars)));
       box.appendChild(
-        el("p", null, stars === 3 ? "Ең қысқа шешім! Керемет." : "3 ⭐ алу үшін кодты " + level.par + " жолға дейін қысқартып көр (қазір " + lines + " жол).")
+        el("p", null, stars === 3 ? KZ.t("Ең қысқа шешім! Керемет.") : KZ.t("3 ⭐ алу үшін кодты ") + level.par + KZ.nt(level.par, " жолға дейін қысқартып көр (қазір ") + lines + KZ.nt(lines, " жол)."))
       );
     }
     const checklist = el("ul", "checklist");
@@ -341,12 +341,12 @@
       const next = nextHref();
       const lec = next ? KZ.nextLectureHref(course, level, list, listKind) : null;
       if (lec) {
-        const l = el("a", "btn primary", "📖 Келесі лекция →");
+        const l = el("a", "btn primary", KZ.t("📖 Келесі лекция →"));
         l.href = lec;
         row.appendChild(l);
       }
       if (!lec) {
-        const a = el("a", "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
+        const a = el("a", "btn primary", next ? KZ.t("Келесі тапсырма →") : KZ.t("← Курсқа оралу"));
         a.href = next || "#/" + course.id + "/" + listKind;
         row.appendChild(a);
       }
@@ -354,7 +354,7 @@
     } else {
       checkedOnce = true;
       $("#webSolutionBtn").hidden = false;
-      box.appendChild(el("small", null, "Кодты өзгертіп, қайта тексеріп көр."));
+      box.appendChild(el("small", null, KZ.t("Кодты өзгертіп, қайта тексеріп көр.")));
     }
     box.hidden = false;
     if (window.matchMedia && window.matchMedia("(max-width: 959px)").matches && box.scrollIntoView) {
@@ -375,16 +375,16 @@
     return {
       id: "free",
       sandbox: true,
-      title: "Еркін алаң",
+      title: KZ.t("Еркін алаң"),
       kind: isCss ? "css" : "html",
-      task: "<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Бетте элементтерді басып көр!</p>",
+      task: KZ.t("<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Бетте элементтерді басып көр!</p>"),
       hint: "",
       solution: "",
       par: 99,
       html: isCss
-        ? '<h1>Тақырып</h1>\n<p class="a">Абзац мәтіні</p>\n<div class="box">Қорап</div>'
+        ? KZ.t('<h1>Тақырып</h1>\n<p class="a">Абзац мәтіні</p>\n<div class="box">Қорап</div>')
         : "",
-      starter: isCss ? "/* стильдерді осында жаз */\n" : "<h1>Сәлем!</h1>\n<p>Бұл менің бетім.</p>\n",
+      starter: isCss ? KZ.t("/* стильдерді осында жаз */\n") : KZ.t("<h1>Сәлем!</h1>\n<p>Бұл менің бетім.</p>\n"),
       sandboxCode: s && typeof s.code === "string" ? s.code : null,
       check: {},
     };
@@ -397,7 +397,7 @@
     hlLine = null;
     checkedOnce = false;
     const isCss = level.kind === "css";
-    $("#webBadge").textContent = level.sandbox ? "Еркін алаң" : level.debug ? "🐞 Қате тап " + level.id : listKind === "bonus" ? "Қосымша " + level.id : "Деңгей " + level.id;
+    $("#webBadge").textContent = level.sandbox ? KZ.t("Еркін алаң") : level.debug ? KZ.t("🐞 Қате тап ") + level.id : listKind === "bonus" ? KZ.t("Қосымша ") + level.id : KZ.t("Деңгей ") + level.id;
     $("#webTitle").textContent = level.title;
     $("#webTaskBody").innerHTML = level.task;
     $("#webHint").hidden = true;
@@ -409,8 +409,8 @@
     $("#webCheck").hidden = !!level.sandbox;
     const back = $("#webBack");
     back.href = "#/" + course.id + "/" + listKind;
-    back.textContent = listKind === "bonus" ? "← Қосымша тапсырмалар" : "← " + course.name + ": тапсырмалар";
-    $("#webEditorTitle").textContent = isCss ? "CSS коды" : "HTML коды";
+    back.textContent = listKind === "bonus" ? KZ.t("← Қосымша тапсырмалар") : "← " + course.name + KZ.t(": тапсырмалар");
+    $("#webEditorTitle").textContent = isCss ? KZ.t("CSS коды") : KZ.t("HTML коды");
     editor.setOption("mode", isCss ? "css" : "htmlmixed");
     editor.setOption("autoCloseTags", !isCss);
 

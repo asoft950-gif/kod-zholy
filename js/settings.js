@@ -114,8 +114,8 @@
     btn.id = "setBtn";
     btn.type = "button";
     btn.className = "btn small set-btn";
-    btn.title = "Баптаулар";
-    btn.setAttribute("aria-label", "Баптаулар");
+    btn.title = KZ.t("Баптаулар");
+    btn.setAttribute("aria-label", KZ.t("Баптаулар"));
     btn.textContent = "⚙";
     top.insertBefore(btn, document.getElementById("streakBtn"));
 
@@ -123,17 +123,17 @@
     dlg.id = "setDlg";
     dlg.className = "menu set-dlg";
     dlg.innerHTML =
-      '<div class="menu-head"><b>Баптаулар</b><button class="btn small ghost" type="button" data-close>✕</button></div>' +
+      KZ.t('<div class="menu-head"><b>Баптаулар</b><button class="btn small ghost" type="button" data-close>✕</button></div>') +
       '<div class="set-body">' +
-      '<div class="set-row"><span>Көрініс</span><div class="seg" data-k="theme">' +
-      '<button type="button" data-v="auto">Авто</button><button type="button" data-v="light">☀ Жарық</button><button type="button" data-v="dark">🌙 Қараңғы</button></div></div>' +
-      '<div class="set-row"><span>Мәтін өлшемі</span><div class="seg" data-k="fs">' +
+      KZ.t('<div class="set-row"><span>Көрініс</span><div class="seg" data-k="theme">') +
+      KZ.t('<button type="button" data-v="auto">Авто</button><button type="button" data-v="light">☀ Жарық</button><button type="button" data-v="dark">🌙 Қараңғы</button></div></div>') +
+      KZ.t('<div class="set-row"><span>Мәтін өлшемі</span><div class="seg" data-k="fs">') +
       '<button type="button" data-v="0">A−</button><button type="button" data-v="1">A</button><button type="button" data-v="2">A+</button><button type="button" data-v="3">A++</button></div></div>' +
-      '<div class="set-row"><span>Дыбыс</span><div class="seg" data-k="sound">' +
-      '<button type="button" data-v="on">🔊 Қосулы</button><button type="button" data-v="off">🔇 Өшірулі</button></div></div>' +
-      '<div class="set-row"><span>Бит көмекші</span><div class="seg" data-k="helper">' +
-      '<button type="button" data-v="on">🙂 Қосулы</button><button type="button" data-v="off">🤐 Өшірулі</button></div></div>' +
-      '<div class="set-row off-row" hidden><span>Офлайн</span><div class="off-box"><button type="button" class="btn small" id="offBtn">⬇ Интернетсіз жұмысқа жүктеу</button><small id="offMsg"></small></div></div>' +
+      KZ.t('<div class="set-row"><span>Дыбыс</span><div class="seg" data-k="sound">') +
+      KZ.t('<button type="button" data-v="on">🔊 Қосулы</button><button type="button" data-v="off">🔇 Өшірулі</button></div></div>') +
+      KZ.t('<div class="set-row"><span>Бит көмекші</span><div class="seg" data-k="helper">') +
+      KZ.t('<button type="button" data-v="on">🙂 Қосулы</button><button type="button" data-v="off">🤐 Өшірулі</button></div></div>') +
+      KZ.t('<div class="set-row off-row" hidden><span>Офлайн</span><div class="off-box"><button type="button" class="btn small" id="offBtn">⬇ Интернетсіз жұмысқа жүктеу</button><small id="offMsg"></small></div></div>') +
       "</div>";
     document.body.appendChild(dlg);
 
@@ -167,14 +167,14 @@
         g = await O.check();
       } catch (e) {}
       const all = g.length && g.every((x) => x.ok);
-      offMsg.textContent = all ? "✔ Python, JavaScript және SQL дайын: интернетсіз де жұмыс істейді." : "Python, JavaScript және SQL файлдарын алдын ала сақтайды (шамамен 15 МБ). Wi-Fi-да басқан жөн.";
-      offBtn.textContent = all ? "↻ Қайта жүктеу" : "⬇ Интернетсіз жұмысқа жүктеу";
+      offMsg.textContent = all ? KZ.t("✔ Python, JavaScript және SQL дайын: интернетсіз де жұмыс істейді.") : KZ.t("Python, JavaScript және SQL файлдарын алдын ала сақтайды (шамамен 15 МБ). Wi-Fi-да басқан жөн.");
+      offBtn.textContent = all ? KZ.t("↻ Қайта жүктеу") : KZ.t("⬇ Интернетсіз жұмысқа жүктеу");
     };
     offBtn.addEventListener("click", async () => {
       offBtn.disabled = true;
       try {
-        const r = await KZ.offline.prepare((d, t) => (offMsg.textContent = "Жүктелуде… " + d + "/" + t));
-        offMsg.textContent = r.ok ? "✔ Дайын! Енді интернетсіз де жұмыс істейді." : "Кейбір файл жүктелмеді: " + r.groups.filter((x) => !x.ok).map((x) => x.name).join(", ") + ". Желіні тексеріп қайталап көр.";
+        const r = await KZ.offline.prepare((d, t) => (offMsg.textContent = KZ.t("Жүктелуде… ") + d + "/" + t));
+        offMsg.textContent = r.ok ? KZ.t("✔ Дайын! Енді интернетсіз де жұмыс істейді.") : KZ.t("Кейбір файл жүктелмеді: ") + r.groups.filter((x) => !x.ok).map((x) => x.name).join(", ") + KZ.t(". Желіні тексеріп қайталап көр.");
       } catch (e) {
         offMsg.textContent = e.message;
       }

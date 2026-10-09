@@ -3,6 +3,9 @@
    лямбдалар, класстар, исключениялар) өзі талдап, JavaScript-те орындайды. Интернет пен сервер керек емес.
    Нәтиже Python/JS орындаушыларымен бірдей пішімде қайтады: { frames, error, output, lines, features, ... }.
    Бұл нағыз Kotlin компиляторы емес: шағын оқу жиыны. Қолдау жоқ нәрсе кездессе, түсінікті қате шығады. */
+globalThis.KZ = globalThis.KZ || {};
+KZ.t = KZ.t || ((s) => s);
+KZ.tt = KZ.tt || ((s, ...a) => s.replace(/\{(\d+)\}/g, (m, i) => a[i]));
 (() => {
   "use strict";
 
@@ -54,7 +57,7 @@
         const hex = src.slice(j + 2, j + 6);
         if (/^[0-9a-fA-F]{4}$/.test(hex)) return [String.fromCharCode(parseInt(hex, 16)), 6];
       }
-      bad("Тырнақша ішінде белгісіз «\\" + (e || "") + "» тіркесі тұр.", line, "Illegal escape");
+      bad(KZ.t("Тырнақша ішінде белгісіз «\\") + (e || "") + KZ.t("» тіркесі тұр."), line, "Illegal escape");
     };
     while (i < n) {
       const c = src[i];
@@ -84,7 +87,7 @@
             i++;
           }
         }
-        if (d > 0) bad("Көп жолды пікір /* … */ жабылмаған. Соңына */ қой.", L0, "Unclosed comment");
+        if (d > 0) bad(KZ.t("Көп жолды пікір /* … */ жабылмаған. Соңына */ қой."), L0, "Unclosed comment");
         continue;
       }
       const L = line;
@@ -128,7 +131,7 @@
       }
       if (c === "`") {
         const j = src.indexOf("`", i + 1);
-        if (j < 0) bad("Кері тырнақша ` жабылмаған.", L, "Unclosed backtick");
+        if (j < 0) bad(KZ.t("Кері тырнақша ` жабылмаған."), L, "Unclosed backtick");
         push("id", src.slice(i + 1, j), L, { bt: true });
         i = j + 1;
         continue;
@@ -170,7 +173,7 @@
                 }
                 if (d > 0) k++;
               }
-              if (d > 0) bad("Мәтін ішіндегі ${ … } жабылмаған.", line, "Unclosed template");
+              if (d > 0) bad(KZ.t("Мәтін ішіндегі ${ … } жабылмаған."), line, "Unclosed template");
               if (buf) (parts.push(buf), (buf = ""));
               parts.push({ code: src.slice(j + 2, k), line });
               line += (src.slice(j, k).match(/\n/g) || []).length;
@@ -190,7 +193,7 @@
           buf += ch;
           j++;
         }
-        if (!closed) bad("Мәтіннің тырнақшасы жабылмаған: басындағыдай \" белгісімен жап.", L, "Unclosed string literal");
+        if (!closed) bad(KZ.t("Мәтіннің тырнақшасы жабылмаған: басындағыдай \" белгісімен жап."), L, "Unclosed string literal");
         if (buf || !parts.length) parts.push(buf);
         push("str", parts, L, { raw });
         i = j;
@@ -211,7 +214,7 @@
             j++;
           }
         }
-        if (src[j] !== "'" || ch === undefined) bad("Char (бір таңба) тырнақшасы дұрыс емес. Бір таңбаны 'a' деп жаз, мәтінді \"…\" деп жаз.", L, "Incorrect character literal");
+        if (src[j] !== "'" || ch === undefined) bad(KZ.t("Char (бір таңба) тырнақшасы дұрыс емес. Бір таңбаны 'a' деп жаз, мәтінді \"…\" деп жаз."), L, "Incorrect character literal");
         push("chr", ch, L);
         i = j + 1;
         continue;
@@ -234,9 +237,9 @@
         continue;
       }
       if (c === "“" || c === "”" || c === "‘" || c === "’") {
-        bad("Кодта қисық тырнақша " + c + " бар. Тек тік тырнақша \" немесе ' қолдан.", L, "Illegal character");
+        bad(KZ.t("Кодта қисық тырнақша ") + c + KZ.t(" бар. Тек тік тырнақша \" немесе ' қолдан."), L, "Illegal character");
       }
-      bad("Белгісіз таңба: «" + c + "».", L, "Illegal character '" + c + "'");
+      bad(KZ.t("Белгісіз таңба: «") + c + "».", L, "Illegal character '" + c + "'");
     }
     toks.push({ t: "eof", v: "", line, nl: true });
     return toks;
@@ -276,7 +279,7 @@
       return t.t === "id" && t.v === v && !t.bt;
     }
     show(t) {
-      if (t.t === "eof") return "файлдың соңы";
+      if (t.t === "eof") return KZ.t("файлдың соңы");
       if (t.t === "str") return '"…"';
       if (t.t === "chr") return "'" + t.v + "'";
       return String(t.v);
@@ -288,15 +291,15 @@
     }
     unexpected(tok) {
       tok = tok || this.cur;
-      this.fail("Бұл жерде күтпеген «" + this.show(tok) + "» тұр. Алдыңғы жолдағы жақша, үтір не белгіні тексер.", "Unexpected token '" + this.show(tok) + "'", tok);
+      this.fail(KZ.t("Бұл жерде күтпеген «") + this.show(tok) + KZ.t("» тұр. Алдыңғы жолдағы жақша, үтір не белгіні тексер."), "Unexpected token '" + this.show(tok) + "'", tok);
     }
     expectOp(v) {
-      if (!this.isOp(v)) this.fail("Мұнда «" + v + "» болуы керек.", "Expecting '" + v + "'");
+      if (!this.isOp(v)) this.fail(KZ.t("Мұнда «") + v + KZ.t("» болуы керек."), "Expecting '" + v + "'");
       return this.next();
     }
     expectId(what) {
       const t = this.cur;
-      if (t.t !== "id" || (RESERVED.has(t.v) && !t.bt)) this.fail("Мұнда " + (what || "атау") + " болуы керек.", "Expecting " + (what || "identifier"));
+      if (t.t !== "id" || (RESERVED.has(t.v) && !t.bt)) this.fail(KZ.t("Мұнда ") + (what || KZ.t("атау")) + KZ.t(" болуы керек."), "Expecting " + (what || "identifier"));
       return this.next().v;
     }
     skipSemis() {
@@ -318,7 +321,7 @@
         const ret = this.parseType();
         return { n: "fn", args, ret, nullable: false };
       }
-      let name = this.expectId("түр атауы");
+      let name = this.expectId(KZ.t("түр атауы"));
       while (this.isOp(".") && this.peek(1).t === "id") {
         this.next();
         name = this.next().v;
@@ -369,7 +372,7 @@
         const k = st.k;
         if (!(k === "fun" || k === "class" || k === "var")) {
           throw new KtSyntax(
-            "Кодты main() функциясының ішіне жаз: fun main() { … }. Функция мен класстан тыс тек fun, class, val, var тұра алады.",
+            KZ.t("Кодты main() функциясының ішіне жаз: fun main() { … }. Функция мен класстан тыс тек fun, class, val, var тұра алады."),
             st.line,
             "Expecting a top level declaration"
           );
@@ -458,7 +461,7 @@
           case "do": {
             this.next();
             const body = this.parseBody();
-            if (!this.isId("while")) this.fail("do { … } блогынан кейін while (шарт) болуы керек.", "Expecting 'while'");
+            if (!this.isId("while")) this.fail(KZ.t("do { … } блогынан кейін while (шарт) болуы керек."), "Expecting 'while'");
             this.next();
             this.expectOp("(");
             const cond = this.parseExpr();
@@ -482,7 +485,7 @@
             return { k: "throw", line, e: this.parseExpr() };
           }
           case "typealias":
-            this.fail("typealias бұл курста қолдау таппайды.", "typealias is not supported");
+            this.fail(KZ.t("typealias бұл курста қолдау таппайды."), "typealias is not supported");
         }
       }
       if (top && mods.size && !(t.t === "id")) this.unexpected();
@@ -491,7 +494,7 @@
       if (this.cur.t === "op" && ASSIGN.has(this.cur.v) && !this.cur.nl) {
         const op = this.next().v;
         if (!(e.k === "id" || e.k === "mem" || e.k === "idx")) {
-          throw new KtSyntax("Теңдік белгісінің сол жағында қорап аты (айнымалы) тұруы керек.", line, "The left-hand side of an assignment must be a variable");
+          throw new KtSyntax(KZ.t("Теңдік белгісінің сол жағында қорап аты (айнымалы) тұруы керек."), line, "The left-hand side of an assignment must be a variable");
         }
         const value = this.parseExpr();
         return { k: "assign", line, target: e, op, value };
@@ -513,7 +516,7 @@
           else break;
         }
         this.expectOp(")");
-      } else name = this.expectId("айнымалы аты");
+      } else name = this.expectId(KZ.t("айнымалы аты"));
       let type = null;
       if (this.isOp(":")) {
         this.next();
@@ -524,7 +527,7 @@
         this.next();
         init = this.parseExpr();
       } else if (this.isId("by")) {
-        this.fail("by (delegate) бұл курста қолдау таппайды.", "Delegates are not supported");
+        this.fail(KZ.t("by (delegate) бұл курста қолдау таппайды."), "Delegates are not supported");
       }
       let getter = null;
       if (this.isId("get") && this.isOp("(", 1)) {
@@ -537,7 +540,7 @@
           getter = { expr: this.parseExpr() };
         } else getter = { block: this.parseBlock() };
       }
-      if (!init && !type && !getter) this.fail("«" + (name || "…") + "» үшін түр не бастапқы мән керек: val x = 5 не val x: Int = 5.", "This variable must either have a type annotation or be initialized");
+      if (!init && !type && !getter) this.fail("«" + (name || "…") + KZ.t("» үшін түр не бастапқы мән керек: val x = 5 не val x: Int = 5."), "This variable must either have a type annotation or be initialized");
       return { k: "var", line, mut, name, names, type, init, getter, mods };
     }
 
@@ -545,12 +548,12 @@
       const line = this.cur.line;
       this.next(); // fun
       this.skipTypeParams();
-      let name = this.expectId("функция аты");
+      let name = this.expectId(KZ.t("функция аты"));
       let recv = null;
       if (this.isOp(".")) {
         this.next();
         recv = name;
-        name = this.expectId("функция аты");
+        name = this.expectId(KZ.t("функция аты"));
       }
       const params = this.parseParams();
       let ret = null;
@@ -565,7 +568,7 @@
         this.next();
         expr = this.parseExpr();
       } else if (!mods.has("abstract") && !this.inInterface) {
-        this.fail("Функцияның денесі { … } немесе = өрнек болуы керек.", "Function body is expected");
+        this.fail(KZ.t("Функцияның денесі { … } немесе = өрнек болуы керек."), "Function body is expected");
       }
       return { k: "fun", line, name, recv, params, ret, body, expr, mods };
     }
@@ -582,12 +585,12 @@
           mut = this.next().v === "var";
         }
         const nameTok = this.cur;
-        const name = this.expectId("параметр аты");
+        const name = this.expectId(KZ.t("параметр аты"));
         let type = null;
         if (this.isOp(":")) {
           this.next();
           type = this.parseType();
-        } else if (!this.lambdaParams) this.fail("Параметрдің түрін жаз: " + name + ": Int.", "A type annotation is required on parameter '" + name + "'", nameTok);
+        } else if (!this.lambdaParams) this.fail(KZ.t("Параметрдің түрін жаз: ") + name + ": Int.", "A type annotation is required on parameter '" + name + "'", nameTok);
         let def = null;
         if (this.isOp("=")) {
           this.next();
@@ -606,7 +609,7 @@
       const kw = this.next().v; // class | interface | object
       let kind = kw;
       if (kw === "class" && mods.has("enum")) kind = "enum";
-      const name = this.expectId(kw === "object" ? "объект аты" : "класс аты");
+      const name = this.expectId(kw === "object" ? KZ.t("объект аты") : KZ.t("класс аты"));
       this.skipTypeParams();
       let params = [];
       if (this.isOp("(") && kw === "class") params = this.parseParams();
@@ -632,7 +635,7 @@
         if (kind === "enum") {
           while (this.cur.t === "id" && !this.isOp("}")) {
             const eline = this.cur.line;
-            const en = this.expectId("enum мәні");
+            const en = this.expectId(KZ.t("enum мәні"));
             let args = [];
             if (this.isOp("(")) args = this.parseArgs().args;
             entries.push({ name: en, args, line: eline });
@@ -642,7 +645,7 @@
           this.skipSemis();
         }
         while (!this.isOp("}")) {
-          if (this.cur.t === "eof") this.fail("Класстың { ілмегі жабылмаған. Соңына } қой.", "Expecting '}'");
+          if (this.cur.t === "eof") this.fail(KZ.t("Класстың { ілмегі жабылмаған. Соңына } қой."), "Expecting '}'");
           const mm = this.parseMods();
           const t = this.cur;
           if (t.t === "id" && (t.v === "val" || t.v === "var")) {
@@ -653,10 +656,10 @@
             this.next();
             members.push({ k: "init", body: this.parseBlock() });
           } else if (this.isId("constructor")) {
-            this.fail("Қосымша constructor бұл курста қолдау таппайды. Негізгі конструкторды класс атының жанында жаз.", "Secondary constructors are not supported");
+            this.fail(KZ.t("Қосымша constructor бұл курста қолдау таппайды. Негізгі конструкторды класс атының жанында жаз."), "Secondary constructors are not supported");
           } else if (this.isId("class") || this.isId("object") || this.isId("interface")) {
-            this.fail("Класстың ішінде басқа класс бұл курста қолдау таппайды.", "Nested classes are not supported");
-          } else if (mm.has("companion")) this.fail("companion object бұл курста қолдау таппайды.", "Companion objects are not supported");
+            this.fail(KZ.t("Класстың ішінде басқа класс бұл курста қолдау таппайды."), "Nested classes are not supported");
+          } else if (mm.has("companion")) this.fail(KZ.t("companion object бұл курста қолдау таппайды."), "Companion objects are not supported");
           else this.unexpected();
           this.skipSemis();
         }
@@ -680,12 +683,12 @@
           else break;
         }
         this.expectOp(")");
-      } else name = this.isId("_") ? (this.next(), "_") : this.expectId("цикл айнымалысы");
+      } else name = this.isId("_") ? (this.next(), "_") : this.expectId(KZ.t("цикл айнымалысы"));
       if (this.isOp(":")) {
         this.next();
         this.parseType();
       }
-      if (!this.isId("in")) this.fail("for циклінде «in» керек: for (x in 1..5).", "Expecting 'in'");
+      if (!this.isId("in")) this.fail(KZ.t("for циклінде «in» керек: for (x in 1..5)."), "Expecting 'in'");
       this.next();
       const iter = this.parseExpr();
       this.expectOp(")");
@@ -697,7 +700,7 @@
       const open = this.expectOp("{");
       const stmts = this.parseStmts();
       if (!this.isOp("}")) {
-        this.fail("«{» ілмегі жабылмаған (" + open.line + "-жолдан басталған). Соңына «}» қой.", "Expecting '}'");
+        this.fail(KZ.t("«{» ілмегі жабылмаған (") + open.line + KZ.t("-жолдан басталған). Соңына «}» қой."), "Expecting '}'");
       }
       this.next();
       return { k: "block", line: open.line, stmts };
@@ -799,7 +802,7 @@
       const args = [];
       const named = [];
       while (!this.isOp(")")) {
-        if (this.cur.t === "eof") this.fail("Функция шақыруындағы « ( » жабылмаған. Соңына « ) » қой.", "Expecting ')'");
+        if (this.cur.t === "eof") this.fail(KZ.t("Функция шақыруындағы « ( » жабылмаған. Соңына « ) » қой."), "Expecting ')'");
         if (this.cur.t === "id" && this.isOp("=", 1) && !this.isOp("==", 1)) {
           const nm = this.next().v;
           this.next();
@@ -839,7 +842,7 @@
         if (t.v === "." || t.v === "?.") {
           this.next();
           const nt = this.cur;
-          if (nt.t !== "id") this.fail("Нүктеден кейін қасиет не функция аты болуы керек.", "Expecting member name after '.'");
+          if (nt.t !== "id") this.fail(KZ.t("Нүктеден кейін қасиет не функция аты болуы керек."), "Expecting member name after '.'");
           this.next();
           e = { k: "mem", line: nt.line, obj: e, name: nt.v, safe: t.v === "?." };
           continue;
@@ -932,7 +935,7 @@
         params = [];
       }
       const stmts = this.parseStmts();
-      if (!this.isOp("}")) this.fail("Лямбданың « { » ілмегі жабылмаған. Соңына « } » қой.", "Expecting '}'");
+      if (!this.isOp("}")) this.fail(KZ.t("Лямбданың « { » ілмегі жабылмаған. Соңына « } » қой."), "Expecting '}'");
       this.next();
       return { k: "lambda", line: open.line, params, body: { k: "block", line: open.line, stmts } };
     }
@@ -963,7 +966,7 @@
       const branches = [];
       this.skipSemis();
       while (!this.isOp("}")) {
-        if (this.cur.t === "eof") this.fail("when { … } блогы жабылмаған. Соңына } қой.", "Expecting '}'");
+        if (this.cur.t === "eof") this.fail(KZ.t("when { … } блогы жабылмаған. Соңына } қой."), "Expecting '}'");
         const bline = this.cur.line;
         let conds = null;
         if (this.isId("else")) {
@@ -990,7 +993,7 @@
             else break;
           }
         }
-        if (!this.isOp("->")) this.fail("when ішінде шарттан кейін «->» керек.", "Expecting '->'");
+        if (!this.isOp("->")) this.fail(KZ.t("when ішінде шарттан кейін «->» керек."), "Expecting '->'");
         this.next();
         const body = this.parseBody();
         branches.push({ line: bline, conds, body });
@@ -1018,7 +1021,7 @@
         this.next();
         fin = this.parseBlock();
       }
-      if (!catches.length && !fin) this.fail("try-дан кейін catch не finally болуы керек.", "Expecting 'catch' or 'finally'");
+      if (!catches.length && !fin) this.fail(KZ.t("try-дан кейін catch не finally болуы керек."), "Expecting 'catch' or 'finally'");
       return { k: "try", line, block, catches, fin };
     }
 
@@ -1090,7 +1093,7 @@
             this.next();
             return { k: "contx", line, label: this.takeLabel() };
           case "object":
-            this.fail("Анонимді object бұл курста қолдау таппайды.", "Anonymous objects are not supported");
+            this.fail(KZ.t("Анонимді object бұл курста қолдау таппайды."), "Anonymous objects are not supported");
         }
         if (RESERVED.has(t.v)) this.unexpected();
         this.next();
@@ -1318,45 +1321,45 @@
     let tip = "";
     switch (name) {
       case "ArithmeticException":
-        msg = "0-ге бөлуге болмайды.";
-        tip = "Бөлместен бұрын бөлгіш 0 емес екенін if арқылы тексер.";
+        msg = KZ.t("0-ге бөлуге болмайды.");
+        tip = KZ.t("Бөлместен бұрын бөлгіш 0 емес екенін if арқылы тексер.");
         break;
       case "IndexOutOfBoundsException":
       case "StringIndexOutOfBoundsException":
       case "ArrayIndexOutOfBoundsException":
-        msg = "Тізімде не мәтінде мұндай нөмір жоқ (" + m + ").";
-        tip = "Нөмір 0-ден басталады және size - 1-ге дейін барады. Соңғы элемент: list[list.size - 1] не list.last().";
+        msg = KZ.t("Тізімде не мәтінде мұндай нөмір жоқ (") + m + ").";
+        tip = KZ.t("Нөмір 0-ден басталады және size - 1-ге дейін барады. Соңғы элемент: list[list.size - 1] не list.last().");
         break;
       case "NumberFormatException":
-        msg = "Мәтінді санға айналдыру мүмкін болмады (" + m + ").";
-        tip = "toInt() тек «123» сияқты мәтінге жарайды. Сенімсіз болса, toIntOrNull() қолдан: ол сәтсіз болса null береді.";
+        msg = KZ.t("Мәтінді санға айналдыру мүмкін болмады (") + m + ").";
+        tip = KZ.t("toInt() тек «123» сияқты мәтінге жарайды. Сенімсіз болса, toIntOrNull() қолдан: ол сәтсіз болса null береді.");
         break;
       case "NullPointerException":
-        msg = "Мән null болып тұр, ал оны null емес деп күттің.";
-        tip = "!! белгісін қолданбай, ?. не ?: (Элвис) қолдан, не if (x != null) деп тексер.";
+        msg = KZ.t("Мән null болып тұр, ал оны null емес деп күттің.");
+        tip = KZ.t("!! белгісін қолданбай, ?. не ?: (Элвис) қолдан, не if (x != null) деп тексер.");
         break;
       case "NoSuchElementException":
-        msg = "Керек элемент табылмады (" + (m || "бос жиын") + ").";
-        tip = "Бос тізімнен first()/last() алуға болмайды. firstOrNull() қолдан не алдымен isNotEmpty() тексер.";
+        msg = KZ.t("Керек элемент табылмады (") + (m || KZ.t("бос жиын")) + ").";
+        tip = KZ.t("Бос тізімнен first()/last() алуға болмайды. firstOrNull() қолдан не алдымен isNotEmpty() тексер.");
         break;
       case "StackOverflowError":
-        msg = "Функция өзін шексіз шақырып жатыр (рекурсия тоқтамады).";
-        tip = "Рекурсияда тоқтау шарты (if … return) болуы керек және әр шақыруда есеп кішірейіп отыруы керек.";
+        msg = KZ.t("Функция өзін шексіз шақырып жатыр (рекурсия тоқтамады).");
+        tip = KZ.t("Рекурсияда тоқтау шарты (if … return) болуы керек және әр шақыруда есеп кішірейіп отыруы керек.");
         break;
       case "IllegalArgumentException":
       case "IllegalStateException":
-        msg = "Бағдарлама қатемен тоқтады: " + (m || name);
-        tip = "Бұл қатені require(…) / check(…) / error(…) шақырған. Шартты не мәнді тексер.";
+        msg = KZ.t("Бағдарлама қатемен тоқтады: ") + (m || name);
+        tip = KZ.t("Бұл қатені require(…) / check(…) / error(…) шақырған. Шартты не мәнді тексер.");
         break;
       case "UnsupportedOperationException":
-        msg = "Бұл амалға рұқсат жоқ" + (m ? " (" + m + ")" : "") + ".";
+        msg = KZ.t("Бұл амалға рұқсат жоқ") + (m ? " (" + m + ")" : "") + ".";
         break;
       case "ClassCastException":
-        msg = "Мәнді басқа түрге айналдыру мүмкін емес" + (m ? " (" + m + ")" : "") + ".";
+        msg = KZ.t("Мәнді басқа түрге айналдыру мүмкін емес") + (m ? " (" + m + ")" : "") + ".";
         break;
       default:
-        msg = "Бағдарлама қатемен тоқтады: " + name + (m ? ": " + m : "") + ".";
-        tip = "Бұл — throw арқылы лақтырылған қате. try { … } catch (e: " + name + ") { … } арқылы ұстауға болады.";
+        msg = KZ.t("Бағдарлама қатемен тоқтады: ") + name + (m ? ": " + m : "") + ".";
+        tip = KZ.t("Бұл — throw арқылы лақтырылған қате. try { … } catch (e: ") + name + KZ.t(") { … } арқылы ұстауға болады.");
     }
     return { msg, tip, detail };
   }
@@ -1408,13 +1411,13 @@
       if ("({[".includes(c)) stack.push({ c, i });
       else if (pairs[c]) {
         const top = stack.pop();
-        if (!top || top.c !== pairs[c]) return "«" + c + "» белгісіне сәйкес ашатын жақша жоқ. Артық жабылған жақшаны өшір.";
+        if (!top || top.c !== pairs[c]) return "«" + c + KZ.t("» белгісіне сәйкес ашатын жақша жоқ. Артық жабылған жақшаны өшір.");
       }
     }
     if (stack.length) {
       const o = stack[stack.length - 1].c;
       const cl = { "(": ")", "{": "}", "[": "]" }[o];
-      return "«" + o + "» ашылған, бірақ жабылмаған. Соңына «" + cl + "» қой.";
+      return "«" + o + KZ.t("» ашылған, бірақ жабылмаған. Соңына «") + cl + KZ.t("» қой.");
     }
     return "";
   }
@@ -1441,26 +1444,26 @@
       let tip = "";
       let msg;
       if (v === null) {
-        msg = "«" + T.n + "» түріне null беруге болмайды.";
-        tip = "Мән null болуы мүмкін болса, түрдің соңына ? қой: " + T.n + "?";
+        msg = "«" + T.n + KZ.t("» түріне null беруге болмайды.");
+        tip = KZ.t("Мән null болуы мүмкін болса, түрдің соңына ? қой: ") + T.n + "?";
       } else if (T.n === "Double" && isNum(v)) {
-        msg = "Double түріне бүтін сан беруге болмайды.";
-        tip = "Нүктелі жаз: 5.0, не санды .toDouble() арқылы айналдыр.";
+        msg = KZ.t("Double түріне бүтін сан беруге болмайды.");
+        tip = KZ.t("Нүктелі жаз: 5.0, не санды .toDouble() арқылы айналдыр.");
       } else if (T.n === "Int" && v instanceof KD) {
-        msg = "Int түріне Double мәнін беруге болмайды (үтірден кейінгі бөлігі жоғалады).";
-        tip = "Керек болса, .toInt() қолдан: 3.7.toInt() = 3. Не қорап түрін Double қыл.";
+        msg = KZ.t("Int түріне Double мәнін беруге болмайды (үтірден кейінгі бөлігі жоғалады).");
+        tip = KZ.t("Керек болса, .toInt() қолдан: 3.7.toInt() = 3. Не қорап түрін Double қыл.");
       } else if (T.n === "String" && (isNumeric(v) || typeof v === "boolean" || v instanceof KC)) {
-        msg = "String түріне " + typeName(v) + " мәнін беруге болмайды.";
-        tip = "Мәтінге айналдыру үшін .toString() не шаблон \"$x\" қолдан.";
+        msg = KZ.t("String түріне ") + typeName(v) + KZ.t(" мәнін беруге болмайды.");
+        tip = KZ.t("Мәтінге айналдыру үшін .toString() не шаблон \"$x\" қолдан.");
       } else if ((T.n === "Int" || T.n === "Double") && typeof v === "string") {
-        msg = T.n + " түріне String мәнін беруге болмайды.";
-        tip = T.n === "Int" ? "Мәтінді санға айналдыру үшін .toInt() қолдан." : "Мәтінді санға айналдыру үшін .toDouble() қолдан.";
+        msg = T.n + KZ.t(" түріне String мәнін беруге болмайды.");
+        tip = T.n === "Int" ? KZ.t("Мәтінді санға айналдыру үшін .toInt() қолдан.") : KZ.t("Мәтінді санға айналдыру үшін .toDouble() қолдан.");
       } else if (T.n === "MutableList" && v instanceof KList) {
-        msg = "listOf() тізімі өзгермейді, ал «MutableList» өзгеретін тізімді күтеді.";
-        tip = "mutableListOf(…) қолдан.";
+        msg = KZ.t("listOf() тізімі өзгермейді, ал «MutableList» өзгеретін тізімді күтеді.");
+        tip = KZ.t("mutableListOf(…) қолдан.");
       } else {
-        msg = "Түр сәйкес емес: «" + tn + "» күтілген, ал мәні «" + typeName(v) + "».";
-        tip = "Қораптың түрі мен оған салатын мәннің түрі бірдей болуы керек.";
+        msg = KZ.t("Түр сәйкес емес: «") + tn + KZ.t("» күтілген, ал мәні «") + typeName(v) + "».";
+        tip = KZ.t("Қораптың түрі мен оған салатын мәннің түрі бірдей болуы керек.");
       }
       return fail(msg, tip, "Type mismatch: inferred type is " + typeName(v) + " but " + tn + " was expected");
     };
@@ -1523,7 +1526,7 @@
       if (!typeOk(v, T)) throw mismatch(T, v);
     };
     const checkKind = (v, kind, name) => {
-      if (v === null) throw fail("«" + name + "» қорабына null беруге болмайды: ол " + kind + " түрінде жасалған.", "Null қабылдау үшін түрді жазып көрсет: var " + name + ": " + kind + "? = …", "Null can not be a value of a non-null type " + kind);
+      if (v === null) throw fail("«" + name + KZ.t("» қорабына null беруге болмайды: ол ") + kind + KZ.t(" түрінде жасалған."), KZ.t("Null қабылдау үшін түрді жазып көрсет: var ") + name + ": " + kind + "? = …", "Null can not be a value of a non-null type " + kind);
       const k = kindOf(v);
       if (k && k !== kind && (kind === "Int" || kind === "Double" || kind === "String" || kind === "Boolean" || kind === "Char")) throw mismatch({ n: kind, nullable: false }, v);
     };
@@ -1627,7 +1630,7 @@
         const m = findMethod(a.cls, "compareTo");
         if (m) return callFn(bindFn(m, a), [b], {}, null);
       }
-      throw fail("«" + typeName(a) + "» мен «" + typeName(b) + "» мәндерін салыстыруға болмайды.", "Салыстыру үшін екі мән де бірдей түрде болуы керек (екеуі де сан, не екеуі де мәтін).", "Operator '<' cannot be applied to '" + typeName(a) + "' and '" + typeName(b) + "'");
+      throw fail("«" + typeName(a) + KZ.t("» мен «") + typeName(b) + KZ.t("» мәндерін салыстыруға болмайды."), KZ.t("Салыстыру үшін екі мән де бірдей түрде болуы керек (екеуі де сан, не екеуі де мәтін)."), "Operator '<' cannot be applied to '" + typeName(a) + "' and '" + typeName(b) + "'");
     };
 
     /* ----- Iterator ----- */
@@ -1659,7 +1662,7 @@
         for (const [k, x] of [...v.m.values()]) yield new KPair(k, x);
         return;
       }
-      throw fail("«" + typeName(v) + "» түрін for циклінде айналып шығуға болмайды.", "for (x in …) тек диапазон (1..5), тізім, жиын, map не мәтінмен жұмыс істейді.", "For-loop range must have an 'iterator()' method");
+      throw fail("«" + typeName(v) + KZ.t("» түрін for циклінде айналып шығуға болмайды."), KZ.t("for (x in …) тек диапазон (1..5), тізім, жиын, map не мәтінмен жұмыс істейді."), "For-loop range must have an 'iterator()' method");
     }
     const toArr = (v) => {
       if (v instanceof KList || v instanceof KSet) return v.a.slice();
@@ -1678,7 +1681,7 @@
         const ps = v.cls.node.params.filter((p) => p.isProp);
         if (i < ps.length) return v.f.get(ps[i].name).v;
       }
-      throw fail("Мәнді бөліп (destructuring) алу мүмкін емес: «" + typeName(v) + "».", "Бөлуге Pair, data class не тізім жарайды: val (a, b) = Pair(1, 2)");
+      throw fail(KZ.t("Мәнді бөліп (destructuring) алу мүмкін емес: «") + typeName(v) + "».", KZ.t("Бөлуге Pair, data class не тізім жарайды: val (a, b) = Pair(1, 2)"));
     };
 
     const L = (a, mut) => new KList(a, mut);
@@ -1733,12 +1736,12 @@
       return undefined;
     };
     const unresolved = (name) =>
-      fail("«" + name + "» әлі жасалмаған (не атын қате жаздың).", "Атын қайта тексер: бас әріп пен кіші әріп маңызды (name ≠ Name). Не алдымен val " + name + " = … деп жаса.", "Unresolved reference: " + name);
+      fail("«" + name + KZ.t("» әлі жасалмаған (не атын қате жаздың)."), KZ.t("Атын қайта тексер: бас әріп пен кіші әріп маңызды (name ≠ Name). Не алдымен val ") + name + KZ.t(" = … деп жаса."), "Unresolved reference: " + name);
     const valErr = (name) =>
-      fail("val арқылы жасалған «" + name + "» қорабын өзгертуге болмайды.", "Өзгеретін мәнге var қолдан: var " + name + " = …", "Val cannot be reassigned");
+      fail(KZ.t("val арқылы жасалған «") + name + KZ.t("» қорабын өзгертуге болмайды."), KZ.t("Өзгеретін мәнге var қолдан: var ") + name + " = …", "Val cannot be reassigned");
     function declare(env, name, val, mut, tn) {
       const old = env.vars.get(name);
-      if (old && !old.hidden) throw fail("«" + name + "» қорабы бұл жерде бұрын жасалған.", "val/var-ды тек бір рет жаз. Кейін мәнін өзгерткің келсе: " + name + " = …", "Conflicting declarations: " + name);
+      if (old && !old.hidden) throw fail("«" + name + KZ.t("» қорабы бұл жерде бұрын жасалған."), KZ.t("val/var-ды тек бір рет жаз. Кейін мәнін өзгерткің келсе: ") + name + " = …", "Conflicting declarations: " + name);
       if (tn) checkDecl(val, tn);
       env.vars.set(name, { v: val, mut, tn: tn || null, kind: tn ? null : kindOf(val) });
     }
@@ -1861,7 +1864,7 @@
     function callFn(fn, args, named, node, recvObj) {
       if (typeof fn === "function") return fn(args, named || {}, node);
       if (fn instanceof KClass) return construct(fn, args, named || {}, node);
-      if (!(fn instanceof KFun)) throw fail("Бұл мәнді функция сияқты шақыруға болмайды.", "Жақшамен () тек функцияны шақыруға болады.", "Expression is not a function");
+      if (!(fn instanceof KFun)) throw fail(KZ.t("Бұл мәнді функция сияқты шақыруға болмайды."), KZ.t("Жақшамен () тек функцияны шақыруға болады."), "Expression is not a function");
       named = named || {};
       const f = pickOverload(fn, args.length, Object.keys(named));
       if (++depth > MAX_DEPTH) {
@@ -1899,7 +1902,7 @@
         }
         if (f.ret && !f.isLambda) {
           if (f.ret.n === "Unit") result = UNIT;
-          else if (result === UNIT && !f.expr) throw fail("«" + f.name + "» функциясы " + f.ret.n + " қайтаруы керек, бірақ return жоқ.", "Функцияның соңында return мән жаз.", "A 'return' expression required in a function with a block body");
+          else if (result === UNIT && !f.expr) throw fail("«" + f.name + KZ.t("» функциясы ") + f.ret.n + KZ.t(" қайтаруы керек, бірақ return жоқ."), KZ.t("Функцияның соңында return мән жаз."), "A 'return' expression required in a function with a block body");
           else checkDecl(result, f.ret);
         }
         return result;
@@ -1917,7 +1920,7 @@
         let a = args;
         if (a.length === 1 && ps.length > 1 && a[0] instanceof KPair) a = [a[0].a, a[0].b];
         ps.forEach((p, i) => {
-          if (i >= a.length) throw fail("Лямбдаға аргумент жетіспейді.", "Лямбда " + ps.length + " мән күтеді.", "Missing argument");
+          if (i >= a.length) throw fail(KZ.t("Лямбдаға аргумент жетіспейді."), KZ.t("Лямбда ") + ps.length + KZ.t(" мән күтеді."), "Missing argument");
           if (p.destruct) p.destruct.forEach((n, j) => n !== "_" && env.vars.set(n, { v: component(a[i], j), mut: false, kind: null }));
           else if (p.name !== "_") {
             if (p.type) checkDecl(a[i], p.type);
@@ -1948,13 +1951,13 @@
         }
         if (!has) {
           if (p.def) val = ev(p.def, env);
-          else throw fail("«" + f.name + "» функциясына «" + p.name + "» аргументі жетіспейді.", "Функцияны шақырғанда барлық параметрдің мәнін бер: " + f.name + "(" + ps.map((x) => x.name).join(", ") + ")", "No value passed for parameter '" + p.name + "'");
+          else throw fail("«" + f.name + KZ.t("» функциясына «") + p.name + KZ.t("» аргументі жетіспейді."), KZ.t("Функцияны шақырғанда барлық параметрдің мәнін бер: ") + f.name + "(" + ps.map((x) => x.name).join(", ") + ")", "No value passed for parameter '" + p.name + "'");
         }
         if (p.type) checkDecl(val, p.type);
         env.vars.set(p.name, { v: val, mut: false, tn: null, kind: null });
       }
-      if (ai < args.length) throw fail("«" + f.name + "» функциясына артық аргумент берілді (" + args.length + " берілді, " + ps.length + " керек).", "Параметр санын тексер.", "Too many arguments for " + f.name);
-      for (const k of Object.keys(named)) if (!used.has(k) && !ps.some((p) => p.name === k)) throw fail("«" + f.name + "» функциясында «" + k + "» деген параметр жоқ.", "Параметр атын қайта тексер.", "Cannot find a parameter with this name: " + k);
+      if (ai < args.length) throw fail("«" + f.name + KZ.t("» функциясына артық аргумент берілді (") + args.length + KZ.t(" берілді, ") + ps.length + KZ.t(" керек)."), KZ.t("Параметр санын тексер."), "Too many arguments for " + f.name);
+      for (const k of Object.keys(named)) if (!used.has(k) && !ps.some((p) => p.name === k)) throw fail("«" + f.name + KZ.t("» функциясында «") + k + KZ.t("» деген параметр жоқ."), KZ.t("Параметр атын қайта тексер."), "Cannot find a parameter with this name: " + k);
     }
 
     /* ====== Класстар ====== */
@@ -1970,13 +1973,13 @@
       const n = cls.node;
       n.supers.forEach((s) => {
         const sc = userClasses.get(s.type.n) || EXC[s.type.n];
-        if (!sc) throw fail("«" + s.type.n + "» класы табылмады.", "Ата-класс аты дұрыс па? Ол алдында жасалды ма?", "Unresolved reference: " + s.type.n);
+        if (!sc) throw fail("«" + s.type.n + KZ.t("» класы табылмады."), KZ.t("Ата-класс аты дұрыс па? Ол алдында жасалды ма?"), "Unresolved reference: " + s.type.n);
         if (s.args !== null || (sc.node && sc.node.kind === "class") || sc.builtin) {
           if (sc.node && sc.node.kind === "interface") cls.supers.push(sc);
           else {
             if (sc.node && !sc.node.mods.has("open") && !sc.node.mods.has("abstract") && !sc.node.mods.has("sealed") && sc.node.kind === "class" && !sc.node.data === false) void 0;
             if (sc.node && sc.node.kind === "class" && !sc.node.mods.has("open") && !sc.node.mods.has("abstract") && !sc.node.mods.has("sealed"))
-              throw fail("«" + sc.name + "» класынан тұқым қуалауға болмайды: ол open емес.", "Ата-класты open class " + sc.name + " деп жаз.", "This type is final, so it cannot be inherited from");
+              throw fail("«" + sc.name + KZ.t("» класынан тұқым қуалауға болмайды: ол open емес."), KZ.t("Ата-класты open class ") + sc.name + KZ.t(" деп жаз."), "This type is final, so it cannot be inherited from");
             cls.parent = sc;
             cls.parentArgs = s.args || [];
           }
@@ -2003,8 +2006,8 @@
         o.f.set("cause", { v: args.length > 1 ? args[1] : null, mut: false });
         return o;
       }
-      if (n.kind === "interface" || n.abstract) throw fail("«" + cls.name + "» абстракт: одан тікелей объект жасалмайды.", "Одан тұқым қуалайтын класс жасап, соны шақыр.", "Cannot create an instance of an abstract class");
-      if (n.kind === "enum" || n.kind === "object") throw fail("«" + cls.name + "» үшін объект жасалмайды.", "", "Cannot create an instance");
+      if (n.kind === "interface" || n.abstract) throw fail("«" + cls.name + KZ.t("» абстракт: одан тікелей объект жасалмайды."), KZ.t("Одан тұқым қуалайтын класс жасап, соны шақыр."), "Cannot create an instance of an abstract class");
+      if (n.kind === "enum" || n.kind === "object") throw fail("«" + cls.name + KZ.t("» үшін объект жасалмайды."), "", "Cannot create an instance");
       const obj = new KObj(cls);
       initObject(cls, obj, args, named, node);
       return obj;
@@ -2085,10 +2088,10 @@
         if (m) return callFn(bindFn(m, a), [b], {}, null);
       }
       if (!isNumeric(a) || !isNumeric(b)) {
-        let tip = "Амалдың екі жағы да сан болуы керек.";
-        if (op === "+" && isNumeric(a) && typeof b === "string") tip = "Санды мәтінге қосу үшін мәтіннен баста: \"\" + " + toStr(a) + ", не шаблон \"$x\" қолдан.";
-        else if (typeof a === "string" || typeof b === "string") tip = "Мәтінді санға айналдыру үшін .toInt() не .toDouble() қолдан.";
-        throw typeErr("«" + op + "» амалын " + typeName(a) + " және " + typeName(b) + " түрлеріне қолдануға болмайды.", tip, "None of the following candidates is applicable: operator " + op);
+        let tip = KZ.t("Амалдың екі жағы да сан болуы керек.");
+        if (op === "+" && isNumeric(a) && typeof b === "string") tip = KZ.t("Санды мәтінге қосу үшін мәтіннен баста: \"\" + ") + toStr(a) + KZ.t(", не шаблон \"$x\" қолдан.");
+        else if (typeof a === "string" || typeof b === "string") tip = KZ.t("Мәтінді санға айналдыру үшін .toInt() не .toDouble() қолдан.");
+        throw typeErr("«" + op + KZ.t("» амалын ") + typeName(a) + KZ.t(" және ") + typeName(b) + KZ.t(" түрлеріне қолдануға болмайды."), tip, "None of the following candidates is applicable: operator " + op);
       }
       const d = a instanceof KD || b instanceof KD;
       const x = numv(a);
@@ -2130,9 +2133,9 @@
       return out;
     };
     function eqOp(a, b) {
-      if ((isNum(a) && b instanceof KD) || (a instanceof KD && isNum(b))) throw typeErr("«==» амалын Int және Double түрлеріне қолдануға болмайды.", "Түрлерін теңестір: a.toDouble() == b не a == b.toInt().", "Operator '==' cannot be applied to 'Int' and 'Double'");
+      if ((isNum(a) && b instanceof KD) || (a instanceof KD && isNum(b))) throw typeErr(KZ.t("«==» амалын Int және Double түрлеріне қолдануға болмайды."), KZ.t("Түрлерін теңестір: a.toDouble() == b не a == b.toInt()."), "Operator '==' cannot be applied to 'Int' and 'Double'");
       if (a !== null && b !== null && kindOf(a) && kindOf(b) && ["Int", "String", "Boolean", "Char", "Double"].includes(kindOf(a)) && ["Int", "String", "Boolean", "Char", "Double"].includes(kindOf(b)) && kindOf(a) !== kindOf(b))
-        throw typeErr("«==» амалын " + typeName(a) + " және " + typeName(b) + " түрлеріне қолдануға болмайды.", "Салыстыру үшін екі жақтың түрі бірдей болуы керек: \"5\" емес 5, не 5.toString() == \"5\".", "Operator '==' cannot be applied to '" + typeName(a) + "' and '" + typeName(b) + "'");
+        throw typeErr(KZ.t("«==» амалын ") + typeName(a) + KZ.t(" және ") + typeName(b) + KZ.t(" түрлеріне қолдануға болмайды."), KZ.t("Салыстыру үшін екі жақтың түрі бірдей болуы керек: \"5\" емес 5, не 5.toString() == \"5\"."), "Operator '==' cannot be applied to '" + typeName(a) + "' and '" + typeName(b) + "'");
       return eq(a, b);
     }
     function contains(c, x) {
@@ -2144,7 +2147,7 @@
           const b = cpoint(c.b.c ? c.b.c : c.b);
           return c.step > 0 ? p >= a && p <= b : p <= a && p >= b;
         }
-        if (!isNumeric(x)) throw typeErr("Диапазонның ішінде " + typeName(x) + " мәнін іздеуге болмайды.", "Сан үшін сандық диапазон қолдан.", "Type mismatch");
+        if (!isNumeric(x)) throw typeErr(KZ.t("Диапазонның ішінде ") + typeName(x) + KZ.t(" мәнін іздеуге болмайды."), KZ.t("Сан үшін сандық диапазон қолдан."), "Type mismatch");
         const v = numv(x);
         const hi = c.excl ? v < numv(c.b) : v <= numv(c.b);
         if (c.step > 0) return v >= numv(c.a) && hi && (v - numv(c.a)) % c.step === 0;
@@ -2155,15 +2158,15 @@
       if (typeof c === "string") {
         if (typeof x === "string") return c.includes(x);
         if (x instanceof KC) return c.includes(x.c);
-        throw typeErr("Мәтіннің ішінен " + typeName(x) + " іздеуге болмайды.", "Мәтін не бір таңба (Char) іздеуге болады.", "Type mismatch");
+        throw typeErr(KZ.t("Мәтіннің ішінен ") + typeName(x) + KZ.t(" іздеуге болмайды."), KZ.t("Мәтін не бір таңба (Char) іздеуге болады."), "Type mismatch");
       }
-      throw typeErr("«in» амалы " + typeName(c) + " түріне қолданылмайды.", "in-ді диапазонмен (1..5), тізіммен, жиынмен, map-пен не мәтінмен қолдан.", "Unresolved reference: contains");
+      throw typeErr(KZ.t("«in» амалы ") + typeName(c) + KZ.t(" түріне қолданылмайды."), KZ.t("in-ді диапазонмен (1..5), тізіммен, жиынмен, map-пен не мәтінмен қолдан."), "Unresolved reference: contains");
     }
     function mkRange(a, b, excl) {
       if (a instanceof KC && b instanceof KC) return new KRange(a, b, 1, excl, true);
       if (isNum(a) && isNum(b)) return new KRange(a, b, 1, excl, false);
       if (isNumeric(a) && isNumeric(b)) return new KRange(a, b, 1, excl, false); // Double диапазоны (in үшін)
-      throw typeErr("«..» диапазонын " + typeName(a) + " және " + typeName(b) + " түрлерінен жасауға болмайды.", "Диапазон 1..5 не 'a'..'z' түрінде болады.", "Type mismatch");
+      throw typeErr(KZ.t("«..» диапазонын ") + typeName(a) + KZ.t(" және ") + typeName(b) + KZ.t(" түрлерінен жасауға болмайды."), KZ.t("Диапазон 1..5 не 'a'..'z' түрінде болады."), "Type mismatch");
     }
     function binop(op, a, b) {
       switch (op) {
@@ -2199,7 +2202,7 @@
           if (a instanceof KC) return new KRange(a, b, -1, false, true);
           return new KRange(a, b, -1, false, false);
         case "step": {
-          if (!(a instanceof KRange) || !isNum(b) || b <= 0) throw typeErr("step тек диапазонға және оң бүтін санға қолданылады.", "Мысалы: 1..10 step 2", "Type mismatch");
+          if (!(a instanceof KRange) || !isNum(b) || b <= 0) throw typeErr(KZ.t("step тек диапазонға және оң бүтін санға қолданылады."), KZ.t("Мысалы: 1..10 step 2"), "Type mismatch");
           return new KRange(a.a, a.b, a.step < 0 ? -b : b, a.excl, a.chr);
         }
         case "to":
@@ -2217,10 +2220,10 @@
         case "ushr":
           return a >>> b;
       }
-      throw typeErr("«" + op + "» амалы қолдау таппайды.", "");
+      throw typeErr("«" + op + KZ.t("» амалы қолдау таппайды."), "");
     }
     const condErr = (c) =>
-      typeErr("Шарт Boolean (true/false) болуы керек, ал мұнда " + typeName(c) + " тұр.", "Салыстыру жаз: if (x > 0), if (name != \"\"). Kotlin-де 0 не бос мәтін «жалған» болмайды.", "Condition type mismatch: inferred type is " + typeName(c) + " but Boolean was expected");
+      typeErr(KZ.t("Шарт Boolean (true/false) болуы керек, ал мұнда ") + typeName(c) + KZ.t(" тұр."), KZ.t("Салыстыру жаз: if (x > 0), if (name != \"\"). Kotlin-де 0 не бос мәтін «жалған» болмайды."), "Condition type mismatch: inferred type is " + typeName(c) + " but Boolean was expected");
 
     /* ====== Өрнекті есептеу ====== */
     function evArgs(n, env) {
@@ -2247,10 +2250,10 @@
         case "id": {
           const ent = findEnt(env, n.name);
           if (ent) {
-            if (ent.unset) throw fail("«" + n.name + "» қорабына әлі мән берілмеген.", "Қолданбас бұрын мән бер: " + n.name + " = …", "Variable '" + n.name + "' must be initialized");
+            if (ent.unset) throw fail("«" + n.name + KZ.t("» қорабына әлі мән берілмеген."), KZ.t("Қолданбас бұрын мән бер: ") + n.name + " = …", "Variable '" + n.name + "' must be initialized");
             return ent.v;
           }
-          if (n.name === "this") throw fail("this тек класстың не extension функцияның ішінде жұмыс істейді.", "", "'this' is not defined in this context");
+          if (n.name === "this") throw fail(KZ.t("this тек класстың не extension функцияның ішінде жұмыс істейді."), "", "'this' is not defined in this context");
           throw unresolved(n.name);
         }
         case "logic": {
@@ -2273,10 +2276,10 @@
         case "un": {
           const v = ev(n.e, env);
           if (n.op === "!") {
-            if (typeof v !== "boolean") throw typeErr("«!» тек Boolean мәніне қолданылады, ал мұнда " + typeName(v) + ".", "", "Unresolved reference: not");
+            if (typeof v !== "boolean") throw typeErr(KZ.t("«!» тек Boolean мәніне қолданылады, ал мұнда ") + typeName(v) + ".", "", "Unresolved reference: not");
             return !v;
           }
-          if (!isNumeric(v)) throw typeErr("«" + n.op + "» таңбасын " + typeName(v) + " түріне қолдануға болмайды.", "", "Unresolved reference: unaryMinus");
+          if (!isNumeric(v)) throw typeErr("«" + n.op + KZ.t("» таңбасын ") + typeName(v) + KZ.t(" түріне қолдануға болмайды."), "", "Unresolved reference: unaryMinus");
           if (n.op === "-") return v instanceof KD ? new KD(-v.v) : -v;
           return v;
         }
@@ -2340,10 +2343,10 @@
         case "call":
           return evCall(n, env);
       }
-      throw fail("Бұл жазу қолдау таппайды (" + n.k + ").", "");
+      throw fail(KZ.t("Бұл жазу қолдау таппайды (") + n.k + ").", "");
     }
     function doThrow(v) {
-      if (!(v instanceof KObj) || !isSub(v.cls, "Throwable")) throw typeErr("throw тек Exception түріндегі объектіні лақтырады.", "Мысалы: throw IllegalArgumentException(\"қате\")", "Type mismatch: inferred type is " + typeName(v) + " but Throwable was expected");
+      if (!(v instanceof KObj) || !isSub(v.cls, "Throwable")) throw typeErr(KZ.t("throw тек Exception түріндегі объектіні лақтырады."), KZ.t("Мысалы: throw IllegalArgumentException(\"қате\")"), "Type mismatch: inferred type is " + typeName(v) + " but Throwable was expected");
       throw new KThrow(v);
     }
     function execBody(body, env, hdrLine) {
@@ -2402,7 +2405,7 @@
     }
     function incdec(n, env) {
       const old = ev(n.target, env);
-      if (!isNumeric(old) && !(old instanceof KC)) throw typeErr("«" + n.op + "» тек санға қолданылады, ал мұнда " + typeName(old) + ".", "", "Unresolved reference: inc");
+      if (!isNumeric(old) && !(old instanceof KC)) throw typeErr("«" + n.op + KZ.t("» тек санға қолданылады, ал мұнда ") + typeName(old) + ".", "", "Unresolved reference: inc");
       const nv = arith(n.op === "++" ? "+" : "-", old, 1);
       assignTo(n.target, nv, env);
       return n.prefix ? nv : old;
@@ -2420,7 +2423,7 @@
       if (t.k === "mem") {
         const o = ev(t.obj, env);
         if (o === null) throw nullErr(t.name);
-        if (!(o instanceof KObj)) throw typeErr("«" + typeName(o) + "» түрінің «" + t.name + "» қасиетін өзгертуге болмайды.", "", "Val cannot be reassigned");
+        if (!(o instanceof KObj)) throw typeErr("«" + typeName(o) + KZ.t("» түрінің «") + t.name + KZ.t("» қасиетін өзгертуге болмайды."), "", "Val cannot be reassigned");
         const ent = o.f.get(t.name);
         if (!ent) throw unresolved(t.name);
         checkPriv(ent, t.name, env, o);
@@ -2434,11 +2437,11 @@
       }
     }
     const nullErr = (name) =>
-      fail("Мән null болуы мүмкін, сондықтан «." + name + "» деп тікелей қолдануға болмайды.", "Қауіпсіз шақыру: x?." + name + ". Не алдымен тексер: if (x != null) { … }. Не x!! (null болса, қате береді).", "Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver");
+      fail(KZ.t("Мән null болуы мүмкін, сондықтан «.") + name + KZ.t("» деп тікелей қолдануға болмайды."), KZ.t("Қауіпсіз шақыру: x?.") + name + KZ.t(". Не алдымен тексер: if (x != null) { … }. Не x!! (null болса, қате береді)."), "Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver");
     function checkPriv(ent, name, env, o) {
       if (!ent.priv) return;
       for (let s = env; s; s = s.parent) if (s.self && isSubCls(s.self.cls, ent.owner)) return;
-      throw fail("«" + name + "» жеке (private), оған класстың сыртынан қол жеткізуге болмайды.", "Класстың ішіндегі функция арқылы қол жеткіз (get/set әдістері).", "Cannot access '" + name + "': it is private in '" + o.cls.name + "'");
+      throw fail("«" + name + KZ.t("» жеке (private), оған класстың сыртынан қол жеткізуге болмайды."), KZ.t("Класстың ішіндегі функция арқылы қол жеткіз (get/set әдістері)."), "Cannot access '" + name + "': it is private in '" + o.cls.name + "'");
     }
     function execAssign(st, env) {
       const t = st.target;
@@ -2465,7 +2468,7 @@
         }
         if (cur instanceof KList && !cur.mut && bop === "+" && t.k === "id") {
           const ent = findEnt(env, t.name);
-          if (ent && !ent.mut) throw fail("«" + t.name + "» — val және өзгермейтін тізім: оған += арқылы қосуға болмайды.", "mutableListOf() қолдан не var жаса.", "Val cannot be reassigned");
+          if (ent && !ent.mut) throw fail("«" + t.name + KZ.t("» — val және өзгермейтін тізім: оған += арқылы қосуға болмайды."), KZ.t("mutableListOf() қолдан не var жаса."), "Val cannot be reassigned");
         }
         val = arith(bop, cur, val);
       }
@@ -2483,12 +2486,12 @@
     function getIndex(o, idx) {
       const i = idx[0];
       if (o instanceof KList) {
-        if (!isNum(i)) throw typeErr("Тізім нөмірі бүтін сан болуы керек.", "", "Type mismatch");
+        if (!isNum(i)) throw typeErr(KZ.t("Тізім нөмірі бүтін сан болуы керек."), "", "Type mismatch");
         if (i < 0 || i >= o.a.length) throwKt(o.arr ? "ArrayIndexOutOfBoundsException" : "IndexOutOfBoundsException", o.arr ? "Index " + i + " out of bounds for length " + o.a.length : "Index " + i + " out of bounds for length " + o.a.length);
         return o.a[i];
       }
       if (typeof o === "string") {
-        if (!isNum(i)) throw typeErr("Мәтін нөмірі бүтін сан болуы керек.", "", "Type mismatch");
+        if (!isNum(i)) throw typeErr(KZ.t("Мәтін нөмірі бүтін сан болуы керек."), "", "Type mismatch");
         if (i < 0 || i >= o.length) throwKt("StringIndexOutOfBoundsException", "index " + i + ", length " + o.length);
         return new KC(o[i]);
       }
@@ -2501,28 +2504,28 @@
         const m = findMethod(o.cls, "get");
         if (m) return callFn(bindFn(m, o), idx, {}, null);
       }
-      throw typeErr("«" + typeName(o) + "» түрінен [ ] арқылы мән алуға болмайды.", "[ ] тізіммен, массивпен, map-пен және мәтінмен жұмыс істейді.", "No get method providing array access");
+      throw typeErr("«" + typeName(o) + KZ.t("» түрінен [ ] арқылы мән алуға болмайды."), KZ.t("[ ] тізіммен, массивпен, map-пен және мәтінмен жұмыс істейді."), "No get method providing array access");
     }
     function setIndex(o, idx, val) {
       const i = idx[0];
       if (o instanceof KList) {
-        if (!o.mut && !o.arr) throw typeErr("listOf() тізімінің элементін өзгертуге болмайды.", "mutableListOf(…) қолдан.", "No set method providing array access");
+        if (!o.mut && !o.arr) throw typeErr(KZ.t("listOf() тізімінің элементін өзгертуге болмайды."), KZ.t("mutableListOf(…) қолдан."), "No set method providing array access");
         if (!isNum(i) || i < 0 || i >= o.a.length) throwKt(o.arr ? "ArrayIndexOutOfBoundsException" : "IndexOutOfBoundsException", "Index " + i + " out of bounds for length " + o.a.length);
         o.a[i] = val;
         return;
       }
       if (o instanceof KMap) {
-        if (!o.mut) throw typeErr("mapOf() өзгермейді: оған мән қосуға болмайды.", "mutableMapOf(…) қолдан.", "No set method providing array access");
+        if (!o.mut) throw typeErr(KZ.t("mapOf() өзгермейді: оған мән қосуға болмайды."), KZ.t("mutableMapOf(…) қолдан."), "No set method providing array access");
         o.m.set(keyOf(i), [i, val]);
         return;
       }
-      if (typeof o === "string") throw typeErr("Мәтін (String) өзгермейді: оның таңбасын ауыстыруға болмайды.", "Жаңа мәтін жаса: replace, substring не StringBuilder сияқты жолмен.", "No set method providing array access");
-      throw typeErr("«" + typeName(o) + "» түрінің элементін [ ] арқылы өзгертуге болмайды.", "", "No set method providing array access");
+      if (typeof o === "string") throw typeErr(KZ.t("Мәтін (String) өзгермейді: оның таңбасын ауыстыруға болмайды."), KZ.t("Жаңа мәтін жаса: replace, substring не StringBuilder сияқты жолмен."), "No set method providing array access");
+      throw typeErr("«" + typeName(o) + KZ.t("» түрінің элементін [ ] арқылы өзгертуге болмайды."), "", "No set method providing array access");
     }
 
     /* ====== Қасиет алу ====== */
     function evMember(n, env) {
-      if (n.obj.k === "id" && n.obj.name === "super") throw fail("super.қасиет бұл курста қолдау таппайды (тек super.функция()).", "");
+      if (n.obj.k === "id" && n.obj.name === "super") throw fail(KZ.t("super.қасиет бұл курста қолдау таппайды (тек super.функция())."), "");
       const o = ev(n.obj, env);
       if (o === null) {
         if (n.safe) return null;
@@ -2538,7 +2541,7 @@
         const ent = o.f.get(name);
         if (ent) {
           checkPriv(ent, name, env, o);
-          if (ent.unset) throw fail("«" + name + "» қасиетіне әлі мән берілмеген.", "", "Property must be initialized");
+          if (ent.unset) throw fail("«" + name + KZ.t("» қасиетіне әлі мән берілмеген."), "", "Property must be initialized");
           return ent.v;
         }
         if (o.cls.enumEntry) {
@@ -2623,7 +2626,7 @@
           }
           const cur = env && findCurrentOwner(env);
           ownerCls = cur || (selfObj && selfObj.cls);
-          if (!selfObj) throw fail("super тек класстың ішінде жұмыс істейді.", "");
+          if (!selfObj) throw fail(KZ.t("super тек класстың ішінде жұмыс істейді."), "");
           let m = null;
           if (ownerCls && ownerCls.parent) m = findMethod(ownerCls.parent, f.name);
           if (!m && ownerCls) for (const s of ownerCls.supers) if ((m = findMethod(s, f.name))) break;
@@ -2648,18 +2651,18 @@
             if (v instanceof KFun && !v.isLambda && v.recv) {
               // extension функцияны қарапайым шақыру мүмкін емес
             }
-            if (v instanceof KClass && v.node && v.node.kind === "enum") throw fail("enum-нан объект жасалмайды.", "", "");
+            if (v instanceof KClass && v.node && v.node.kind === "enum") throw fail(KZ.t("enum-нан объект жасалмайды."), "", "");
             return callFn(v, args, named, n);
           }
-          if (ent.unset) throw fail("«" + f.name + "» қорабына әлі мән берілмеген.", "", "");
-          throw typeErr("«" + f.name + "» функция емес, оны жақшамен () шақыруға болмайды.", "Бұл қорапта " + typeName(v) + " тұр.", "Expression '" + f.name + "' cannot be invoked as a function");
+          if (ent.unset) throw fail("«" + f.name + KZ.t("» қорабына әлі мән берілмеген."), "", "");
+          throw typeErr("«" + f.name + KZ.t("» функция емес, оны жақшамен () шақыруға болмайды."), KZ.t("Бұл қорапта ") + typeName(v) + KZ.t(" тұр."), "Expression '" + f.name + "' cannot be invoked as a function");
         }
         const rv = recvOf(env);
         if (rv !== undefined) {
           const r = tryMember(rv, f.name, args, named, n, env);
           if (r !== NOPE) return r;
         }
-        throw fail("«" + f.name + "» функциясы табылмады.", "Атын қайта тексер: бас әріп пен кіші әріп маңызды. Функцияны fun " + f.name + "(…) деп жаздың ба?", "Unresolved reference: " + f.name);
+        throw fail("«" + f.name + KZ.t("» функциясы табылмады."), KZ.t("Атын қайта тексер: бас әріп пен кіші әріп маңызды. Функцияны fun ") + f.name + KZ.t("(…) деп жаздың ба?"), "Unresolved reference: " + f.name);
       }
       const fv = ev(f, env);
       const { args, named } = evArgs(n, env);
@@ -2679,7 +2682,7 @@
     function callMember(o, name, args, named, node, env) {
       const r = tryMember(o, name, args, named, node, env);
       if (r !== NOPE) return r;
-      throw fail("«" + name + "» функциясы (не қасиеті) " + typeName(o) + " түрінде жоқ.", "Атын тексер. Мысалы, мәтінде uppercase(), тізімде add() бар. Бас/кіші әріп маңызды.", "Unresolved reference: " + name);
+      throw fail("«" + name + KZ.t("» функциясы (не қасиеті) ") + typeName(o) + KZ.t(" түрінде жоқ."), KZ.t("Атын тексер. Мысалы, мәтінде uppercase(), тізімде add() бар. Бас/кіші әріп маңызды."), "Unresolved reference: " + name);
     }
     function tryMember(o, name, args, named, node, env) {
       if (o instanceof KNs) return nsCall(o, name, args, named);
@@ -2703,7 +2706,7 @@
         if (m) {
           if (m.priv) {
             for (let s = env; s; s = s.parent) if (s.self && isSubCls(s.self.cls, m.owner)) return callFn(bindFn(m, o), args, named, node);
-            throw fail("«" + name + "» функциясы жеке (private), оны класстың сыртынан шақыруға болмайды.", "Бұл функцияны класстың ішінен шақыр.", "Cannot access '" + name + "': it is private");
+            throw fail("«" + name + KZ.t("» функциясы жеке (private), оны класстың сыртынан шақыруға болмайды."), KZ.t("Бұл функцияны класстың ішінен шақыр."), "Cannot access '" + name + "': it is private");
           }
           return callFn(bindFn(m, o), args, named, node);
         }
@@ -2855,7 +2858,7 @@
     const mkMap = (pairs, mut) => {
       const m = new KMap(mut);
       pairs.forEach((p) => {
-        if (!(p instanceof KPair)) throw typeErr("mapOf ішіне «ключ to мән» жұбын жаз: mapOf(\"a\" to 1).", "", "Type mismatch");
+        if (!(p instanceof KPair)) throw typeErr(KZ.t("mapOf ішіне «ключ to мән» жұбын жаз: mapOf(\"a\" to 1)."), "", "Type mismatch");
         m.m.set(keyOf(p.a), [p.a, p.b]);
       });
       return m;
@@ -2992,7 +2995,7 @@
         case "contains": {
           const ic = named.ignoreCase === true;
           const x = a0 instanceof KC ? a0.c : a0;
-          if (typeof x !== "string") throw typeErr("contains ішіне мәтін не таңба бер.", "", "Type mismatch");
+          if (typeof x !== "string") throw typeErr(KZ.t("contains ішіне мәтін не таңба бер."), "", "Type mismatch");
           return ic ? s.toLowerCase().includes(x.toLowerCase()) : s.includes(x);
         }
         case "startsWith": return named.ignoreCase === true ? s.toLowerCase().startsWith(String(a0).toLowerCase()) : s.startsWith(a0 instanceof KC ? a0.c : a0);
@@ -3001,7 +3004,7 @@
         case "replace": return s.split(a0 instanceof KC ? a0.c : a0).join(args[1] instanceof KC ? args[1].c : args[1]);
         case "split": {
           const ds = args.filter((x) => typeof x === "string" || x instanceof KC).map((x) => (x instanceof KC ? x.c : x));
-          if (!ds.length) throw typeErr("split ішіне бөлгіш мәтін бер: split(\" \").", "", "Type mismatch");
+          if (!ds.length) throw typeErr(KZ.t("split ішіне бөлгіш мәтін бер: split(\" \")."), "", "Type mismatch");
           if (ds.length === 1) return L(ds[0] === "" ? [...s] : s.split(ds[0]), false);
           const re = new RegExp(ds.map((d) => d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"));
           return L(s.split(re), false);
@@ -3110,7 +3113,7 @@
         case "inc": return n + 1;
         case "dec": return n - 1;
         case "absoluteValue": return Math.abs(n);
-        case "pow": throw typeErr("Int үшін .pow() жоқ: Double жасап алу керек.", "n.toDouble().pow(2) не Math.pow(n.toDouble(), 2.0) қолдан.", "Unresolved reference: pow");
+        case "pow": throw typeErr(KZ.t("Int үшін .pow() жоқ: Double жасап алу керек."), KZ.t("n.toDouble().pow(2) не Math.pow(n.toDouble(), 2.0) қолдан."), "Unresolved reference: pow");
         case "until": return mkRange(n, args[0], true);
         case "downTo": return binop("downTo", n, args[0]);
         case "rangeTo": return mkRange(n, args[0], false);
@@ -3183,7 +3186,7 @@
       let s = 0;
       let dbl = false;
       arr.forEach((x) => {
-        if (!isNumeric(x)) throw typeErr("sum() тек сандардан тұратын тізімге жарайды, ал мұнда " + typeName(x) + " бар.", "", "Type mismatch");
+        if (!isNumeric(x)) throw typeErr(KZ.t("sum() тек сандардан тұратын тізімге жарайды, ал мұнда ") + typeName(x) + KZ.t(" бар."), "", "Type mismatch");
         if (x instanceof KD) dbl = true;
         s += numv(x);
       });
@@ -3193,7 +3196,7 @@
       const a = l.a;
       const a0 = args[0];
       if (KMUT.has(name) && (!l.mut || (l.arr && name !== "set" && name !== "sort" && name !== "reverse" && name !== "fill" && name !== "shuffle"))) {
-        throw typeErr(l.arr ? "Array көлемі өзгермейді: «" + name + "» жоқ." : "listOf() тізімі өзгермейді (read-only): «" + name + "» қолдануға болмайды.", l.arr ? "Көлемі өзгеретін тізім керек болса, mutableListOf() қолдан." : "Өзгеретін тізім керек болса, mutableListOf(…) қолдан.", "Unresolved reference: " + name);
+        throw typeErr(l.arr ? KZ.t("Array көлемі өзгермейді: «") + name + KZ.t("» жоқ.") : KZ.t("listOf() тізімі өзгермейді (read-only): «") + name + KZ.t("» қолдануға болмайды."), l.arr ? KZ.t("Көлемі өзгеретін тізім керек болса, mutableListOf() қолдан.") : KZ.t("Өзгеретін тізім керек болса, mutableListOf(…) қолдан."), "Unresolved reference: " + name);
       }
       const chk = (i, size) => {
         if (!isNum(i) || i < 0 || i >= size) throwKt("IndexOutOfBoundsException", "Index " + i + " out of bounds for length " + size);
@@ -3346,7 +3349,7 @@
     function setM(s, name, args, named, node) {
       const a = s.a;
       const a0 = args[0];
-      if (KMUT.has(name) && !s.mut) throw typeErr("setOf() жиыны өзгермейді: «" + name + "» қолдануға болмайды.", "mutableSetOf(…) қолдан.", "Unresolved reference: " + name);
+      if (KMUT.has(name) && !s.mut) throw typeErr(KZ.t("setOf() жиыны өзгермейді: «") + name + KZ.t("» қолдануға болмайды."), KZ.t("mutableSetOf(…) қолдан."), "Unresolved reference: " + name);
       switch (name) {
         case "size": return a.length;
         case "add": if (a.some((x) => eq(x, a0))) return false; a.push(a0); return true;
@@ -3371,7 +3374,7 @@
     /* ====== Map ====== */
     function mapM(m, name, args, named, node) {
       const a0 = args[0];
-      if (KMUT.has(name) && !m.mut && name !== "remove" || (name === "remove" && !m.mut)) throw typeErr("mapOf() өзгермейді (read-only): «" + name + "» қолдануға болмайды.", "mutableMapOf(…) қолдан.", "Unresolved reference: " + name);
+      if (KMUT.has(name) && !m.mut && name !== "remove" || (name === "remove" && !m.mut)) throw typeErr(KZ.t("mapOf() өзгермейді (read-only): «") + name + KZ.t("» қолдануға болмайды."), KZ.t("mutableMapOf(…) қолдан."), "Unresolved reference: " + name);
       const entries = () => [...m.m.values()];
       const pairs = () => entries().map((e) => new KPair(e[0], e[1]));
       switch (name) {
@@ -3522,7 +3525,7 @@
         case "block":
           return execBlock(st.stmts, env, true);
       }
-      throw fail("Бұл оператор қолдау таппайды (" + st.k + ").", "");
+      throw fail(KZ.t("Бұл оператор қолдау таппайды (") + st.k + ").", "");
     }
 
     function setupClass(cls) {
@@ -3598,18 +3601,18 @@
         });
         // 3) main
         const me = G.vars.get("main");
-        if (!me || !(me.v instanceof KFun) || me.hidden) throw fail("main() функциясы табылмады.", "Бағдарлама fun main() { … } функциясынан басталады. Кодыңды соның ішіне жаз.", "Function 'main' not found");
+        if (!me || !(me.v instanceof KFun) || me.hidden) throw fail(KZ.t("main() функциясы табылмады."), KZ.t("Бағдарлама fun main() { … } функциясынан басталады. Кодыңды соның ішіне жаз."), "Function 'main' not found");
         callFn(me.v, me.v.params.length ? [new KList([], false, true)] : [], {}, null);
       } catch (e) {
         if (e === STOP) {
-          error = { kind: "limit", msg: "Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер.", line: curLine, detail: "", tip: "while циклінің шарты ақыры жалған болуы керек (санауыш өсіп отыруы керек). Рекурсияда тоқтау шарты (if … return) болсын.", src: srcLine(code, curLine) };
+          error = { kind: "limit", msg: KZ.t("Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер."), line: curLine, detail: "", tip: KZ.t("while циклінің шарты ақыры жалған болуы керек (санауыш өсіп отыруы керек). Рекурсияда тоқтау шарты (if … return) болсын."), src: srcLine(code, curLine) };
         } else if (e instanceof KThrow) {
           const info = excInfo(e.obj);
           error = { kind: "runtime", msg: info.msg, line: curLine || null, detail: info.detail, tip: info.tip, src: srcLine(code, curLine) };
         } else if (e instanceof KtErr) {
           error = { kind: "runtime", msg: e.message, line: e.line || curLine || null, detail: e.detail, tip: e.tip, src: srcLine(code, e.line || curLine) };
         } else if (e instanceof BreakSig || e instanceof ContinueSig) {
-          error = { kind: "runtime", msg: "break не continue тек цикл ішінде жұмыс істейді.", line: curLine || null, detail: "'break' and 'continue' are only allowed inside a loop", tip: "", src: srcLine(code, curLine) };
+          error = { kind: "runtime", msg: KZ.t("break не continue тек цикл ішінде жұмыс істейді."), line: curLine || null, detail: "'break' and 'continue' are only allowed inside a loop", tip: "", src: srcLine(code, curLine) };
         } else if (e instanceof ReturnSig) {
           // main ішінен return
         } else if (e instanceof RangeError && /call stack/i.test(String(e.message))) {
@@ -3617,7 +3620,7 @@
           error = { kind: "runtime", msg: info.msg, line: curLine || null, detail: info.detail, tip: info.tip, src: srcLine(code, curLine) };
         } else {
           console.error(e);
-          error = { kind: "runtime", msg: "Түсіндірушіде күтпеген қате шықты: " + String((e && e.message) || e), line: curLine || null, detail: String(e && e.stack || ""), tip: "Бұл жағдайды маған хабарла: код басқаша жазылса, жұмыс істеуі мүмкін.", src: srcLine(code, curLine) };
+          error = { kind: "runtime", msg: KZ.t("Түсіндірушіде күтпеген қате шықты: ") + String((e && e.message) || e), line: curLine || null, detail: String(e && e.stack || ""), tip: KZ.t("Бұл жағдайды маған хабарла: код басқаша жазылса, жұмыс істеуі мүмкін."), src: srcLine(code, curLine) };
         }
       }
     }

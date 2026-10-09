@@ -11,33 +11,33 @@
   let readyResolve;
 
   const ERRORS = {
-    not_active: "Аккаунтың әлі белсенді емес (бекітілмеген не бұғатталған).",
-    forbidden: "Бұған рұқсатың жоқ.",
-    no_class: "Мұндай сынып коды жоқ. Кодты тексеріп көр.",
-    bad_name: "Атауы тым қысқа.",
-    bad_status: "Қате күй.",
-    bad_role: "Қате рөл.",
-    no_user: "Пайдаланушы табылмады.",
-    owner_exists: "Құрушы бұрыннан бар.",
-    bad_input: "Деректер дұрыс толтырылмаған. Тақырыбы мен нәтижені тексер.",
-    no_assignment: "Мұндай тапсырма табылмады (өшірілген болуы мүмкін).",
-    "should be different from the old password": "Жаңа құпиясөз ескісінен өзгеше болуы керек.",
-    bad_password: "Құпиясөз 6–72 таңбадан тұруы керек.",
-    "Token has expired or is invalid": "Код қате не мерзімі өтіп кеткен. Жаңа код сұра.",
-    "Invalid login credentials": "Email не құпиясөз қате.",
-    "User already registered": "Бұл email бұрын тіркелген. «Кіру» бетіне өт.",
-    "Email not confirmed": "Email әлі расталмаған. Поштаңды тексеріп, сілтемені бас.",
-    "Unable to validate email address": "Email дұрыс жазылмаған.",
-    "Signup requires a valid password": "Құпиясөзді жаз.",
+    not_active: KZ.t("Аккаунтың әлі белсенді емес (бекітілмеген не бұғатталған)."),
+    forbidden: KZ.t("Бұған рұқсатың жоқ."),
+    no_class: KZ.t("Мұндай сынып коды жоқ. Кодты тексеріп көр."),
+    bad_name: KZ.t("Атауы тым қысқа."),
+    bad_status: KZ.t("Қате күй."),
+    bad_role: KZ.t("Қате рөл."),
+    no_user: KZ.t("Пайдаланушы табылмады."),
+    owner_exists: KZ.t("Құрушы бұрыннан бар."),
+    bad_input: KZ.t("Деректер дұрыс толтырылмаған. Тақырыбы мен нәтижені тексер."),
+    no_assignment: KZ.t("Мұндай тапсырма табылмады (өшірілген болуы мүмкін)."),
+    "should be different from the old password": KZ.t("Жаңа құпиясөз ескісінен өзгеше болуы керек."),
+    bad_password: KZ.t("Құпиясөз 6–72 таңбадан тұруы керек."),
+    "Token has expired or is invalid": KZ.t("Код қате не мерзімі өтіп кеткен. Жаңа код сұра."),
+    "Invalid login credentials": KZ.t("Email не құпиясөз қате."),
+    "User already registered": KZ.t("Бұл email бұрын тіркелген. «Кіру» бетіне өт."),
+    "Email not confirmed": KZ.t("Email әлі расталмаған. Поштаңды тексеріп, сілтемені бас."),
+    "Unable to validate email address": KZ.t("Email дұрыс жазылмаған."),
+    "Signup requires a valid password": KZ.t("Құпиясөзді жаз."),
   };
 
   function kz(msg) {
     msg = String(msg || "");
     for (const k of Object.keys(ERRORS)) if (msg.includes(k)) return ERRORS[k];
-    if (/at least 6 characters/i.test(msg)) return "Құпиясөз кемінде 6 таңбадан тұруы керек.";
-    if (/rate limit|too many/i.test(msg)) return "Тым жиі әрекет жасадың. Біраз күте тұр.";
-    if (/Failed to fetch|NetworkError|network/i.test(msg)) return "Байланыс жоқ. Интернетті тексер.";
-    return "Қате шықты: " + msg;
+    if (/at least 6 characters/i.test(msg)) return KZ.t("Құпиясөз кемінде 6 таңбадан тұруы керек.");
+    if (/rate limit|too many/i.test(msg)) return KZ.t("Тым жиі әрекет жасадың. Біраз күте тұр.");
+    if (/Failed to fetch|NetworkError|network/i.test(msg)) return KZ.t("Байланыс жоқ. Интернетті тексер.");
+    return KZ.t("Қате шықты: ") + msg;
   }
 
   function loadScript(src) {
@@ -92,14 +92,14 @@
       return A.isActive() && ["owner", "admin", "teacher"].includes(A.profile.role);
     },
     roleLabel(r) {
-      return { owner: "Құрушы", admin: "Админ", teacher: "Мұғалім", student: "Оқушы" }[r] || r;
+      return { owner: KZ.t("Құрушы"), admin: KZ.t("Админ"), teacher: KZ.t("Мұғалім"), student: KZ.t("Оқушы") }[r] || r;
     },
     statusLabel(s) {
-      return { active: "белсенді", pending: "бекітуді күтуде", blocked: "бұғатталған" }[s] || s;
+      return { active: KZ.t("белсенді"), pending: KZ.t("бекітуді күтуде"), blocked: KZ.t("бұғатталған") }[s] || s;
     },
 
     async rpc(name, args) {
-      if (!client) throw new Error("Аккаунттар қосылмаған.");
+      if (!client) throw new Error(KZ.t("Аккаунттар қосылмаған."));
       const { data, error } = await client.rpc(name, args || {});
       if (error) throw new Error(kz(error.message));
       return data;

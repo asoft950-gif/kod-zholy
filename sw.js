@@ -2,7 +2,7 @@
    - Сайттың өз файлдары: алдымен желіден (жаңа нұсқа), желі жоқ болса, кэштен.
    - CDN файлдары (Pyodide, CodeMirror, қаріптер): кэштен, жоқ болса, желіден алып сақтайды.
    - Supabase сұраулары (аккаунт, прогресс) ешқашан кэштелмейді. */
-const VERSION = "bitlings-43fc52180c";
+const VERSION = "bitlings-744058bd14";
 const SHELL = [
   "./", "index.html", "style.css", "manifest.webmanifest", "py/runner.py",
   "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
@@ -11,6 +11,7 @@ const SHELL = [
   "js/streak.js", "js/offline.js", "js/hero.js", "js/landing.js", "js/algo.js", "js/review.js", "js/review-content.js", "js/cert.js", "js/classstats.js", "js/settings.js", "js/config.js", "js/auth.js", "js/assign.js", "js/cabinet.js",
   "js/courses/python.js", "js/courses/python-content.js", "js/courses/html.js", "js/courses/html-content.js",
   "js/courses/css.js", "js/courses/css-content.js", "js/courses/debug-content.js", "js/sqlcore.js", "js/sql.js", "js/courses/sql.js", "js/courses/sql-content.js", "js/courses/projects.js", "js/courses/projects-content.js", "js/courses/javascript.js", "js/courses/javascript-content.js", "js/courses/kotlin.js", "js/courses/kotlin-content.js",
+  "js/i18n.js", "js/i18n/ru.js", "js/courses/ru/css-content.js", "js/courses/ru/css.js", "js/courses/ru/debug-content.js", "js/courses/ru/html-content.js", "js/courses/ru/html.js", "js/courses/ru/javascript-content.js", "js/courses/ru/javascript.js", "js/courses/ru/kotlin-content.js", "js/courses/ru/kotlin.js", "js/courses/ru/projects-content.js", "js/courses/ru/projects.js", "js/courses/ru/python-content.js", "js/courses/ru/python.js", "js/courses/ru/review-content.js", "js/courses/ru/sql-content.js", "js/courses/ru/sql.js",
 ];
 const CDN = /^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 

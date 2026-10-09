@@ -19,9 +19,9 @@
   };
 
   ALGOS.bubble = {
-    title: "Көпіршік сұрыптау",
+    title: KZ.t("Көпіршік сұрыптау"),
     kind: "sort",
-    intro: "Көрші екі санды салыстырады: сол жағы үлкен болса, орнын ауыстырады. Әр айналымда ең үлкен сан оң жаққа «қалқып» шығады.",
+    intro: KZ.t("Көрші екі санды салыстырады: сол жағы үлкен болса, орнын ауыстырады. Әр айналымда ең үлкен сан оң жаққа «қалқып» шығады."),
     code: ["for i in range(len(a) - 1):", "    for j in range(len(a) - 1 - i):", "        if a[j] > a[j + 1]:", "            a[j], a[j + 1] = a[j + 1], a[j]"],
     steps(src) {
       const a = src.slice();
@@ -33,26 +33,26 @@
       for (let i = 0; i < n - 1; i++) {
         for (let j = 0; j < n - 1 - i; j++) {
           c++;
-          st.push(snap(a, Object.assign({}, done, { [j]: "cmp", [j + 1]: "cmp" }), 3, a[j] + " пен " + a[j + 1] + " салыстырамыз: " + a[j] + " > " + a[j + 1] + " ма? " + (a[j] > a[j + 1] ? "Иә." : "Жоқ."), { c, s, snd: "tick" }));
+          st.push(snap(a, Object.assign({}, done, { [j]: "cmp", [j + 1]: "cmp" }), 3, a[j] + KZ.t(" пен ") + a[j + 1] + KZ.t(" салыстырамыз: ") + a[j] + " > " + a[j + 1] + KZ.t(" ма? ") + (a[j] > a[j + 1] ? KZ.t("Иә.") : KZ.t("Жоқ.")), { c, s, snd: "tick" }));
           if (a[j] > a[j + 1]) {
             [a[j], a[j + 1]] = [a[j + 1], a[j]];
             s++;
-            st.push(snap(a, Object.assign({}, done, { [j]: "swap", [j + 1]: "swap" }), 4, "Орындарын ауыстырамыз.", { c, s, snd: "swap" }));
+            st.push(snap(a, Object.assign({}, done, { [j]: "swap", [j + 1]: "swap" }), 4, KZ.t("Орындарын ауыстырамыз."), { c, s, snd: "swap" }));
           }
         }
         done = Object.assign({}, done, { [n - 1 - i]: "ok" });
-        st.push(snap(a, done, 1, a[n - 1 - i] + " өз орнына түсті (ең үлкені оң жақта).", { c, s, snd: "star" }));
+        st.push(snap(a, done, 1, a[n - 1 - i] + KZ.t(" өз орнына түсті (ең үлкені оң жақта)."), { c, s, snd: "star" }));
       }
       done[0] = "ok";
-      st.push(snap(a, sortedSet(0, n - 1), 1, "Дайын! Массив өсу ретімен тұр.", { c, s, snd: "win", end: true }));
+      st.push(snap(a, sortedSet(0, n - 1), 1, KZ.t("Дайын! Массив өсу ретімен тұр."), { c, s, snd: "win", end: true }));
       return st;
     },
   };
 
   ALGOS.selection = {
-    title: "Таңдау арқылы сұрыптау",
+    title: KZ.t("Таңдау арқылы сұрыптау"),
     kind: "sort",
-    intro: "Әр айналымда қалған бөліктен ең кішісін тауып, оны өз орнына (сол жаққа) қояды.",
+    intro: KZ.t("Әр айналымда қалған бөліктен ең кішісін тауып, оны өз орнына (сол жаққа) қояды."),
     code: ["for i in range(len(a)):", "    m = i", "    for j in range(i + 1, len(a)):", "        if a[j] < a[m]:", "            m = j", "    a[i], a[m] = a[m], a[i]"],
     steps(src) {
       const a = src.slice();
@@ -63,32 +63,32 @@
       for (let i = 0; i < n; i++) {
         let m = i;
         const done = i ? sortedSet(0, i - 1) : {};
-        st.push(snap(a, Object.assign({}, done, { [m]: "min" }), 2, i + "-орынға ең кіші санды іздейміз. Әзірге ең кішісі — " + a[m] + ".", { c, s, snd: "tick", tags: { [m]: "m" } }));
+        st.push(snap(a, Object.assign({}, done, { [m]: "min" }), 2, i + KZ.t("-орынға ең кіші санды іздейміз. Әзірге ең кішісі — ") + a[m] + ".", { c, s, snd: "tick", tags: { [m]: "m" } }));
         for (let j = i + 1; j < n; j++) {
           c++;
           const better = a[j] < a[m];
-          st.push(snap(a, Object.assign({}, done, { [m]: "min", [j]: "cmp" }), 4, a[j] + " < " + a[m] + " ма? " + (better ? "Иә, жаңа ең кіші табылды." : "Жоқ."), { c, s, snd: "tick", tags: { [m]: "m" } }));
+          st.push(snap(a, Object.assign({}, done, { [m]: "min", [j]: "cmp" }), 4, a[j] + " < " + a[m] + KZ.t(" ма? ") + (better ? KZ.t("Иә, жаңа ең кіші табылды.") : KZ.t("Жоқ.")), { c, s, snd: "tick", tags: { [m]: "m" } }));
           if (better) {
             m = j;
-            st.push(snap(a, Object.assign({}, done, { [m]: "min" }), 5, "m = " + j + ": ең кіші енді " + a[m] + ".", { c, s, snd: "tick", tags: { [m]: "m" } }));
+            st.push(snap(a, Object.assign({}, done, { [m]: "min" }), 5, "m = " + j + KZ.t(": ең кіші енді ") + a[m] + ".", { c, s, snd: "tick", tags: { [m]: "m" } }));
           }
         }
         if (m !== i) {
           [a[i], a[m]] = [a[m], a[i]];
           s++;
-          st.push(snap(a, Object.assign({}, done, { [i]: "swap", [m]: "swap" }), 6, "Ең кішіні " + i + "-орынға қоямыз (ауыстырамыз).", { c, s, snd: "swap" }));
+          st.push(snap(a, Object.assign({}, done, { [i]: "swap", [m]: "swap" }), 6, KZ.t("Ең кішіні ") + i + KZ.t("-орынға қоямыз (ауыстырамыз)."), { c, s, snd: "swap" }));
         }
-        st.push(snap(a, sortedSet(0, i), 1, a[i] + " өз орнында.", { c, s, snd: "star" }));
+        st.push(snap(a, sortedSet(0, i), 1, a[i] + KZ.t(" өз орнында."), { c, s, snd: "star" }));
       }
-      st.push(snap(a, sortedSet(0, n - 1), 1, "Дайын! Массив өсу ретімен тұр.", { c, s, snd: "win", end: true }));
+      st.push(snap(a, sortedSet(0, n - 1), 1, KZ.t("Дайын! Массив өсу ретімен тұр."), { c, s, snd: "win", end: true }));
       return st;
     },
   };
 
   ALGOS.insertion = {
-    title: "Енгізу арқылы сұрыптау",
+    title: KZ.t("Енгізу арқылы сұрыптау"),
     kind: "sort",
-    intro: "Карталарды қолда сұрыптағандай: әр жаңа санды сол жақтағы реттелген бөлікте өз орнына қояды.",
+    intro: KZ.t("Карталарды қолда сұрыптағандай: әр жаңа санды сол жақтағы реттелген бөлікте өз орнына қояды."),
     code: ["for i in range(1, len(a)):", "    key = a[i]", "    j = i - 1", "    while j >= 0 and a[j] > key:", "        a[j + 1] = a[j]", "        j -= 1", "    a[j + 1] = key"],
     steps(src) {
       const a = src.slice();
@@ -96,33 +96,33 @@
       const st = [];
       let c = 0;
       let s = 0;
-      st.push(snap(a, { 0: "ok" }, 1, "Бірінші сан өзі жеке реттелген бөлік болып саналады.", { c, s }));
+      st.push(snap(a, { 0: "ok" }, 1, KZ.t("Бірінші сан өзі жеке реттелген бөлік болып саналады."), { c, s }));
       for (let i = 1; i < n; i++) {
         const key = a[i];
         let j = i - 1;
-        st.push(snap(a, Object.assign({}, sortedSet(0, i - 1), { [i]: "min" }), 2, "key = " + key + ". Оны сол жақтағы реттелген бөлікке орналастырамыз.", { c, s, hold: key, snd: "tick" }));
+        st.push(snap(a, Object.assign({}, sortedSet(0, i - 1), { [i]: "min" }), 2, "key = " + key + KZ.t(". Оны сол жақтағы реттелген бөлікке орналастырамыз."), { c, s, hold: key, snd: "tick" }));
         while (j >= 0) {
           c++;
           const bigger = a[j] > key;
-          st.push(snap(a, Object.assign({}, sortedSet(0, i - 1), { [i]: "min", [j]: "cmp" }), 4, a[j] + " > " + key + " ма? " + (bigger ? "Иә, оны оңға жылжытамыз." : "Жоқ, тоқтаймыз."), { c, s, hold: key, snd: "tick" }));
+          st.push(snap(a, Object.assign({}, sortedSet(0, i - 1), { [i]: "min", [j]: "cmp" }), 4, a[j] + " > " + key + KZ.t(" ма? ") + (bigger ? KZ.t("Иә, оны оңға жылжытамыз.") : KZ.t("Жоқ, тоқтаймыз.")), { c, s, hold: key, snd: "tick" }));
           if (!bigger) break;
           a[j + 1] = a[j];
           s++;
-          st.push(snap(a, Object.assign({}, sortedSet(0, i), { [j + 1]: "swap" }), 5, a[j] + " оңға жылжыды.", { c, s, hold: key, snd: "swap" }));
+          st.push(snap(a, Object.assign({}, sortedSet(0, i), { [j + 1]: "swap" }), 5, a[j] + KZ.t(" оңға жылжыды."), { c, s, hold: key, snd: "swap" }));
           j--;
         }
         a[j + 1] = key;
-        st.push(snap(a, sortedSet(0, i), 7, key + " өз орнына түсті (" + (j + 1) + "-орын).", { c, s, snd: "star" }));
+        st.push(snap(a, sortedSet(0, i), 7, key + KZ.t(" өз орнына түсті (") + (j + 1) + KZ.t("-орын)."), { c, s, snd: "star" }));
       }
-      st.push(snap(a, sortedSet(0, n - 1), 1, "Дайын! Массив өсу ретімен тұр.", { c, s, snd: "win", end: true }));
+      st.push(snap(a, sortedSet(0, n - 1), 1, KZ.t("Дайын! Массив өсу ретімен тұр."), { c, s, snd: "win", end: true }));
       return st;
     },
   };
 
   ALGOS.linear = {
-    title: "Сызықтық іздеу",
+    title: KZ.t("Сызықтық іздеу"),
     kind: "search",
-    intro: "Элементтерді бірінен соң бірін тексереді, іздеген санды тапқанша.",
+    intro: KZ.t("Элементтерді бірінен соң бірін тексереді, іздеген санды тапқанша."),
     code: ["for i in range(len(a)):", "    if a[i] == x:", "        return i", "return -1"],
     steps(src, x) {
       const a = src.slice();
@@ -131,22 +131,22 @@
       for (let i = 0; i < a.length; i++) {
         c++;
         const hit = a[i] === x;
-        st.push(snap(a, { [i]: hit ? "found" : "cmp" }, 2, a[i] + " == " + x + " ма? " + (hit ? "Иә!" : "Жоқ, келесіге өтеміз."), { c, snd: hit ? "star" : "tick" }));
+        st.push(snap(a, { [i]: hit ? "found" : "cmp" }, 2, a[i] + " == " + x + KZ.t(" ма? ") + (hit ? KZ.t("Иә!") : KZ.t("Жоқ, келесіге өтеміз.")), { c, snd: hit ? "star" : "tick" }));
         if (hit) {
-          st.push(snap(a, { [i]: "found" }, 3, x + " саны " + i + "-орында табылды. " + c + " рет тексердік.", { c, snd: "win", end: true }));
+          st.push(snap(a, { [i]: "found" }, 3, x + KZ.t(" саны ") + i + KZ.t("-орында табылды. ") + c + KZ.t(" рет тексердік."), { c, snd: "win", end: true }));
           return st;
         }
       }
-      st.push(snap(a, {}, 4, x + " саны жоқ екен. Бәрін тексердік: -1 қайтады.", { c, snd: "error", end: true }));
+      st.push(snap(a, {}, 4, x + KZ.t(" саны жоқ екен. Бәрін тексердік: -1 қайтады."), { c, snd: "error", end: true }));
       return st;
     },
   };
 
   ALGOS.binary = {
-    title: "Бинарлық іздеу",
+    title: KZ.t("Бинарлық іздеу"),
     kind: "search",
     sorted: true,
-    intro: "Реттелген массивте ортасына қарайды: іздеген сан кіші болса, сол жарты, үлкен болса, оң жарты қалады. Әр қадам аралықты екі есе қысқартады.",
+    intro: KZ.t("Реттелген массивте ортасына қарайды: іздеген сан кіші болса, сол жарты, үлкен болса, оң жарты қалады. Әр қадам аралықты екі есе қысқартады."),
     code: ["lo, hi = 0, len(a) - 1", "while lo <= hi:", "    mid = (lo + hi) // 2", "    if a[mid] == x:", "        return mid", "    elif a[mid] < x:", "        lo = mid + 1", "    else:", "        hi = mid - 1", "return -1"],
     steps(src, x) {
       const a = src.slice();
@@ -172,24 +172,24 @@
         const v = view(mid, extra);
         st.push(Object.assign(snap(a, v.cls, line, text, Object.assign({ c }, extra)), { tags: v.tags }));
       };
-      push(1, "Іздейтін аралық: бүкіл массив (lo=0, hi=" + hi + "). Іздейтін сан: " + x + ".", null, { snd: "tick" });
+      push(1, KZ.t("Іздейтін аралық: бүкіл массив (lo=0, hi=") + hi + KZ.t("). Іздейтін сан: ") + x + ".", null, { snd: "tick" });
       while (lo <= hi) {
         const mid = Math.floor((lo + hi) / 2);
         c++;
-        push(3, "Ортасы: mid = (" + lo + " + " + hi + ") // 2 = " + mid + ". a[" + mid + "] = " + a[mid] + ".", mid, { snd: "tick" });
+        push(3, KZ.t("Ортасы: mid = (") + lo + " + " + hi + ") // 2 = " + mid + ". a[" + mid + "] = " + a[mid] + ".", mid, { snd: "tick" });
         if (a[mid] === x) {
-          push(5, x + " табылды: " + mid + "-орында! " + c + " қадамда таптық.", mid, { cls: "found", snd: "win", end: true });
+          push(5, x + KZ.t(" табылды: ") + mid + KZ.t("-орында! ") + c + KZ.t(" қадамда таптық."), mid, { cls: "found", snd: "win", end: true });
           return st;
         }
         if (a[mid] < x) {
           lo = mid + 1;
-          push(7, a[mid] + " < " + x + ", сондықтан сол жарты керек емес: lo = " + lo + ".", null, { snd: "tick" });
+          push(7, a[mid] + " < " + x + KZ.t(", сондықтан сол жарты керек емес: lo = ") + lo + ".", null, { snd: "tick" });
         } else {
           hi = mid - 1;
-          push(9, a[mid] + " > " + x + ", сондықтан оң жарты керек емес: hi = " + hi + ".", null, { snd: "tick" });
+          push(9, a[mid] + " > " + x + KZ.t(", сондықтан оң жарты керек емес: hi = ") + hi + ".", null, { snd: "tick" });
         }
       }
-      push(10, "Аралық бос қалды: " + x + " саны жоқ. -1 қайтады.", null, { snd: "error", end: true });
+      push(10, KZ.t("Аралық бос қалды: ") + x + KZ.t(" саны жоқ. -1 қайтады."), null, { snd: "error", end: true });
       return st;
     },
   };
@@ -207,15 +207,15 @@
       nodes.push(node);
       if (parent != null) nodes[parent].kids.push(node.id);
       calls++;
-      snapT(node.id, 1, "fib(" + n + ") шақырылды.", "tick");
+      snapT(node.id, 1, "fib(" + n + KZ.t(") шақырылды."), "tick");
       if (n < 2) {
         done[node.id] = n;
-        snapT(node.id, 3, "fib(" + n + ") < 2: жауап дайын, " + n + " қайтарады.", "swap");
+        snapT(node.id, 3, "fib(" + n + KZ.t(") < 2: жауап дайын, ") + n + KZ.t(" қайтарады."), "swap");
         return n;
       }
-      snapT(node.id, 4, "fib(" + n + ") = fib(" + (n - 1) + ") + fib(" + (n - 2) + "). Алдымен fib(" + (n - 1) + ") шақырамыз.", "tick");
+      snapT(node.id, 4, "fib(" + n + ") = fib(" + (n - 1) + ") + fib(" + (n - 2) + KZ.t("). Алдымен fib(") + (n - 1) + KZ.t(") шақырамыз."), "tick");
       const a = go(n - 1, node.id);
-      snapT(node.id, 4, "fib(" + (n - 1) + ") = " + a + " болды. Енді fib(" + (n - 2) + ") шақырамыз.", "tick");
+      snapT(node.id, 4, "fib(" + (n - 1) + ") = " + a + KZ.t(" болды. Енді fib(") + (n - 2) + KZ.t(") шақырамыз."), "tick");
       const b = go(n - 2, node.id);
       done[node.id] = a + b;
       snapT(node.id, 4, "fib(" + n + ") = " + a + " + " + b + " = " + (a + b) + ".", "star");
@@ -227,9 +227,9 @@
   }
 
   const FIB = {
-    title: "Рекурсия: fib",
+    title: KZ.t("Рекурсия: fib"),
     kind: "tree",
-    intro: "Функция өзін өзі шақырады. Ағаштан бір сандың есебі қанша рет қайталанатынын көр: сондықтан рекурсия баяу болуы мүмкін.",
+    intro: KZ.t("Функция өзін өзі шақырады. Ағаштан бір сандың есебі қанша рет қайталанатынын көр: сондықтан рекурсия баяу болуы мүмкін."),
     code: ["def fib(n):", "    if n < 2:", "        return n", "    return fib(n - 1) + fib(n - 2)"],
   };
 
@@ -250,11 +250,11 @@
     let speed = 2;
 
     const page = el("div", "page");
-    const back = el("a", "back", "← Басты бет");
+    const back = el("a", "back", KZ.t("← Басты бет"));
     back.href = "#/";
     page.appendChild(back);
-    page.appendChild(el("h1", "section-title", "🎬 Алгоритм көрінісі"));
-    page.appendChild(el("p", "muted", "Алгоритмнің қалай жұмыс істейтінін қадам-қадамымен көр. Қадамдап өтуге, кері қайтуға болады."));
+    page.appendChild(el("h1", "section-title", KZ.t("🎬 Алгоритм көрінісі")));
+    page.appendChild(el("p", "muted", KZ.t("Алгоритмнің қалай жұмыс істейтінін қадам-қадамымен көр. Қадамдап өтуге, кері қайтуға болады.")));
 
     const chips = el("div", "algo-chips");
     page.appendChild(chips);
@@ -270,40 +270,40 @@
     const inputs = el("div", "algo-inputs");
     const numIn = el("input");
     numIn.type = "text";
-    numIn.setAttribute("aria-label", "Сандар");
+    numIn.setAttribute("aria-label", KZ.t("Сандар"));
     numIn.setAttribute("inputmode", "numeric");
     const tgtWrap = el("label", "algo-tgt");
     const tgtIn = el("input");
     tgtIn.type = "number";
     tgtIn.min = "1";
     tgtIn.max = "99";
-    tgtWrap.append("Іздейтін сан: ", tgtIn);
+    tgtWrap.append(KZ.t("Іздейтін сан: "), tgtIn);
     const fibWrap = el("label", "algo-tgt");
     const fibIn = el("input");
     fibIn.type = "number";
     fibIn.min = "2";
     fibIn.max = "7";
     fibWrap.append("n = ", fibIn);
-    const rnd = el("button", "btn small", "🎲 Кездейсоқ");
+    const rnd = el("button", "btn small", KZ.t("🎲 Кездейсоқ"));
     rnd.type = "button";
-    const apply = el("button", "btn small", "Қолдану");
+    const apply = el("button", "btn small", KZ.t("Қолдану"));
     apply.type = "button";
     const numWrap = el("label", "algo-nums");
-    numWrap.append("Сандар: ", numIn);
+    numWrap.append(KZ.t("Сандар: "), numIn);
     inputs.append(numWrap, tgtWrap, fibWrap, rnd, apply);
     card.appendChild(inputs);
 
     const ctr = el("div", "controls");
-    const bPlay = el("button", "btn primary", "▶ Қосу");
+    const bPlay = el("button", "btn primary", KZ.t("▶ Қосу"));
     const bBack = el("button", "btn", "⏮");
-    const bNext = el("button", "btn", "⏭ Қадам");
+    const bNext = el("button", "btn", KZ.t("⏭ Қадам"));
     const bReset = el("button", "btn ghost", "↺");
     [bPlay, bBack, bNext, bReset].forEach((b) => (b.type = "button"));
     ctr.append(bPlay, bBack, bNext, bReset);
     card.appendChild(ctr);
     const sp = el("label", "tl");
     const spl = el("span", "tl-label");
-    spl.innerHTML = "<span>Жылдамдық</span><span aria-hidden='true'>🐢 баяу · жылдам 🐇</span>";
+    spl.innerHTML = KZ.t("<span>Жылдамдық</span><span aria-hidden='true'>🐢 баяу · жылдам 🐇</span>");
     const spIn = el("input");
     spIn.type = "range";
     spIn.min = "1";
@@ -314,7 +314,7 @@
     const scrubL = el("label", "tl");
     const scl = el("span", "tl-label");
     const scCount = el("b");
-    scl.append(el("span", null, "Қадам"), scCount);
+    scl.append(el("span", null, KZ.t("Қадам")), scCount);
     const scrub = el("input");
     scrub.type = "range";
     scrub.min = "0";
@@ -324,7 +324,7 @@
     page.appendChild(card);
 
     const codeCard = el("section", "card");
-    codeCard.appendChild(el("div", "card-title", "Python коды"));
+    codeCard.appendChild(el("div", "card-title", KZ.t("Python коды")));
     const codeBox = el("pre", "algo-code");
     codeCard.appendChild(codeBox);
     page.appendChild(codeCard);
@@ -341,7 +341,7 @@
     function stop() {
       if (timer) clearTimeout(timer);
       timer = null;
-      bPlay.textContent = pos >= steps.length - 1 ? "▶ Қайта" : "▶ Қосу";
+      bPlay.textContent = pos >= steps.length - 1 ? KZ.t("▶ Қайта") : KZ.t("▶ Қосу");
     }
 
     function build() {
@@ -373,7 +373,7 @@
       scrub.max = String(steps.length - 1);
       pos = 0;
       render();
-      if (A.sorted) say.textContent = "Бинарлық іздеу үшін сандар алдымен өсу ретімен тізіледі. " + say.textContent;
+      if (A.sorted) say.textContent = KZ.t("Бинарлық іздеу үшін сандар алдымен өсу ретімен тізіледі. ") + say.textContent;
     }
 
     function render() {
@@ -402,15 +402,15 @@
       }
       say.textContent = s.text;
       stats.textContent = "";
-      if (s.tree) stats.append(chip("📞 шақыру: " + s.c));
-      else if (A.kind === "sort") stats.append(chip("🔍 салыстыру: " + (s.c || 0)), chip("🔁 ауыстыру: " + (s.s || 0)));
-      else stats.append(chip("🔍 тексеру: " + (s.c || 0)));
+      if (s.tree) stats.append(chip(KZ.t("📞 шақыру: ") + s.c));
+      else if (A.kind === "sort") stats.append(chip(KZ.t("🔍 салыстыру: ") + (s.c || 0)), chip(KZ.t("🔁 ауыстыру: ") + (s.s || 0)));
+      else stats.append(chip(KZ.t("🔍 тексеру: ") + (s.c || 0)));
       codeBox.querySelectorAll(".cl").forEach((n) => n.classList.toggle("on", Number(n.dataset.n) === s.line));
       scrub.value = String(pos);
       scCount.textContent = pos + 1 + " / " + steps.length;
       bBack.disabled = pos <= 0;
       bNext.disabled = pos >= steps.length - 1;
-      bPlay.textContent = timer ? "⏸ Тоқтату" : pos >= steps.length - 1 ? "▶ Қайта" : "▶ Қосу";
+      bPlay.textContent = timer ? KZ.t("⏸ Тоқтату") : pos >= steps.length - 1 ? KZ.t("▶ Қайта") : KZ.t("▶ Қосу");
     }
     const chip = (t) => el("span", "algo-chip", t);
 
@@ -501,7 +501,7 @@
       } else {
         const arr = parseNums(numIn.value);
         if (!arr) {
-          say.textContent = "2-ден 14-ке дейін, 1–99 аралығындағы бүтін сандарды бос орынмен бөліп жаз.";
+          say.textContent = KZ.t("2-ден 14-ке дейін, 1–99 аралығындағы бүтін сандарды бос орынмен бөліп жаз.");
           return;
         }
         values = arr;

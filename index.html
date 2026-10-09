@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="style.css">
   <script src="js/settings.js"></script>
+  <script src="js/i18n.js"></script>
 </head>
 <body>
   <header class="top">
@@ -26,6 +27,7 @@
       <span class="logo" aria-hidden="true"><img src="assets/logo.svg" alt="" width="34" height="34"></span>
       <span class="brand-text"><b>Bit<i>lings</i></b><small>Кодты көзбен көр</small></span>
     </a>
+    <div class="langsw" role="group" aria-label="Тіл / Язык"><button type="button" data-lang="kk">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
     <button id="menuBtn" class="btn small" type="button" hidden>☰ Деңгейлер</button>
     <a id="accountBtn" class="btn small acc-btn" href="#/login" hidden>👤 <span id="accountLabel">Кіру</span></a>
     <a id="streakBtn" class="score streak" href="#/achievements" title="Серия">🔥 <span id="streakCount">0</span></a>
@@ -241,6 +243,13 @@
   <script src="js/courses/sql.js"></script>
   <script src="js/courses/sql-content.js"></script>
   <script src="js/courses/debug-content.js"></script>
+  <script>
+    /* Орысша режим: курстар мазмұны қазақша файлдардың орнына жүктеледі (js/courses/ru) */
+    if (KZ.lang === "ru") {
+      ["python", "python-content", "html", "html-content", "css", "css-content", "javascript", "javascript-content", "kotlin", "kotlin-content", "projects", "projects-content", "sql", "sql-content", "debug-content"]
+        .forEach(function (f) { document.write('<script src="js/courses/ru/' + f + '.js"><\/script>'); });
+    }
+  </script>
   <script src="js/jsrunner.js"></script>
   <script src="js/ktrunner.js"></script>
   <script src="js/play.js"></script>
@@ -253,6 +262,7 @@
   <script src="js/landing.js"></script>
   <script src="js/review.js"></script>
   <script src="js/review-content.js"></script>
+  <script>if (KZ.lang === "ru") document.write('<script src="js/courses/ru/review-content.js"><\/script>');</script>
   <script src="js/algo.js"></script>
   <script src="js/cert.js"></script>
   <script src="js/classstats.js"></script>

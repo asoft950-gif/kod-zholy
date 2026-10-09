@@ -23,8 +23,8 @@
   /* Мұғалім тапсырмасы: #/task/<id> */
   async function openTask(id) {
     const mine = location.hash;
-    show("cab", "Тапсырма");
-    views.cab.textContent = "Тапсырма жүктелуде…";
+    show("cab", KZ.t("Тапсырма"));
+    views.cab.textContent = KZ.t("Тапсырма жүктелуде…");
     if (!KZ.auth || !KZ.auth.enabled) {
       location.hash = "#/login";
       return;
@@ -44,8 +44,8 @@
     } catch (e) {
       if (location.hash !== mine) return;
       views.cab.textContent = "";
-      const box = KZ.h("div", "page narrow", KZ.h("section", "card notice bad", KZ.h("h2", null, "🙈 Тапсырма ашылмады"), KZ.h("p", null, e.message)));
-      const back = KZ.h("a", "back", "← Кабинет");
+      const box = KZ.h("div", "page narrow", KZ.h("section", "card notice bad", KZ.h("h2", null, KZ.t("🙈 Тапсырма ашылмады")), KZ.h("p", null, e.message)));
+      const back = KZ.h("a", "back", KZ.t("← Кабинет"));
       back.href = "#/account";
       box.prepend(back);
       views.cab.appendChild(box);
@@ -66,12 +66,12 @@
     const accounts = !!(A_ && A_.enabled);
     if (parts[0] === "welcome" || (parts.length === 0 && accounts && !A_.profile)) {
       if (accounts && !A_.settled && parts[0] !== "welcome") {
-        views.cab.textContent = "Жүктелуде…";
+        views.cab.textContent = KZ.t("Жүктелуде…");
         A_.ready.then(route);
         return show("cab", "Bitlings");
       }
       KZ.landingPage(views.cab);
-      return show("cab", "Кодты көзбен көр");
+      return show("cab", KZ.t("Кодты көзбен көр"));
     }
     if (parts.length === 0) {
       KZ.views.home(views.home);
@@ -85,37 +85,37 @@
     const needLogin = parts[0] === "achievements" || parts[0] === "hero" || parts[0] === "review" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
     if (needLogin && KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
       if (!KZ.auth.settled) {
-        views.cab.textContent = "Жүктелуде…";
+        views.cab.textContent = KZ.t("Жүктелуде…");
         KZ.auth.ready.then(route);
         return show("cab", "Bitlings");
       }
       KZ.cabinet.gate(views.cab, location.hash);
       gated = true;
-      return show("cab", "Кіру керек");
+      return show("cab", KZ.t("Кіру керек"));
     }
     gated = false;
     if (parts[0] === "certificate" && parts[1]) {
       KZ.certPage(views.cab, parts[1]);
-      return show("cab", "Сертификат");
+      return show("cab", KZ.t("Сертификат"));
     }
     if (parts[0] === "algo") {
       KZ.algoPage(views.cab, parts[1]);
-      return show("cab", "Алгоритм көрінісі");
+      return show("cab", KZ.t("Алгоритм көрінісі"));
     }
     if (parts[0] === "review") {
       KZ.reviewPage(views.cab);
-      return show("cab", "Қайталау");
+      return show("cab", KZ.t("Қайталау"));
     }
     if (parts[0] === "hero") {
       KZ.heroPage(views.cab);
-      return show("cab", "Менің кейіпкерім");
+      return show("cab", KZ.t("Менің кейіпкерім"));
     }
     if (parts[0] === "achievements") {
       KZ.achievementsPage(views.cab);
-      return show("cab", "Жетістіктер");
+      return show("cab", KZ.t("Жетістіктер"));
     }
     if (["login", "account", "teacher", "admin"].includes(parts[0])) {
-      const titles = { login: "Кіру", account: "Кабинет", teacher: "Сыныптар", admin: "Басқару" };
+      const titles = { login: KZ.t("Кіру"), account: KZ.t("Кабинет"), teacher: KZ.t("Сыныптар"), admin: KZ.t("Басқару") };
       show("cab", titles[parts[0]]);
       KZ.cabinet[parts[0]](views.cab, parts[1]);
       return;
@@ -164,7 +164,7 @@
     accBtn.hidden = false;
     const p = KZ.auth.profile;
     accBtn.href = p ? "#/account" : "#/login";
-    $("#accountLabel").textContent = p ? (p.full_name || p.email).split(" ")[0] : "Кіру";
+    $("#accountLabel").textContent = p ? (p.full_name || p.email).split(" ")[0] : KZ.t("Кіру");
   }
   if (KZ.auth) {
     paintAccount();
@@ -218,7 +218,7 @@
       if (pending) return;
       if (!editing()) return location.reload();
       pending = true;
-      if (KZ.toast) KZ.toast("✨", "Сайттың жаңа нұсқасы дайын", "Келесі бетке өткенде өзі жаңарады");
+      if (KZ.toast) KZ.toast("✨", KZ.t("Сайттың жаңа нұсқасы дайын"), KZ.t("Келесі бетке өткенде өзі жаңарады"));
       window.addEventListener("hashchange", () => location.reload(), { once: true });
     });
   }

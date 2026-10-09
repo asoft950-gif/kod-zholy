@@ -80,15 +80,15 @@
     ctx.font = "800 64px " + FAM;
     ctx.fillText("Bitlings", 262, 170);
     ctx.font = "700 28px " + FAM;
-    ctx.fillText("Кодты көзбен көріп үйрен", 264, 208);
+    ctx.fillText(KZ.t("Кодты көзбен көріп үйрен"), 264, 208);
 
     ctx.textAlign = "center";
     ctx.font = "800 96px " + FAM;
     ctx.fillStyle = INK;
-    ctx.fillText("СЕРТИФИКАТ", W / 2, 400);
+    ctx.fillText(KZ.t("СЕРТИФИКАТ"), W / 2, 400);
     ctx.font = "700 34px " + FAM;
     ctx.fillStyle = "#6a6784";
-    ctx.fillText("Бұл сертификат берілді", W / 2, 475);
+    ctx.fillText(KZ.t("Бұл сертификат берілді"), W / 2, 475);
 
     ctx.fillStyle = c.color || "#6c5ce7";
     fit(ctx, name, W - 380, 110, 800, FAM);
@@ -102,18 +102,18 @@
 
     ctx.fillStyle = INK;
     ctx.font = "700 40px " + FAM;
-    ctx.fillText(c.emoji + " " + c.name + " курсының барлық тапсырмасын орындағаны үшін", W / 2, 730);
+    ctx.fillText(c.emoji + " " + c.name + KZ.t(" курсының барлық тапсырмасын орындағаны үшін"), W / 2, 730);
     ctx.font = "800 44px " + FAM;
-    ctx.fillText(st.done + " тапсырма · ⭐ " + st.stars + " / " + st.max + " жұлдыз", W / 2, 805);
+    ctx.fillText(st.done + KZ.t(" тапсырма · ⭐ ") + st.stars + " / " + st.max + KZ.t(" жұлдыз"), W / 2, 805);
 
     ctx.font = "700 30px " + FAM;
     ctx.textAlign = "left";
     ctx.fillStyle = "#6a6784";
-    ctx.fillText("Күні: " + dateStr(date), 150, H - 150);
+    ctx.fillText(KZ.t("Күні: ") + dateStr(date), 150, H - 150);
     ctx.textAlign = "right";
     ctx.fillText("№ " + codeOf(name + "|" + c.id + "|" + dateStr(date)), W - 150, H - 150);
     ctx.textAlign = "center";
-    ctx.fillText("💜 Жарайсың! Кодтай бер!", W / 2, H - 150);
+    ctx.fillText(KZ.t("💜 Жарайсың! Кодтай бер!"), W / 2, H - 150);
   }
 
   /* Бет: #/certificate/<курс> */
@@ -121,19 +121,19 @@
     root.textContent = "";
     const c = KZ.getCourse(courseId);
     const page = el("div", "page narrow");
-    page.appendChild(h("a", "back", "← Жетістіктер"));
+    page.appendChild(h("a", "back", KZ.t("← Жетістіктер")));
     page.firstChild.href = "#/achievements";
     root.appendChild(page);
     if (!c || c.status !== "ready") {
-      page.appendChild(h("p", "empty-note", "Мұндай курс жоқ."));
+      page.appendChild(h("p", "empty-note", KZ.t("Мұндай курс жоқ.")));
       return;
     }
     const st = status(c);
-    page.appendChild(h("h1", "section-title", "🎓 Сертификат: " + c.name));
+    page.appendChild(h("h1", "section-title", KZ.t("🎓 Сертификат: ") + c.name));
     if (!st.ok) {
       page.appendChild(
-        h("section", "card", h("p", null, "Сертификат алу үшін " + c.name + " курсының барлық " + st.total + " тапсырмасын орында. Қазір: " + st.done + " / " + st.total + "."), (() => {
-          const a = h("a", "btn primary", "Тапсырмаларға өту →");
+        h("section", "card", h("p", null, KZ.t("Сертификат алу үшін ") + c.name + KZ.t(" курсының барлық ") + st.total + KZ.t(" тапсырмасын орында. Қазір: ") + st.done + " / " + st.total + "."), (() => {
+          const a = h("a", "btn primary", KZ.t("Тапсырмаларға өту →"));
           a.href = "#/" + c.id + "/tasks";
           return a;
         })())
@@ -151,27 +151,27 @@
     const prof = KZ.auth && KZ.auth.profile && KZ.auth.profile.full_name;
     const card = el("section", "card cert-card");
     const label = el("label", "cert-name");
-    label.append("Аты-жөніңді жаз: ");
+    label.append(KZ.t("Аты-жөніңді жаз: "));
     const input = el("input");
     input.type = "text";
     input.maxLength = 40;
-    input.placeholder = "Мысалы: Алия Нұрланқызы";
+    input.placeholder = KZ.t("Мысалы: Алия Нұрланқызы");
     input.value = stored || prof || "";
     label.appendChild(input);
     const canvas = el("canvas", "cert-canvas");
     const row = el("div", "row");
-    const dl = el("button", "btn primary", "⬇ Суретті жүктеу");
-    const pr = el("button", "btn", "🖨 Басып шығару");
+    const dl = el("button", "btn primary", KZ.t("⬇ Суретті жүктеу"));
+    const pr = el("button", "btn", KZ.t("🖨 Басып шығару"));
     dl.type = pr.type = "button";
     row.append(dl, pr);
-    const note = el("small", "muted", "Суретті жүктеп, телефонға сақтап не мұғалімге жібере аласың.");
+    const note = el("small", "muted", KZ.t("Суретті жүктеп, телефонға сақтап не мұғалімге жібере аласың."));
     card.append(label, canvas, row, note);
     page.appendChild(card);
 
     const date = new Date();
     let timer = null;
     const render = () => {
-      const name = input.value.trim() || "Оқушының аты-жөні";
+      const name = input.value.trim() || KZ.t("Оқушының аты-жөні");
       draw(canvas, c, name, st, date);
     };
     input.addEventListener("input", () => {
@@ -218,15 +218,15 @@
   /* Жетістіктер бетіндегі бөлім */
   KZ.certSection = function () {
     const box = el("section", "card cert-list");
-    box.appendChild(h("h2", "section-title", "🎓 Сертификаттар"));
+    box.appendChild(h("h2", "section-title", KZ.t("🎓 Сертификаттар")));
     KZ.courses
       .filter((c) => c.status === "ready")
       .forEach((c) => {
         const st = status(c);
         const row = el("div", "cert-row" + (st.ok ? " on" : ""));
         row.appendChild(h("span", "cert-e", st.ok ? "🎓" : "🔒"));
-        row.appendChild(h("div", "cert-t", h("b", null, c.name), h("small", null, st.ok ? "Курс аяқталды!" : st.done + " / " + st.total + " тапсырма")));
-        const a = h("a", "btn small" + (st.ok ? " primary" : ""), st.ok ? "Алу" : "Көру");
+        row.appendChild(h("div", "cert-t", h("b", null, c.name), h("small", null, st.ok ? KZ.t("Курс аяқталды!") : st.done + " / " + st.total + KZ.t(" тапсырма"))));
+        const a = h("a", "btn small" + (st.ok ? " primary" : ""), st.ok ? KZ.t("Алу") : KZ.t("Көру"));
         a.href = "#/certificate/" + c.id;
         row.appendChild(a);
         box.appendChild(row);
@@ -237,7 +237,7 @@
   /* Курс бетіндегі жарнама (аяқталса) */
   KZ.certBanner = function (c) {
     if (!status(c).ok) return null;
-    const a = h("a", "card cert-banner", h("span", "cert-e", "🎓"), h("div", null, h("b", null, "Құттықтаймыз! Курс аяқталды"), h("small", null, "Сертификатыңды ал")));
+    const a = h("a", "card cert-banner", h("span", "cert-e", "🎓"), h("div", null, h("b", null, KZ.t("Құттықтаймыз! Курс аяқталды")), h("small", null, KZ.t("Сертификатыңды ал"))));
     a.href = "#/certificate/" + c.id;
     return a;
   };

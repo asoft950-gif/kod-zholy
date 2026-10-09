@@ -15,8 +15,8 @@
     if (!KZ.hero) return h("div", "hero-bot", "🤖");
     const a = h("a", "hero-bot hero-link", KZ.hero.node());
     a.href = "#/hero";
-    a.title = "Менің кейіпкерім";
-    a.setAttribute("aria-label", "Менің кейіпкерім");
+    a.title = KZ.t("Менің кейіпкерім");
+    a.setAttribute("aria-label", KZ.t("Менің кейіпкерім"));
     return a;
   }
 
@@ -40,9 +40,9 @@
     a.appendChild(h("div", "cc-tag", c.tagline));
     if (ready) {
       a.appendChild(bar(total ? (done / total) * 100 : 0));
-      a.appendChild(h("div", "cc-meta", done + " / " + total + " тапсырма · ⭐ " + KZ.progress.courseStars(c.id)));
+      a.appendChild(h("div", "cc-meta", done + " / " + total + KZ.t(" тапсырма · ⭐ ") + KZ.progress.courseStars(c.id)));
     } else {
-      a.appendChild(h("span", "soon-badge", "Жақында"));
+      a.appendChild(h("span", "soon-badge", KZ.t("Жақында")));
     }
     return a;
   }
@@ -67,8 +67,8 @@
     if (KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
       page.appendChild(
         h("section", "card guest-note",
-          h("b", null, "🔒 Курстарды бастау үшін тіркел не аккаунтыңа кір"),
-          h("span", "row", A("btn primary small", "#/login/register", "Тіркелу"), A("btn small", "#/login", "Кіру")))
+          h("b", null, KZ.t("🔒 Курстарды бастау үшін тіркел не аккаунтыңа кір")),
+          h("span", "row", A("btn primary small", "#/login/register", KZ.t("Тіркелу")), A("btn small", "#/login", KZ.t("Кіру"))))
       );
     }
     page.appendChild(
@@ -79,12 +79,12 @@
         h(
           "div",
           "hero-text",
-          h("h1", null, "Сәлем! Бүгін не үйренеміз?"),
-          h("p", null, "Код жазып, ол қалай жұмыс істейтінін көзбен көр: робот, қораптар және тірі нәтиже."),
+          h("h1", null, KZ.t("Сәлем! Бүгін не үйренеміз?")),
+          h("p", null, KZ.t("Код жазып, ол қалай жұмыс істейтінін көзбен көр: робот, қораптар және тірі нәтиже.")),
           A(
             "btn primary big",
             "#/" + target.course.id + "/play/" + target.level.id,
-            (started ? "▶ Жалғастыру: " : "▶ Бастау: ") + target.course.name + " · " + target.level.title
+            (started ? KZ.t("▶ Жалғастыру: ") : KZ.t("▶ Бастау: ")) + target.course.name + " · " + target.level.title
           )
         )
       )
@@ -99,28 +99,28 @@
       KZ.assignNotice(slot);
     }
 
-    page.appendChild(h("h2", "section-title", "Курстар"));
+    page.appendChild(h("h2", "section-title", KZ.t("Курстар")));
     const grid = el("div", "course-grid");
     KZ.courses.forEach((c) => grid.appendChild(courseCard(c)));
     page.appendChild(grid);
 
     const tile = A("card algo-tile", "#/algo");
     tile.appendChild(h("div", "e", "🎬"));
-    tile.appendChild(h("div", null, h("b", null, "Алгоритм көрінісі"), h("small", null, "Сұрыптау, іздеу және рекурсияны қадам-қадамымен көр")));
+    tile.appendChild(h("div", null, h("b", null, KZ.t("Алгоритм көрінісі")), h("small", null, KZ.t("Сұрыптау, іздеу және рекурсияны қадам-қадамымен көр"))));
     page.appendChild(tile);
 
     page.appendChild(
       h(
         "section",
         "card how",
-        h("h2", "section-title", "Қалай жұмыс істейді?"),
+        h("h2", "section-title", KZ.t("Қалай жұмыс істейді?")),
         h(
           "div",
           "how-grid",
-          h("div", "how-item", h("b", null, "📖 Оқы"), h("span", null, "Қысқа, суретті лекциялар")),
-          h("div", "how-item", h("b", null, "🎮 Жаса"), h("span", null, "Тапсырмалар және тірі нәтиже")),
-          h("div", "how-item", h("b", null, "🏆 Жеңіс"), h("span", null, "Жұлдыз жина, қосымша тапсырмалар шеш")),
-          h("div", "how-item", h("b", null, "📚 Тап"), h("span", null, "Анықтамалықтан керегін тез тап"))
+          h("div", "how-item", h("b", null, KZ.t("📖 Оқы")), h("span", null, KZ.t("Қысқа, суретті лекциялар"))),
+          h("div", "how-item", h("b", null, KZ.t("🎮 Жаса")), h("span", null, KZ.t("Тапсырмалар және тірі нәтиже"))),
+          h("div", "how-item", h("b", null, KZ.t("🏆 Жеңіс")), h("span", null, KZ.t("Жұлдыз жина, қосымша тапсырмалар шеш"))),
+          h("div", "how-item", h("b", null, KZ.t("📚 Тап")), h("span", null, KZ.t("Анықтамалықтан керегін тез тап")))
         )
       )
     );
@@ -129,21 +129,21 @@
 
   /* ---------- Курс беті ---------- */
   const TABS = [
-    ["lectures", "📖 Лекциялар"],
-    ["tasks", "🎮 Тапсырмалар"],
-    ["bonus", "🏆 Қосымша"],
-    ["reference", "📚 Анықтамалық"],
+    ["lectures", KZ.t("📖 Лекциялар")],
+    ["tasks", KZ.t("🎮 Тапсырмалар")],
+    ["bonus", KZ.t("🏆 Қосымша")],
+    ["reference", KZ.t("📚 Анықтамалық")],
   ];
 
   function lecturesTab(c, box) {
-    if (!c.lectures.length) return box.appendChild(h("p", "empty-note", "Лекциялар әзірге жоқ."));
+    if (!c.lectures.length) return box.appendChild(h("p", "empty-note", KZ.t("Лекциялар әзірге жоқ.")));
     c.topics.forEach((t) => {
       const items = c.lectures.filter((l) => l.topic === t.id);
       if (!items.length) return;
       const open = KZ.progress.topicUnlocked(c, t.id);
       box.appendChild(h("h3", "topic-h", (open ? "" : "🔒 ") + t.emoji + " " + t.title));
       if (!open) {
-        box.appendChild(h("p", "lock-note", "Алдыңғы тақырыптың барлық тапсырмасын өткенде ашылады."));
+        box.appendChild(h("p", "lock-note", KZ.t("Алдыңғы тақырыптың барлық тапсырмасын өткенде ашылады.")));
         return;
       }
       items.forEach((l) => {
@@ -153,7 +153,7 @@
             "row-link" + (read ? " done" : ""),
             "#/" + c.id + "/lecture/" + l.id,
             h("span", "rl-title", l.title),
-            h("span", "rl-meta", l.minutes + " мин"),
+            h("span", "rl-meta", l.minutes + KZ.t(" мин")),
             h("span", "rl-check", read ? "✅" : "›")
           )
         );
@@ -191,14 +191,14 @@
       );
       if (!open && topicOpen) {
         const lec = (c.lectures || []).find((l) => String(l.topic) === t.id);
-        card.appendChild(h("p", "lock-note", "Алдымен осы тақырыптың лекциясын оқып, «Оқыдым деп белгіле» батырмасын бас."));
-        if (lec) card.appendChild(A("btn primary small", "#/" + c.id + "/lecture/" + lec.id, "📖 Лекцияға өту →"));
+        card.appendChild(h("p", "lock-note", KZ.t("Алдымен осы тақырыптың лекциясын оқып, «Оқыдым деп белгіле» батырмасын бас.")));
+        if (lec) card.appendChild(A("btn primary small", "#/" + c.id + "/lecture/" + lec.id, KZ.t("📖 Лекцияға өту →")));
         box.appendChild(card);
         return;
       }
       if (!open) {
         const prev = KZ.progress.prevTopic(c, t.id);
-        card.appendChild(h("p", "lock-note", "«" + (prev ? prev.title : "Алдыңғы тақырып") + "» тақырыбының барлық тапсырмасын өткенде ашылады."));
+        card.appendChild(h("p", "lock-note", "«" + (prev ? prev.title : KZ.t("Алдыңғы тақырып")) + KZ.t("» тақырыбының барлық тапсырмасын өткенде ашылады.")));
         box.appendChild(card);
         return;
       }
@@ -211,7 +211,7 @@
   }
 
   function openAllToggle(c, box) {
-    const b = el("button", "btn small ghost", KZ.progress.openAll() ? "🔒 Құлыптарды қайта қосу" : "🔓 Барлық тақырыпты ашу (мұғалім үшін)");
+    const b = el("button", "btn small ghost", KZ.progress.openAll() ? KZ.t("🔒 Құлыптарды қайта қосу") : KZ.t("🔓 Барлық тақырыпты ашу (мұғалім үшін)"));
     b.type = "button";
     b.addEventListener("click", () => {
       KZ.progress.setOpenAll(!KZ.progress.openAll());
@@ -221,10 +221,10 @@
   }
 
   function bonusTab(c, box) {
-    if (!c.bonus.length) return box.appendChild(h("p", "empty-note", "Қосымша тапсырмалар әзірге жоқ."));
+    if (!c.bonus.length) return box.appendChild(h("p", "empty-note", KZ.t("Қосымша тапсырмалар әзірге жоқ.")));
     const groups = [
-      ["🏆", "Қосымша тапсырмалар", "Күрделірек, ойланып шешетін тапсырмалар", c.bonus.filter((l) => !l.debug)],
-      ["🐞", "Қате тап", "Кодта қате бар: тауып түзет. Нағыз бағдарламашы осылай үйренеді", c.bonus.filter((l) => l.debug)],
+      ["🏆", KZ.t("Қосымша тапсырмалар"), KZ.t("Күрделірек, ойланып шешетін тапсырмалар"), c.bonus.filter((l) => !l.debug)],
+      ["🐞", KZ.t("Қате тап"), KZ.t("Кодта қате бар: тауып түзет. Нағыз бағдарламашы осылай үйренеді"), c.bonus.filter((l) => l.debug)],
     ];
     groups.forEach(([emoji, title, sub, list]) => {
       if (!list.length) return;
@@ -238,11 +238,11 @@
   }
 
   function referenceTab(c, box) {
-    if (!c.reference.length) return box.appendChild(h("p", "empty-note", "Анықтамалық әзірге бос."));
+    if (!c.reference.length) return box.appendChild(h("p", "empty-note", KZ.t("Анықтамалық әзірге бос.")));
     const search = el("input", "search");
     search.type = "search";
-    search.placeholder = "🔍 Іздеу…";
-    search.setAttribute("aria-label", "Анықтамалықтан іздеу");
+    search.placeholder = KZ.t("🔍 Іздеу…");
+    search.setAttribute("aria-label", KZ.t("Анықтамалықтан іздеу"));
     box.appendChild(search);
     const list = el("div", "ref-list");
     const items = c.reference.map((r) => {
@@ -269,8 +269,8 @@
       h(
         "section",
         "card soon-card",
-        h("h2", null, "🚧 Курс жақында ашылады"),
-        h("p", null, "Бұл курс әзірленіп жатыр. Ол мынадай тақырыптардан тұрады:")
+        h("h2", null, KZ.t("🚧 Курс жақында ашылады")),
+        h("p", null, KZ.t("Бұл курс әзірленіп жатыр. Ол мынадай тақырыптардан тұрады:"))
       )
     );
     const box = el("div", "roadmap");
@@ -284,7 +284,7 @@
     root.textContent = "";
     const page = el("div", "page");
     page.style.setProperty("--c", c.color);
-    page.appendChild(A("back", "#/", "← Курстар"));
+    page.appendChild(A("back", "#/", KZ.t("← Курстар")));
 
     const ready = c.status === "ready";
     const total = KZ.allLevels(c).length;
@@ -294,8 +294,8 @@
     const info = h("div", "ch-info", h("h1", null, c.name), h("p", null, c.tagline));
     if (ready) {
       info.appendChild(bar(total ? (done / total) * 100 : 0));
-      info.appendChild(h("small", null, done + " / " + total + " тапсырма · ⭐ " + KZ.progress.courseStars(c.id)));
-      if (c.engine === "python" || c.engine === "web" || c.engine === "js" || c.engine === "kt" || c.engine === "sql") info.appendChild(A("btn small", "#/" + c.id + "/play/free", "🧪 Еркін алаң"));
+      info.appendChild(h("small", null, done + " / " + total + KZ.t(" тапсырма · ⭐ ") + KZ.progress.courseStars(c.id)));
+      if (c.engine === "python" || c.engine === "web" || c.engine === "js" || c.engine === "kt" || c.engine === "sql") info.appendChild(A("btn small", "#/" + c.id + "/play/free", KZ.t("🧪 Еркін алаң")));
     }
     head.appendChild(info);
     page.appendChild(head);
@@ -330,7 +330,7 @@
     wrap.appendChild(pre);
     if (b.note) wrap.appendChild(h("p", "try-note", b.note));
     if (withTry && (c.engine === "web" || c.engine === "sql")) {
-      const btn = el("button", "btn small primary", "▶ Өзің көр");
+      const btn = el("button", "btn small primary", KZ.t("▶ Өзің көр"));
       btn.type = "button";
       btn.addEventListener("click", () => {
         KZ.store.setSession("kodzholy.sandbox", { code: b.code });
@@ -339,7 +339,7 @@
       wrap.appendChild(btn);
     }
     if (withTry && (c.engine === "python" || c.engine === "js" || c.engine === "kt")) {
-      const btn = el("button", "btn small primary", "▶ Өзің көр");
+      const btn = el("button", "btn small primary", KZ.t("▶ Өзің көр"));
       btn.type = "button";
       btn.addEventListener("click", () => {
         KZ.store.setSession("kodzholy.sandbox", { code: b.code, robot: b.robot });
@@ -389,7 +389,7 @@
           const upd = () => (fr.srcdoc = KZ.buildWebDoc(b.kind || "html", ta.value, b.html, false));
           ta.addEventListener("input", upd);
           upd();
-          wrap.appendChild(h("div", "live-label", "✏️ Кодты өзгертіп көр, нәтиже оң жақта жаңарады"));
+          wrap.appendChild(h("div", "live-label", KZ.t("✏️ Кодты өзгертіп көр, нәтиже оң жақта жаңарады")));
           const row = el("div", "live-row");
           row.appendChild(ta);
           row.appendChild(fr);
@@ -400,7 +400,7 @@
         case "tip":
         case "warn": {
           const d = el("div", "callout " + b.t);
-          d.appendChild(h("b", null, b.t === "tip" ? "💡 Кеңес" : "⚠️ Назар аудар"));
+          d.appendChild(h("b", null, b.t === "tip" ? KZ.t("💡 Кеңес") : KZ.t("⚠️ Назар аудар")));
           const p = el("p");
           p.innerHTML = b.html;
           d.appendChild(p);
@@ -456,9 +456,9 @@
     root.textContent = "";
     const page = el("div", "page narrow");
     page.style.setProperty("--c", c.color);
-    page.appendChild(A("back", "#/" + c.id + "/lectures", "← Лекциялар"));
+    page.appendChild(A("back", "#/" + c.id + "/lectures", KZ.t("← Лекциялар")));
     const topic = c.topics.find((t) => t.id === l.topic);
-    page.appendChild(h("div", "lecture-meta", (topic ? topic.emoji + " " + topic.title + " · " : "") + l.minutes + " мин"));
+    page.appendChild(h("div", "lecture-meta", (topic ? topic.emoji + " " + topic.title + " · " : "") + l.minutes + KZ.t(" мин")));
     page.appendChild(h("h1", "lecture-title", l.title));
 
     const prose = el("article", "prose card");
@@ -470,7 +470,7 @@
     readBtn.type = "button";
     const paint = () => {
       const r = KZ.read.has(c.id, l.id);
-      readBtn.textContent = r ? "✅ Оқылды" : "☑ Оқыдым деп белгіле";
+      readBtn.textContent = r ? KZ.t("✅ Оқылды") : KZ.t("☑ Оқыдым деп белгіле");
       readBtn.classList.toggle("primary", !r);
     };
     paint();
@@ -483,10 +483,10 @@
     const firstTask = c.levels.find((x) => KZ.topicOf(x) === l.topic);
     let taskLink = null;
     if (firstTask) {
-      taskLink = A("btn primary", "#/" + c.id + "/play/" + firstTask.id, "🎮 Тапсырмаға өту →");
+      taskLink = A("btn primary", "#/" + c.id + "/play/" + firstTask.id, KZ.t("🎮 Тапсырмаға өту →"));
       foot.appendChild(taskLink);
     }
-    const hint = h("p", "lock-note", "Тапсырмаға өту үшін алдымен лекцияны оқып, «Оқыдым деп белгіле» батырмасын бас.");
+    const hint = h("p", "lock-note", KZ.t("Тапсырмаға өту үшін алдымен лекцияны оқып, «Оқыдым деп белгіле» батырмасын бас."));
     const gate = () => {
       const ok = KZ.progress.tasksUnlocked(c, l.topic);
       if (taskLink) taskLink.style.display = ok ? "" : "none";
@@ -496,7 +496,7 @@
     gate();
     const i = c.lectures.findIndex((x) => x.id === l.id);
     if (i < c.lectures.length - 1 && KZ.progress.topicUnlocked(c, c.lectures[i + 1].topic)) {
-      foot.appendChild(A("btn", "#/" + c.id + "/lecture/" + c.lectures[i + 1].id, "Келесі лекция →"));
+      foot.appendChild(A("btn", "#/" + c.id + "/lecture/" + c.lectures[i + 1].id, KZ.t("Келесі лекция →")));
     }
     foot.appendChild(hint);
     page.appendChild(foot);

@@ -54,7 +54,7 @@
           })
           .catch(reject);
       };
-      s.onerror = () => reject(new Error("SQL қозғалтқышы жүктелмеді. Интернетті тексер."));
+      s.onerror = () => reject(new Error(KZ.t("SQL қозғалтқышы жүктелмеді. Интернетті тексер.")));
       document.head.appendChild(s);
     }).catch((e) => {
       loading = null;
@@ -82,7 +82,7 @@
     });
     t.appendChild(body);
     wrap.appendChild(t);
-    if (set.values.length > (max || 100)) wrap.appendChild(h("small", null, "… тағы " + (set.values.length - (max || 100)) + " жол"));
+    if (set.values.length > (max || 100)) wrap.appendChild(h("small", null, KZ.t("… тағы ") + (set.values.length - (max || 100)) + KZ.nt(set.values.length - (max || 100), " жол")));
     return wrap;
   }
 
@@ -94,13 +94,13 @@
       return;
     }
     if (run.last) {
-      out.appendChild(h("small", null, run.last.values.length + " жол"));
+      out.appendChild(h("small", null, run.last.values.length + KZ.nt(run.last.values.length, " жол")));
       out.appendChild(table(run.last));
     } else {
-      out.appendChild(h("p", null, "✔ Сұраныс орындалды" + (run.changed ? ". Өзгерген жол: " + run.changed : "") + "."));
+      out.appendChild(h("p", null, KZ.t("✔ Сұраныс орындалды") + (run.changed ? KZ.t(". Өзгерген жол: ") + run.changed : "") + "."));
     }
     if (view && level.verify) {
-      out.appendChild(h("h4", "st-h", "Кестенің қазіргі күйі"));
+      out.appendChild(h("h4", "st-h", KZ.t("Кестенің қазіргі күйі")));
       out.appendChild(table(view));
     }
   }
@@ -160,18 +160,18 @@
       KZ.updateTotal();
       refreshStars();
       if (window.KZS) window.KZS.beep("win");
-      box.appendChild(h("h2", null, "🎉 Тамаша!"));
+      box.appendChild(h("h2", null, KZ.t("🎉 Тамаша!")));
       box.appendChild(el("div", "big-stars", "⭐".repeat(stars) + "☆".repeat(3 - stars)));
-      if (stars < 3) box.appendChild(h("p", null, "3 ⭐ алу үшін кеңес қарамай, бірінші талпыныста дұрыс жаз."));
+      if (stars < 3) box.appendChild(h("p", null, KZ.t("3 ⭐ алу үшін кеңес қарамай, бірінші талпыныста дұрыс жаз.")));
       const row = el("div", "row");
       const next = nextHref();
       const lec = next ? KZ.nextLectureHref(course, level, list, listKind) : null;
       if (lec) {
-        const l = el("a", "btn primary", "📖 Келесі лекция →");
+        const l = el("a", "btn primary", KZ.t("📖 Келесі лекция →"));
         l.href = lec;
         row.appendChild(l);
       } else {
-        const a = el("a", "btn primary", next ? "Келесі тапсырма →" : "← Курсқа оралу");
+        const a = el("a", "btn primary", next ? KZ.t("Келесі тапсырма →") : KZ.t("← Курсқа оралу"));
         a.href = next || "#/" + course.id + "/" + listKind;
         row.appendChild(a);
       }
@@ -179,10 +179,10 @@
     } else {
       fails++;
       if (window.KZS) window.KZS.beep("error");
-      box.appendChild(h("h2", null, ev.error ? "🙈 Қате" : "🤔 Әлі толық емес"));
+      box.appendChild(h("h2", null, ev.error ? KZ.t("🙈 Қате") : KZ.t("🤔 Әлі толық емес")));
       box.appendChild(h("p", null, ev.reason));
       if (ev.expected && !ev.error) {
-        box.appendChild(h("small", null, "Күтілген нәтиже (алғашқы жолдары):"));
+        box.appendChild(h("small", null, KZ.t("Күтілген нәтиже (алғашқы жолдары):")));
         box.appendChild(table(ev.expected, 4));
       }
       if (fails >= 3) $("#sqlSolutionBtn").hidden = false;
@@ -199,8 +199,8 @@
     return {
       id: "free",
       sandbox: true,
-      title: "Еркін алаң",
-      task: "<p>Мұнда тапсырма жоқ: кез келген сұраныс жазып, кестелерді зерттеп көр. Әр орындау деректерді бастапқы күйден бастайды.</p>",
+      title: KZ.t("Еркін алаң"),
+      task: KZ.t("<p>Мұнда тапсырма жоқ: кез келген сұраныс жазып, кестелерді зерттеп көр. Әр орындау деректерді бастапқы күйден бастайды.</p>"),
       hint: "",
       solution: "",
       par: 1,
@@ -213,7 +213,7 @@
   function loadLevel() {
     fails = 0;
     usedHint = false;
-    $("#sqlBadge").textContent = level.sandbox ? "Еркін алаң" : "Деңгей " + level.id;
+    $("#sqlBadge").textContent = level.sandbox ? KZ.t("Еркін алаң") : KZ.t("Деңгей ") + level.id;
     $("#sqlTitle").textContent = level.title;
     $("#sqlTaskBody").innerHTML = level.task;
     $("#sqlHint").hidden = true;
@@ -224,7 +224,7 @@
     $("#sqlSolutionBtn").hidden = true;
     const back = $("#sqlBack");
     back.href = "#/" + course.id + "/" + listKind;
-    back.textContent = "← " + course.name + ": тапсырмалар";
+    back.textContent = "← " + course.name + KZ.t(": тапсырмалар");
     const saved = KZ.codeStore.get(course.id, level.id);
     let code = typeof saved === "string" ? saved : level.starter;
     if (level.sandbox && level.sandboxCode != null) code = level.sandboxCode;
@@ -232,7 +232,7 @@
     editor.setCursor({ line: editor.lastLine(), ch: 0 });
     hideResult();
     $("#sqlOut").textContent = "";
-    $("#sqlOut").appendChild(h("p", "empty-note", "Сұранысты орындасаң, нәтиже осында шығады."));
+    $("#sqlOut").appendChild(h("p", "empty-note", KZ.t("Сұранысты орындасаң, нәтиже осында шығады.")));
     refreshStars();
   }
 
@@ -267,11 +267,11 @@
       if (!level.sandbox) KZ.last.set(course.id, level.id);
       loadLevel();
       $("#sqlRun").disabled = !SQL;
-      $("#sqlStatus").textContent = SQL ? "Ctrl+Enter — орындау" : "SQL қозғалтқышы жүктелуде…";
+      $("#sqlStatus").textContent = SQL ? KZ.t("Ctrl+Enter — орындау") : KZ.t("SQL қозғалтқышы жүктелуде…");
       loadEngine()
         .then(() => {
           $("#sqlRun").disabled = false;
-          $("#sqlStatus").textContent = "Ctrl+Enter — орындау";
+          $("#sqlStatus").textContent = KZ.t("Ctrl+Enter — орындау");
           renderSchema();
         })
         .catch((e) => {

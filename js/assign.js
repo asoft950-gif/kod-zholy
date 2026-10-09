@@ -16,7 +16,7 @@
 
   async function sha256(text) {
     const c = globalThis.crypto;
-    if (!c || !c.subtle) throw new Error("Бұл браузерде тексеру жұмыс істемейді. Сайтты https арқылы аш.");
+    if (!c || !c.subtle) throw new Error(KZ.t("Бұл браузерде тексеру жұмыс істемейді. Сайтты https арқылы аш."));
     const buf = await c.subtle.digest("SHA-256", new TextEncoder().encode(text));
     return Array.from(new Uint8Array(buf))
       .map((b) => b.toString(16).padStart(2, "0"))
@@ -33,9 +33,9 @@
       .filter(Boolean)
       .map((p) => "<p>" + esc(p).replace(/\n/g, "<br>") + "</p>");
     const meta = [];
-    if (a.class) meta.push("Сынып: " + esc(a.class));
-    if (a.due) meta.push("Мерзімі: " + esc(a.due));
-    return (paras.length ? paras.join("") : "<p>Тапсырма мәтіні берілмеген.</p>") + (meta.length ? "<p class='tip'>" + meta.join(" · ") + "</p>" : "");
+    if (a.class) meta.push(KZ.t("Сынып: ") + esc(a.class));
+    if (a.due) meta.push(KZ.t("Мерзімі: ") + esc(a.due));
+    return (paras.length ? paras.join("") : KZ.t("<p>Тапсырма мәтіні берілмеген.</p>")) + (meta.length ? "<p class='tip'>" + meta.join(" · ") + "</p>" : "");
   }
 
   const LANG = { python: "Python", javascript: "JavaScript" };
@@ -69,8 +69,8 @@
       const late = open.filter((a) => KZ.assign.overdue(a.due)).length;
       const card = el("section", "card assign-note");
       card.appendChild(h("div", "an-e", "📝"));
-      card.appendChild(h("div", "an-t", h("b", null, "Мұғалім " + open.length + " тапсырма берді"), h("small", null, late ? late + " тапсырманың мерзімі өтіп кеткен" : "Орындап, жұлдыз жина")));
-      const a = h("a", "btn primary small", "Ашу");
+      card.appendChild(h("div", "an-t", h("b", null, KZ.t("Мұғалім ") + open.length + KZ.t(" тапсырма берді")), h("small", null, late ? late + KZ.t(" тапсырманың мерзімі өтіп кеткен") : KZ.t("Орындап, жұлдыз жина"))));
+      const a = h("a", "btn primary small", KZ.t("Ашу"));
       a.href = open.length === 1 ? (open[0].level_id ? "#/" + open[0].course + "/play/" + open[0].level_id + "/open" : "#/task/" + open[0].id) : "#/account";
       card.appendChild(a);
       host.appendChild(card);

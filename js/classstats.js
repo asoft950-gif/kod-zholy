@@ -41,16 +41,16 @@
       let note = "";
       if (!mine.length) {
         status = "new";
-        note = s.days30 > 0 || idle !== null ? "кірген, бірақ әлі тапсырма өтпеген" : "әлі кірмеген";
+        note = s.days30 > 0 || idle !== null ? KZ.t("кірген, бірақ әлі тапсырма өтпеген") : KZ.t("әлі кірмеген");
       } else if (finished) {
         status = "done";
-        note = "курсты бітірген";
+        note = KZ.t("курсты бітірген");
       } else if (idle !== null && idle >= 5) {
         status = "idle";
-        note = idle + " күн кірмеген";
+        note = idle + KZ.t(" күн кірмеген");
       } else if (Number(s.days7) > 0 && sinceStar !== null && sinceStar >= 3) {
         status = "stuck";
-        note = sinceStar + " күн бойы жаңа жұлдыз жоқ, бірақ кіріп жүр";
+        note = sinceStar + KZ.t(" күн бойы жаңа жұлдыз жоқ, бірақ кіріп жүр");
       }
       if (cur && (status === "stuck" || status === "idle")) {
         const st = (levelStat[lvKey(cur.c, cur.l)] = levelStat[lvKey(cur.c, cur.l)] || { done: 0, sum: 0, stuck: [] });

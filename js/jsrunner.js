@@ -1,6 +1,9 @@
 /* Bitlings: JavaScript орындаушы.
    Код acorn арқылы талданып, әр оператордың алдына із қалдыратын __t(...) шақыруы қосылады.
    Нәтиже Python орындаушысымен бірдей пішімде қайтады: { frames, error, output, lines, features, ... } */
+globalThis.KZ = globalThis.KZ || {};
+KZ.t = KZ.t || ((s) => s);
+KZ.tt = KZ.tt || ((s, ...a) => s.replace(/\{(\d+)\}/g, (m, i) => a[i]));
 (() => {
   "use strict";
 
@@ -15,7 +18,7 @@
       const s = document.createElement("script");
       s.src = ACORN_URL;
       s.onload = resolve;
-      s.onerror = () => reject(new Error("acorn жүктелмеді"));
+      s.onerror = () => reject(new Error(KZ.t("acorn жүктелмеді")));
       document.head.appendChild(s);
     });
   }
@@ -28,7 +31,7 @@
     if (typeof v === "string") return top ? v : JSON.stringify(v);
     if (v === null) return "null";
     if (v === undefined) return "undefined";
-    if (typeof v === "function") return "[функция]";
+    if (typeof v === "function") return KZ.t("[функция]");
     if (typeof v !== "object") return String(v);
     if (v.nodeType === 1) return "<" + v.tagName.toLowerCase() + ">";
     if (depth > 2) return Array.isArray(v) ? "[…]" : "{…}";
@@ -37,7 +40,7 @@
       const keys = Object.keys(v).slice(0, 20);
       return "{" + keys.map((k) => k + ": " + fmt(v[k], false, depth + 1)).join(", ") + "}";
     } catch (e) {
-      return "[нысан]";
+      return KZ.t("[нысан]");
     }
   }
 
@@ -60,15 +63,15 @@
   /* ---------- Қазақша қате түсіндірмелері ---------- */
   function kzSyntax(msg) {
     let m;
-    if (/Unterminated string/.test(msg)) return "Тырнақша жабылмаған: мәтіннің басында да, соңында да бірдей тырнақша болуы керек.";
-    if (/Unterminated template/.test(msg)) return "Кері тырнақша ` жабылмаған.";
-    if ((m = /Identifier '(.+?)' has already been declared/.exec(msg))) return "«" + m[1] + "» қорабы бұрын жасалған. let-ті екінші рет жазба: тек " + m[1] + " = … деп жаз.";
-    if (/Missing initializer in const/.test(msg)) return "const қорабына бірден мән беру керек: const x = 5;";
+    if (/Unterminated string/.test(msg)) return KZ.t("Тырнақша жабылмаған: мәтіннің басында да, соңында да бірдей тырнақша болуы керек.");
+    if (/Unterminated template/.test(msg)) return KZ.t("Кері тырнақша ` жабылмаған.");
+    if ((m = /Identifier '(.+?)' has already been declared/.exec(msg))) return "«" + m[1] + KZ.t("» қорабы бұрын жасалған. let-ті екінші рет жазба: тек ") + m[1] + KZ.t(" = … деп жаз.");
+    if (/Missing initializer in const/.test(msg)) return KZ.t("const қорабына бірден мән беру керек: const x = 5;");
     if (/Unexpected token|Unexpected character|Unexpected string|Unexpected number|Unexpected identifier/.test(msg)) {
-      return "Бұл жерде күтпеген белгі тұр. Жақша ( ), ілмек { }, тырнақша не үтір жетіспей тұрған шығар.";
+      return KZ.t("Бұл жерде күтпеген белгі тұр. Жақша ( ), ілмек { }, тырнақша не үтір жетіспей тұрған шығар.");
     }
-    if (/Assigning to rvalue|Invalid left-hand/.test(msg)) return "Теңдік белгісінің сол жағында қорап аты тұруы керек.";
-    return "Жазуда қате бар (синтаксис).";
+    if (/Assigning to rvalue|Invalid left-hand/.test(msg)) return KZ.t("Теңдік белгісінің сол жағында қорап аты тұруы керек.");
+    return KZ.t("Жазуда қате бар (синтаксис).");
   }
 
   function kzRuntime(e) {
@@ -76,17 +79,17 @@
     const msg = String((e && e.message) || e);
     let m;
     if (name === "ReferenceError") {
-      if ((m = /^(.+?) is not defined/.exec(msg))) return "«" + m[1] + "» әлі жасалмаған. Атын дұрыс жаздың ба? let " + m[1] + " = … деп жасадың ба?";
-      if ((m = /Cannot access '(.+?)' before initialization/.exec(msg))) return "«" + m[1] + "» қорабын жасамай тұрып қолданып тұрсың. Алдымен let " + m[1] + " = … деп жаз.";
+      if ((m = /^(.+?) is not defined/.exec(msg))) return "«" + m[1] + KZ.t("» әлі жасалмаған. Атын дұрыс жаздың ба? let ") + m[1] + KZ.t(" = … деп жасадың ба?");
+      if ((m = /Cannot access '(.+?)' before initialization/.exec(msg))) return "«" + m[1] + KZ.t("» қорабын жасамай тұрып қолданып тұрсың. Алдымен let ") + m[1] + KZ.t(" = … деп жаз.");
     }
     if (name === "TypeError") {
-      if (/Assignment to constant/.test(msg)) return "const арқылы жасалған қорапты өзгертуге болмайды. Өзгеретін мәнге let қолдан.";
-      if ((m = /^(.+?) is not a function/.exec(msg))) return "«" + m[1] + "» функция емес, оны жақшамен шақыруға болмайды.";
-      if ((m = /Cannot read propert(?:y|ies) of (undefined|null) \(reading '(.+?)'\)/.exec(msg))) return m[1] + " мәнінің «" + m[2] + "» қасиетін оқуға болмайды. Қорапта мән бар ма?";
-      if ((m = /Cannot set propert(?:y|ies) of (undefined|null)/.exec(msg))) return m[1] + " мәніне ештеңе жазуға болмайды. Элементті дұрыс таптың ба?";
+      if (/Assignment to constant/.test(msg)) return KZ.t("const арқылы жасалған қорапты өзгертуге болмайды. Өзгеретін мәнге let қолдан.");
+      if ((m = /^(.+?) is not a function/.exec(msg))) return "«" + m[1] + KZ.t("» функция емес, оны жақшамен шақыруға болмайды.");
+      if ((m = /Cannot read propert(?:y|ies) of (undefined|null) \(reading '(.+?)'\)/.exec(msg))) return m[1] + KZ.t(" мәнінің «") + m[2] + KZ.t("» қасиетін оқуға болмайды. Қорапта мән бар ма?");
+      if ((m = /Cannot set propert(?:y|ies) of (undefined|null)/.exec(msg))) return m[1] + KZ.t(" мәніне ештеңе жазуға болмайды. Элементті дұрыс таптың ба?");
     }
-    if (name === "RangeError" && /call stack/i.test(msg)) return "Функция өзін шексіз шақырып жатыр (рекурсия тоқтамады).";
-    if (name === "RangeError" && /array length/i.test(msg)) return "Массив ұзындығы дұрыс емес.";
+    if (name === "RangeError" && /call stack/i.test(msg)) return KZ.t("Функция өзін шексіз шақырып жатыр (рекурсия тоқтамады).");
+    if (name === "RangeError" && /array length/i.test(msg)) return KZ.t("Массив ұзындығы дұрыс емес.");
     return name + ": " + msg;
   }
 
@@ -95,7 +98,7 @@
   function kzTip(kind, raw, code) {
     let m;
     if (kind === "syntax") {
-      if (/[\u201c\u201d\u2018\u2019]/.test(code)) return "Кодта қисық тырнақша “ ” немесе ‘ ’ бар. Тек тік тырнақша \" немесе ' қолдан.";
+      if (/[\u201c\u201d\u2018\u2019]/.test(code)) return KZ.t("Кодта қисық тырнақша “ ” немесе ‘ ’ бар. Тек тік тырнақша \" немесе ' қолдан.");
       const pairs = { ")": "(", "}": "{", "]": "[" };
       const stack = [];
       let q = null;
@@ -105,29 +108,29 @@
         if (c === '"' || c === "'" || c === "`") { q = c; continue; }
         if (c === "/" && code[i + 1] === "/") { while (i < code.length && code[i] !== "\n") i++; continue; }
         if ("({[".includes(c)) stack.push(c);
-        else if (pairs[c]) { if (stack.pop() !== pairs[c]) return "«" + c + "» белгісіне сәйкес ашатын жақша жоқ. Артық жабылған жақшаны өшір."; }
+        else if (pairs[c]) { if (stack.pop() !== pairs[c]) return "«" + c + KZ.t("» белгісіне сәйкес ашатын жақша жоқ. Артық жабылған жақшаны өшір."); }
       }
       if (stack.length) {
         const o = stack[stack.length - 1];
         const cl = { "(": ")", "{": "}", "[": "]" }[o];
-        return "«" + o + "» ашылған, бірақ жабылмаған. Соңына «" + cl + "» қой.";
+        return "«" + o + KZ.t("» ашылған, бірақ жабылмаған. Соңына «") + cl + KZ.t("» қой.");
       }
-      if (/Unterminated string/.test(raw)) return "Жолдың басындағы тырнақшамен бірдей тырнақшамен жап.";
-      if (/already been declared/.test(raw)) return "let/const тек бір рет жазылады. Кейін тек атын жаз: x = 10;";
-      if (/Missing initializer/.test(raw)) return "const x = 5; деп бірден мән бер.";
-      if (/Unexpected/.test(raw)) return "Қате көрсетілген жолдың алдындағы жолды да тексер: нүктелі үтір, үтір не жақша түсіп қалған болар.";
-      return "Қате көрсетілген жолды әріп-әріпімен тексер.";
+      if (/Unterminated string/.test(raw)) return KZ.t("Жолдың басындағы тырнақшамен бірдей тырнақшамен жап.");
+      if (/already been declared/.test(raw)) return KZ.t("let/const тек бір рет жазылады. Кейін тек атын жаз: x = 10;");
+      if (/Missing initializer/.test(raw)) return KZ.t("const x = 5; деп бірден мән бер.");
+      if (/Unexpected/.test(raw)) return KZ.t("Қате көрсетілген жолдың алдындағы жолды да тексер: нүктелі үтір, үтір не жақша түсіп қалған болар.");
+      return KZ.t("Қате көрсетілген жолды әріп-әріпімен тексер.");
     }
     if (kind === "runtime") {
-      if ((m = /^(.+?) is not defined/.exec(raw))) return "«" + m[1] + "» атын қайта қара: бас әріп/кіші әріп маңызды (name ≠ Name). Не алдымен let " + m[1] + " = … деп жаса.";
-      if (/before initialization/.test(raw)) return "let жолын қолданылатын жолдан жоғары жаз.";
-      if (/Assignment to constant/.test(raw)) return "const-ты let-ке ауыстыр.";
-      if ((m = /^(.+?) is not iterable/.exec(raw))) return "for...of тек массив пен мәтінмен жұмыс істейді. «" + m[1] + "» массив екенін тексер.";
-      if ((m = /^(.+?)\.(\w+) is not a function/.exec(raw))) return "«" + m[2] + "» атауын тексер (мысалы: push, length емес!). " + m[1] + " мәнінің түрі басқа болуы мүмкін.";
-      if ((m = /^(.+?) is not a function/.exec(raw))) return "«" + m[1] + "» функция ретінде жарияланбаған. Жақшаны алып таста не атын түзет.";
-      if (/Cannot (?:read|set) propert/.test(raw)) return "Қорапта мән жоқ (undefined/null). Элемент табылды ма? getElementById ішіндегі id дұрыс па? Массивте сондай нөмір бар ма?";
-      if (/call stack/i.test(raw)) return "Рекурсияда тоқтау шарты (if … return) болуы керек.";
-      if (/array length/i.test(raw)) return "Массив ұзындығы теріс емес бүтін сан болуы керек.";
+      if ((m = /^(.+?) is not defined/.exec(raw))) return "«" + m[1] + KZ.t("» атын қайта қара: бас әріп/кіші әріп маңызды (name ≠ Name). Не алдымен let ") + m[1] + KZ.t(" = … деп жаса.");
+      if (/before initialization/.test(raw)) return KZ.t("let жолын қолданылатын жолдан жоғары жаз.");
+      if (/Assignment to constant/.test(raw)) return KZ.t("const-ты let-ке ауыстыр.");
+      if ((m = /^(.+?) is not iterable/.exec(raw))) return KZ.t("for...of тек массив пен мәтінмен жұмыс істейді. «") + m[1] + KZ.t("» массив екенін тексер.");
+      if ((m = /^(.+?)\.(\w+) is not a function/.exec(raw))) return "«" + m[2] + KZ.t("» атауын тексер (мысалы: push, length емес!). ") + m[1] + KZ.t(" мәнінің түрі басқа болуы мүмкін.");
+      if ((m = /^(.+?) is not a function/.exec(raw))) return "«" + m[1] + KZ.t("» функция ретінде жарияланбаған. Жақшаны алып таста не атын түзет.");
+      if (/Cannot (?:read|set) propert/.test(raw)) return KZ.t("Қорапта мән жоқ (undefined/null). Элемент табылды ма? getElementById ішіндегі id дұрыс па? Массивте сондай нөмір бар ма?");
+      if (/call stack/i.test(raw)) return KZ.t("Рекурсияда тоқтау шарты (if … return) болуы керек.");
+      if (/array length/i.test(raw)) return KZ.t("Массив ұзындығы теріс емес бүтін сан болуы керек.");
     }
     return "";
   }
@@ -310,7 +313,7 @@
   function makeFrame(html) {
     if (hostIframe) hostIframe.remove();
     const f = document.createElement("iframe");
-    f.title = "Бет";
+    f.title = KZ.t("Бет");
     f.className = "web-preview js-live";
     const host = document.getElementById("domLive");
     if (host) {
@@ -412,7 +415,7 @@
         fn(__t, __end, cons);
       } catch (e) {
         if (e === STOP) {
-          error = { kind: "limit", msg: "Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер.", line: curLine, detail: "", tip: "while не for циклінің шарты ақыры жалған болуы керек (санауыш өсіп отыруы керек). Рекурсияда тоқтау шарты (if … return) болсын.", src: srcLine(code, curLine) };
+          error = { kind: "limit", msg: KZ.t("Бағдарлама тым ұзақ жұмыс істеді. Шексіз цикл болып жүрген жоқ па? Циклдің тоқтайтын шартын тексер."), line: curLine, detail: "", tip: KZ.t("while не for циклінің шарты ақыры жалған болуы керек (санауыш өсіп отыруы керек). Рекурсияда тоқтау шарты (if … return) болсын."), src: srcLine(code, curLine) };
         } else {
           error = { kind: "runtime", msg: kzRuntime(e), line: curLine || null, detail: String((e && e.name) || "") + ": " + String((e && e.message) || e) };
           error.tip = kzTip("runtime", String((e && e.message) || e), code);

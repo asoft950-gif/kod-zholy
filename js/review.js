@@ -19,7 +19,13 @@
   const R = (KZ.review = {
     bank,
     add(c, t, qs) {
-      qs.forEach((x, i) => bank.push({ id: c + "|" + t + "|" + i, c, t, q: x[0], opts: x[1], why: x[2] || "" }));
+      qs.forEach((x, i) => {
+        const id = c + "|" + t + "|" + i;
+        const item = { id, c, t, q: x[0], opts: x[1], why: x[2] || "" };
+        const j = bank.findIndex((b) => b.id === id); // орысша файл сұрақты ауыстырады
+        if (j >= 0) bank[j] = item;
+        else bank.push(item);
+      });
     },
     /* Қазір қайталауға болатын сұрақтар: өтілген тақырыптардан */
     pool() {
@@ -80,10 +86,10 @@
   KZ.reviewPage = function (root) {
     root.textContent = "";
     const page = el("div", "page narrow");
-    const back = h("a", "back", "← Басты бет");
+    const back = h("a", "back", KZ.t("← Басты бет"));
     back.href = "#/";
     page.appendChild(back);
-    page.appendChild(h("h1", "cab-title", "🔁 Қайталау"));
+    page.appendChild(h("h1", "cab-title", KZ.t("🔁 Қайталау")));
     const box = el("section", "card review");
     page.appendChild(box);
     root.appendChild(page);
@@ -91,8 +97,8 @@
     const qs = R.session(PER_DAY);
     if (!qs.length) {
       const c = R.counts();
-      box.appendChild(h("h2", null, c.pool ? "✅ Бүгінгі қайталау бітті" : "Әзірге қайталайтын тақырып жоқ"));
-      box.appendChild(h("p", null, c.pool ? "Ертең жаңа сұрақтар шығады. Жаңа тақырып өтсең, сұрақтар көбейеді." : "Лекция оқып не тапсырма шешкен соң, сол тақырыптан сұрақтар осында шығады."));
+      box.appendChild(h("h2", null, c.pool ? KZ.t("✅ Бүгінгі қайталау бітті") : KZ.t("Әзірге қайталайтын тақырып жоқ")));
+      box.appendChild(h("p", null, c.pool ? KZ.t("Ертең жаңа сұрақтар шығады. Жаңа тақырып өтсең, сұрақтар көбейеді.") : KZ.t("Лекция оқып не тапсырма шешкен соң, сол тақырыптан сұрақтар осында шығады.")));
       return;
     }
     let i = 0;
@@ -120,8 +126,8 @@
             if (bb.textContent === rich(correct).textContent) bb.classList.add("good");
           });
           if (!ok) b.classList.add("bad");
-          box.appendChild(h("div", "rv-why " + (ok ? "good" : "bad"), h("b", null, ok ? "✅ Дұрыс!" : "❌ Дұрыс жауап: "), ok ? "" : rich(correct), x.why ? h("p", null, rich(x.why)) : null));
-          const next = el("button", "btn primary", i + 1 < qs.length ? "Келесі →" : "Аяқтау");
+          box.appendChild(h("div", "rv-why " + (ok ? "good" : "bad"), h("b", null, ok ? KZ.t("✅ Дұрыс!") : KZ.t("❌ Дұрыс жауап: ")), ok ? "" : rich(correct), x.why ? h("p", null, rich(x.why)) : null));
+          const next = el("button", "btn primary", i + 1 < qs.length ? KZ.t("Келесі →") : KZ.t("Аяқтау"));
           next.type = "button";
           next.addEventListener("click", () => {
             i++;
@@ -139,11 +145,11 @@
       const r = KZ.activity.mark(false);
       if (r.first) {
         const s = KZ.activity.streak().n;
-        if (s >= 2) KZ.toast("🔥", "Серия: " + s + " күн!", "Күн сайын жалғастыра бер.");
+        if (s >= 2) KZ.toast("🔥", KZ.t("Серия: ") + s + KZ.t(" күн!"), KZ.t("Күн сайын жалғастыра бер."));
       }
-      box.appendChild(h("h2", null, right === qs.length ? "🏆 Тамаша! Бәрі дұрыс" : "👍 " + right + " / " + qs.length));
-      box.appendChild(h("p", null, "Қателескен сұрақтар ертең қайта шығады, дұрыс жауаптар сирек қайталанады."));
-      const home = h("a", "btn primary", "Басты бетке");
+      box.appendChild(h("h2", null, right === qs.length ? KZ.t("🏆 Тамаша! Бәрі дұрыс") : "👍 " + right + " / " + qs.length));
+      box.appendChild(h("p", null, KZ.t("Қателескен сұрақтар ертең қайта шығады, дұрыс жауаптар сирек қайталанады.")));
+      const home = h("a", "btn primary", KZ.t("Басты бетке"));
       home.href = "#/";
       box.appendChild(home);
     }
@@ -156,13 +162,13 @@
     if (!c.pool) return null;
     const card = el("section", "card review-card");
     const body = el("div");
-    body.appendChild(h("b", null, "🔁 Қайталау"));
+    body.appendChild(h("b", null, KZ.t("🔁 Қайталау")));
     if (c.next) {
-      body.appendChild(h("p", null, "Бүгін " + c.next + " сұрақ күтіп тұр: өткен тақырыптарды ұмытпау үшін."));
-      const a = h("a", "btn primary small", "▶ Қайталау");
+      body.appendChild(h("p", null, KZ.t("Бүгін ") + c.next + KZ.nt(c.next, " сұрақ күтіп тұр: өткен тақырыптарды ұмытпау үшін.")));
+      const a = h("a", "btn primary small", KZ.t("▶ Қайталау"));
       a.href = "#/review";
       body.appendChild(a);
-    } else body.appendChild(h("p", null, "✅ Бүгінгі қайталау бітті. Ертең жаңа сұрақтар шығады."));
+    } else body.appendChild(h("p", null, KZ.t("✅ Бүгінгі қайталау бітті. Ертең жаңа сұрақтар шығады.")));
     card.appendChild(body);
     return card;
   };

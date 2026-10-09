@@ -1149,3 +1149,36 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
   .lp-bit-main { width: 190px; }
   .lp-stats { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---------- Тіл ауыстырғыш (ҚАЗ | РУС) ---------- */
+.langsw { display: inline-flex; flex: none; border: 3px solid var(--line); border-radius: 999px; background: var(--paper); overflow: hidden; }
+.langsw button {
+  appearance: none; font: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.3px;
+  color: var(--ink); background: transparent; border: 0; padding: 3px 8px; cursor: pointer; touch-action: manipulation;
+}
+.langsw button + button { border-left: 2px solid var(--line); }
+.langsw button.on { background: var(--violet); color: #fff; }
+.langsw button:not(.on):hover { background: var(--sun); }
+.langsw button:focus-visible { outline: 3px solid var(--violet); outline-offset: -3px; }
+@media (max-width: 480px) { .langsw button { padding: 3px 6px; font-size: 11px; } }
+@media (max-width: 480px) {
+  .top .score { padding: 2px 9px; }
+  .top #menuBtn { white-space: nowrap; padding: 4px 8px; }
+  .top .set-btn { padding: 4px 7px; }
+  .top { gap: 4px; padding: 8px 8px; }
+  .logo { width: 38px; height: 38px; }
+  .logo img { width: 30px; height: 30px; }
+}
+@media (max-width: 360px) {
+  .langsw button { padding: 3px 5px; font-size: 10px; }
+  #menuBtn { font-size: 13px; }
+}
+@media (max-width: 480px) {
+  .top .score { font-size: 15px; padding: 1px 7px; border-width: 2px; }
+  .top #menuBtn { font-size: 13px; }
+  .top .brand { margin-right: auto; }
+}
+@media (max-width: 400px) {
+  .top #menuBtn { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .top .brand { flex: 0 0 auto; }
+}

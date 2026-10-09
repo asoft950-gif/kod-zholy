@@ -70,7 +70,7 @@
       const s = document.createElement("script");
       s.src = src;
       s.onload = resolve;
-      s.onerror = () => reject(new Error("Скрипт жүктелмеді: " + src));
+      s.onerror = () => reject(new Error(KZ.t("Скрипт жүктелмеді: ") + src));
       document.head.appendChild(s);
     });
   }
@@ -80,6 +80,7 @@
     const py = await loadPyodide({ indexURL: PY_BASE });
     const src = await (await fetch("py/runner.py")).text();
     py.runPython(src);
+    if (KZ.lang === "ru") py.globals.set("_TR", py.toPy(KZ.ru)); // қате хабарларының орысша сөздігі
     const fn = py.globals.get("run");
     return (code, cfg) => fn(code, cfg);
   }
@@ -98,7 +99,7 @@
     const isJs = engine === "js" || engine === "kt";
     const name = engine === "kt" ? "Kotlin" : isJs ? "JavaScript" : "Python";
     pyState = "loading";
-    setStatus("loading", name + " жүктелуде…" + (isJs ? "" : " (алғашқы жолы 10–20 секунд)"));
+    setStatus("loading", name + KZ.t(" жүктелуде…") + (isJs ? "" : KZ.t(" (алғашқы жолы 10–20 секунд)")));
     updateButtons();
     const mine = engine;
     try {
@@ -111,7 +112,7 @@
     } catch (e) {
       console.error(e);
       pyState = "error";
-      setStatus("error", name + " жүктелмеді. Интернетті тексеріп, бетті қайта аш. (Алдын ала жүктеу: ⚙ Баптаулар → Офлайн.)");
+      setStatus("error", name + KZ.t(" жүктелмеді. Интернетті тексеріп, бетті қайта аш. (Алдын ала жүктеу: ⚙ Баптаулар → Офлайн.)"));
     }
     updateButtons();
   }
@@ -125,7 +126,7 @@
       res = typeof raw === "string" ? JSON.parse(raw) : raw;
     } catch (e) {
       console.error(e);
-      setStatus("error", "Күтпеген қате шықты. Бетті жаңартып көр.");
+      setStatus("error", KZ.t("Күтпеген қате шықты. Бетті жаңартып көр."));
       return false;
     }
     const last = res.frames[res.frames.length - 1];
@@ -299,7 +300,7 @@
     const ready = !!runFn;
     const atEnd = run && idx >= lastIdx();
     runBtn.disabled = !ready;
-    runBtn.textContent = playing ? "⏸ Тоқтату" : run && !atEnd && idx >= 0 ? "▶ Жалғастыру" : "▶ Іске қосу";
+    runBtn.textContent = playing ? KZ.t("⏸ Тоқтату") : run && !atEnd && idx >= 0 ? KZ.t("▶ Жалғастыру") : KZ.t("▶ Іске қосу");
     stepBtn.disabled = !ready || !!atEnd;
     backBtn.disabled = !run || idx <= 0;
     scrub.disabled = !run;
@@ -313,7 +314,7 @@
     if (loopInfo) box.appendChild(loopCard(loopInfo));
     if (!vars.length) {
       if (!loopInfo)
-        box.appendChild(el("p", "empty", "Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады."));
+        box.appendChild(el("p", "empty", KZ.t("Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады.")));
       shownVars = {};
       return;
     }
@@ -325,7 +326,7 @@
       card.style.setProperty("--c", KZ.colorFor(v.n));
       const name = el("div", "var-name", v.n);
       name.appendChild(el("small", null, v.t));
-      if (v.i) name.appendChild(el("small", "len", "· " + (v.more ? v.i.length + "+" : v.i.length) + " элемент"));
+      if (v.i) name.appendChild(el("small", "len", "· " + (v.more ? v.i.length + "+" : v.i.length) + KZ.nt(v.i.length, " элемент")));
       card.appendChild(name);
       if (v.i) {
         const row = el("div", "var-cells");
@@ -371,7 +372,7 @@
     const card = el("div", "loopbox");
     const cur = Math.min(info.upto, info.rounds);
     card.appendChild(
-      el("div", "loop-t", info.done ? "🔁 Цикл аяқталды · " + info.rounds + " айналым" : "🔁 " + cur + "-айналым / " + info.rounds)
+      el("div", "loop-t", info.done ? KZ.t("🔁 Цикл аяқталды · ") + info.rounds + KZ.nt(info.rounds, " айналым") : "🔁 " + cur + KZ.t("-айналым / ") + info.rounds)
     );
     const dots = el("div", "loop-dots");
     for (let k = 1; k <= Math.min(info.rounds, 40); k++) {
@@ -427,7 +428,7 @@
     try {
       const hash = await KZ.assign.hash(r.output);
       if (hash !== a.expected_hash) {
-        return { ok: false, reason: "Экранға шыққан нәтиже күтілгенге сәйкес емес. Тапсырма шартын қайта оқып, кодты тексер." };
+        return { ok: false, reason: KZ.t("Экранға шыққан нәтиже күтілгенге сәйкес емес. Тапсырма шартын қайта оқып, кодты тексер.") };
       }
       return { ok: true, stars: KZ.starsFor({ par: a.par || 999 }, r.lines) };
     } catch (e) {
@@ -452,7 +453,7 @@
                   lv.assign.stars = best;
                   if (level === lv) refreshLevelStars();
                 })
-                .catch((e) => KZ.toast("⚠️", "Нәтиже жіберілмеді", e.message));
+                .catch((e) => KZ.toast("⚠️", KZ.t("Нәтиже жіберілмеді"), e.message));
               if (KZ.activity) KZ.activity.onLevel("assign", lv.assign.id, ev.stars, null);
             }
           } else {
@@ -486,9 +487,9 @@
       const e = run.error;
       if (window.KZS && run.error.kind !== "crash") KZS.beep("error");
       showResult("err", (box) => {
-        box.appendChild(el("h2", null, "🙈 Қате шықты"));
+        box.appendChild(el("h2", null, KZ.t("🙈 Қате шықты")));
         box.appendChild(el("p", null, e.msg));
-        box.appendChild(el("small", null, (e.line ? e.line + "-жол · " : "") + (e.detail || "")));
+        box.appendChild(el("small", null, (e.line ? e.line + KZ.t("-жол · ") : "") + (e.detail || "")));
         if (e.src) box.appendChild(el("pre", "err-line", e.src));
         if (e.tip) box.appendChild(el("p", "err-tip", "💡 " + e.tip));
       });
@@ -496,51 +497,51 @@
       hideResult();
     } else if (!ev.ok) {
       showResult("bad", (box) => {
-        box.appendChild(el("h2", null, "🤔 Әлі толық емес"));
+        box.appendChild(el("h2", null, KZ.t("🤔 Әлі толық емес")));
         box.appendChild(el("p", null, ev.reason));
-        box.appendChild(el("small", null, "Кодты өзгертіп, қайта іске қосып көр."));
+        box.appendChild(el("small", null, KZ.t("Кодты өзгертіп, қайта іске қосып көр.")));
       });
     } else {
       if (window.KZS) KZS.beep("win");
       showResult("ok", (box) => {
-        box.appendChild(el("h2", null, "🎉 Тамаша!"));
+        box.appendChild(el("h2", null, KZ.t("🎉 Тамаша!")));
         box.appendChild(el("div", "big-stars", "⭐".repeat(ev.stars) + "☆".repeat(3 - ev.stars)));
         box.appendChild(
           el(
             "p",
             null,
             ev.stars === 3
-              ? "Ең қысқа шешім! Керемет."
-              : "3 ⭐ алу үшін кодты " + level.par + " жолға дейін қысқартып көр (қазір " + run.lines + " жол)."
+              ? KZ.t("Ең қысқа шешім! Керемет.")
+              : KZ.t("3 ⭐ алу үшін кодты ") + level.par + KZ.nt(level.par, " жолға дейін қысқартып көр (қазір ") + run.lines + KZ.nt(run.lines, " жол).")
           )
         );
         const row = el("div", "row");
         if (level.assign && level.assign.manager) {
-          box.appendChild(el("small", null, "Мұғалім ретінде тексеріп жатырсың: нәтиже сақталмайды."));
+          box.appendChild(el("small", null, KZ.t("Мұғалім ретінде тексеріп жатырсың: нәтиже сақталмайды.")));
         }
         const next = level.assign ? null : nextHref();
         if (level.assign) {
-          const a = el("a", "btn primary", level.assign.manager ? "← Сыныптарға оралу" : "← Менің тапсырмаларым");
+          const a = el("a", "btn primary", level.assign.manager ? KZ.t("← Сыныптарға оралу") : KZ.t("← Менің тапсырмаларым"));
           a.href = level.assign.manager ? "#/teacher" : "#/account";
           row.appendChild(a);
         } else if (next) {
           const lec = KZ.nextLectureHref(course, level, list, listKind);
           if (lec) {
-            const l = el("a", "btn primary", "📖 Келесі лекция →");
+            const l = el("a", "btn primary", KZ.t("📖 Келесі лекция →"));
             l.href = lec;
             row.appendChild(l);
           }
           if (!lec) {
-            const a = el("a", "btn primary", "Келесі тапсырма →");
+            const a = el("a", "btn primary", KZ.t("Келесі тапсырма →"));
             a.href = next;
             row.appendChild(a);
           }
         } else {
-          const a = el("a", "btn primary", "← Курсқа оралу");
+          const a = el("a", "btn primary", KZ.t("← Курсқа оралу"));
           a.href = "#/" + course.id + "/" + listKind;
           row.appendChild(a);
         }
-        const again = el("button", "btn", "↺ Қайта көру");
+        const again = el("button", "btn", KZ.t("↺ Қайта көру"));
         again.type = "button";
         again.addEventListener("click", () => {
           show(0);
@@ -567,16 +568,16 @@
     return {
       id: "free",
       sandbox: true,
-      title: "Еркін алаң",
+      title: KZ.t("Еркін алаң"),
       task:
-        "<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Қателесуден қорықпа!</p>" +
-        "<p class='tip'>Кодты ⏭ «Қадам» арқылы бір-бірден орындап, оң жақтағы қораптарға қара.</p>",
+        KZ.t("<p>Мұнда тапсырма жоқ: кез келген код жазып, не болатынын көр. Қателесуден қорықпа!</p>") +
+        KZ.t("<p class='tip'>Кодты ⏭ «Қадам» арқылы бір-бірден орындап, оң жақтағы қораптарға қара.</p>"),
       hint: "",
-      starter: isKt ? "fun main() {\n    // өз кодыңды жаз\n    \n}\n" : isJs ? "// өз кодыңды жаз\n" : "# өз кодыңды жаз\n",
+      starter: isKt ? KZ.t("fun main() {\n    // өз кодыңды жаз\n    \n}\n") : isJs ? KZ.t("// өз кодыңды жаз\n") : KZ.t("# өз кодыңды жаз\n"),
       solution: "",
       par: 99,
       robot,
-      html: isJs ? '<h1 id="title">Сәлем!</h1>\n<button id="btn">Бас</button>\n<p id="out"></p>' : undefined,
+      html: isJs ? KZ.t('<h1 id="title">Сәлем!</h1>\n<button id="btn">Бас</button>\n<p id="out"></p>') : undefined,
       check: {},
       sandboxCode: s && typeof s.code === "string" ? s.code : null,
     };
@@ -586,22 +587,22 @@
     stop();
     attempts = 0;
     $("#levelBadge").textContent = level.sandbox
-      ? "Еркін алаң"
+      ? KZ.t("Еркін алаң")
       : level.assign
-      ? "Мұғалім тапсырмасы"
+      ? KZ.t("Мұғалім тапсырмасы")
       : level.debug
-      ? "🐞 Қате тап " + level.id
+      ? KZ.t("🐞 Қате тап ") + level.id
       : listKind === "bonus"
-      ? "Қосымша " + level.id
-      : "Деңгей " + level.id;
+      ? KZ.t("Қосымша ") + level.id
+      : KZ.t("Деңгей ") + level.id;
     const isJs = engine === "js";
     const isKt = engine === "kt";
     editor.setOption("mode", isKt ? "text/x-kotlin" : isJs ? "javascript" : "python");
     editor.setOption("indentUnit", isJs ? 2 : 4);
     editor.setOption("tabSize", isJs ? 2 : 4);
-    $("#editorTitle").textContent = isKt ? "Kotlin коды" : isJs ? "JavaScript коды" : "Python коды";
-    $("#consoleTitle").textContent = isKt ? "Экран (println)" : isJs ? "Экран (console.log)" : "Экран (print)";
-    $("#console").dataset.ph = isKt ? "Мұнда println жазғаныңның нәтижесі шығады" : isJs ? "Мұнда console.log жазғаныңның нәтижесі шығады" : "Мұнда print жазғаныңның нәтижесі шығады";
+    $("#editorTitle").textContent = isKt ? KZ.t("Kotlin коды") : isJs ? KZ.t("JavaScript коды") : KZ.t("Python коды");
+    $("#consoleTitle").textContent = isKt ? KZ.t("Экран (println)") : isJs ? KZ.t("Экран (console.log)") : KZ.t("Экран (print)");
+    $("#console").dataset.ph = isKt ? KZ.t("Мұнда println жазғаныңның нәтижесі шығады") : isJs ? KZ.t("Мұнда console.log жазғаныңның нәтижесі шығады") : KZ.t("Мұнда print жазғаныңның нәтижесі шығады");
     $("#domCard").hidden = !(isJs && typeof level.html === "string");
     $("#taskTitle").textContent = level.title;
     $("#taskBody").innerHTML = level.task;
@@ -614,10 +615,10 @@
     const back = $("#backLink");
     if (level.assign) {
       back.href = level.assign.manager ? "#/teacher" : "#/account";
-      back.textContent = level.assign.manager ? "← Сыныптарым" : "← Менің тапсырмаларым";
+      back.textContent = level.assign.manager ? KZ.t("← Сыныптарым") : KZ.t("← Менің тапсырмаларым");
     } else {
       back.href = "#/" + course.id + "/" + listKind;
-      back.textContent = listKind === "bonus" ? "← Қосымша тапсырмалар" : "← " + course.name + ": тапсырмалар";
+      back.textContent = listKind === "bonus" ? KZ.t("← Қосымша тапсырмалар") : "← " + course.name + KZ.t(": тапсырмалар");
     }
 
     const cmds = $("#commands");
@@ -682,11 +683,11 @@
     const plain = (course.bonus || []).filter((l) => !l.debug);
     const dbg = (course.bonus || []).filter((l) => l.debug);
     if (plain.length) {
-      box.appendChild(el("h3", null, "🏆 Қосымша"));
+      box.appendChild(el("h3", null, KZ.t("🏆 Қосымша")));
       plain.forEach((l) => addLevel(l, "bonus"));
     }
     if (dbg.length) {
-      box.appendChild(el("h3", null, "🐞 Қате тап"));
+      box.appendChild(el("h3", null, KZ.t("🐞 Қате тап")));
       dbg.forEach((l) => addLevel(l, "bonus"));
     }
   }

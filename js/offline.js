@@ -43,8 +43,8 @@
 
   /* Жүктейді. onProgress(done, total). Қайтарады: {ok, groups} */
   O.prepare = async (onProgress) => {
-    if (!O.supported()) throw new Error("Бұл браузер офлайн режимді қолдамайды.");
-    if (navigator.onLine === false) throw new Error("Интернет жоқ. Желіге қосылып қайталап көр.");
+    if (!O.supported()) throw new Error(KZ.t("Бұл браузер офлайн режимді қолдамайды."));
+    if (navigator.onLine === false) throw new Error(KZ.t("Интернет жоқ. Желіге қосылып қайталап көр."));
     try {
       if (navigator.serviceWorker.ready) await navigator.serviceWorker.ready; // кэшке жазатын service worker дайын болсын
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); // браузер кэшті өшіріп жібермесін

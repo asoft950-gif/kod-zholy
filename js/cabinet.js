@@ -40,12 +40,12 @@
   }
 
   function ago(ts) {
-    if (!ts) return "әлі кірмеген";
+    if (!ts) return KZ.t("әлі кірмеген");
     const s = Math.max(0, (Date.now() - new Date(ts).getTime()) / 1000);
-    if (s < 90) return "қазір";
-    if (s < 3600) return Math.round(s / 60) + " мин бұрын";
-    if (s < 86400) return Math.round(s / 3600) + " сағ бұрын";
-    return Math.round(s / 86400) + " күн бұрын";
+    if (s < 90) return KZ.t("қазір");
+    if (s < 3600) return Math.round(s / 60) + KZ.t(" мин бұрын");
+    if (s < 86400) return Math.round(s / 3600) + KZ.t(" сағ бұрын");
+    return Math.round(s / 86400) + KZ.t(" күн бұрын");
   }
 
   const ROLE_EMOJI = { owner: "👑", admin: "🛠️", teacher: "👩‍🏫", student: "🎒" };
@@ -64,29 +64,29 @@
   }
 
   function failWith(page, e) {
-    page.appendChild(h("section", "card notice bad", h("h2", null, "🙈 Қате"), h("p", null, e.message || String(e))));
+    page.appendChild(h("section", "card notice bad", h("h2", null, KZ.t("🙈 Қате")), h("p", null, e.message || String(e))));
   }
 
   function disabledPage(root) {
-    const page = shell(root, "Аккаунттар қосылмаған", ["#/", "← Басты бет"]);
+    const page = shell(root, KZ.t("Аккаунттар қосылмаған"), ["#/", KZ.t("← Басты бет")]);
     notice(
       page,
       "info",
-      "Қонақ режимі",
-      "Әзірге аккаунт жүйесі қосылмаған. Сайт бұрынғыдай жұмыс істейді, прогресс осы құрылғыда сақталады. Сайт иесіне: SUPABASE.md файлындағы 5 қадамды орындау керек."
+      KZ.t("Қонақ режимі"),
+      KZ.t("Әзірге аккаунт жүйесі қосылмаған. Сайт бұрынғыдай жұмыс істейді, прогресс осы құрылғыда сақталады. Сайт иесіне: SUPABASE.md файлындағы 5 қадамды орындау керек.")
     );
   }
 
   /* Тіркелмеген пайдаланушы курсқа/жетістікке кірмек болғанда */
   function gate(root, wanted) {
     KZ.returnTo = wanted && wanted !== "#/" ? wanted : null;
-    const page = shell(root, null, ["#/", "← Басты бет"]);
+    const page = shell(root, null, ["#/", KZ.t("← Басты бет")]);
     page.appendChild(
       h("section", "card gate",
         h("div", "gate-emoji", "🔒"),
-        h("h1", null, "Алдымен кіру керек"),
-        h("p", null, "Лекция оқу, тапсырма орындау және жетістік жинау үшін Bitlings-ке тіркел не өз аккаунтыңа кір. Прогресің сақталады, кез келген құрылғыдан жалғастыра аласың."),
-        h("div", "gate-btns", link("btn primary big", "#/login/register", "✨ Тіркелу"), link("btn big", "#/login", "🔑 Кіру")))
+        h("h1", null, KZ.t("Алдымен кіру керек")),
+        h("p", null, KZ.t("Лекция оқу, тапсырма орындау және жетістік жинау үшін Bitlings-ке тіркел не өз аккаунтыңа кір. Прогресің сақталады, кез келген құрылғыдан жалғастыра аласың.")),
+        h("div", "gate-btns", link("btn primary big", "#/login/register", KZ.t("✨ Тіркелу")), link("btn big", "#/login", KZ.t("🔑 Кіру"))))
     );
   }
   const goAfterLogin = () => {
@@ -103,7 +103,7 @@
       location.hash = "#/account";
       return;
     }
-    const page = shell(root, "Bitlings-ке кіру", ["#/", "← Басты бет"]);
+    const page = shell(root, KZ.t("Bitlings-ке кіру"), ["#/", KZ.t("← Басты бет")]);
     const card = el("section", "card auth");
     const tabs = el("nav", "tabs");
     const body = el("div", "auth-body");
@@ -131,7 +131,7 @@
 
     function renderTabs(active) {
       tabs.textContent = "";
-      [["login", "Кіру"], ["register", "Тіркелу"]].forEach(([id, label]) => {
+      [["login", KZ.t("Кіру")], ["register", KZ.t("Тіркелу")]].forEach(([id, label]) => {
         tabs.appendChild(link("tab" + (id === active ? " active" : ""), "#/login/" + id, label));
       });
     }
@@ -140,10 +140,10 @@
       body.textContent = "";
       const f = el("form");
       const em = field("Email", "email", "email", { auto: "email" });
-      const pw = field("Құпиясөз", "password", "password", { auto: "current-password" });
-      const go = el("button", "btn primary big", "Кіру");
+      const pw = field(KZ.t("Құпиясөз"), "password", "password", { auto: "current-password" });
+      const go = el("button", "btn primary big", KZ.t("Кіру"));
       go.type = "submit";
-      f.append(em.wrap, pw.wrap, go, (KZ.config || {}).emailReset ? link("forgot", "#/login/reset", "Құпиясөзді ұмыттым (поштамен)") : null, h("p", "forgot", "Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді."), msg);
+      f.append(em.wrap, pw.wrap, go, (KZ.config || {}).emailReset ? link("forgot", "#/login/reset", KZ.t("Құпиясөзді ұмыттым (поштамен)")) : null, h("p", "forgot", KZ.t("Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді.")), msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         go.disabled = true;
@@ -177,14 +177,14 @@
         });
         return b;
       };
-      roles.append(mk("student", "🎒", "Оқушы", "үйренемін"), mk("teacher", "👩‍🏫", "Мұғалім", "сынып ашамын"));
-      const nm = field("Атың", "text", "name", { auto: "name", ph: "Мысалы: Алия Серікова" });
+      roles.append(mk("student", "🎒", KZ.t("Оқушы"), KZ.t("үйренемін")), mk("teacher", "👩‍🏫", KZ.t("Мұғалім"), KZ.t("сынып ашамын")));
+      const nm = field(KZ.t("Атың"), "text", "name", { auto: "name", ph: KZ.t("Мысалы: Алия Серікова") });
       const em = field("Email", "email", "email", { auto: "email" });
-      const pw = field("Құпиясөз (кемінде 6 таңба)", "password", "password", { auto: "new-password" });
-      const codeField = field("Сынып коды (болса)", "text", "code", { optional: true, ph: "Мысалы: A1B2C3" });
-      const note = h("p", "hint", "Мұғалім аккаунтын құрушы бекіткеннен кейін ғана сынып аша аласың. Тіркелген соң бекітуді күт.");
+      const pw = field(KZ.t("Құпиясөз (кемінде 6 таңба)"), "password", "password", { auto: "new-password" });
+      const codeField = field(KZ.t("Сынып коды (болса)"), "text", "code", { optional: true, ph: KZ.t("Мысалы: A1B2C3") });
+      const note = h("p", "hint", KZ.t("Мұғалім аккаунтын құрушы бекіткеннен кейін ғана сынып аша аласың. Тіркелген соң бекітуді күт."));
       note.hidden = true;
-      const go = el("button", "btn primary big", "Тіркелу");
+      const go = el("button", "btn primary big", KZ.t("Тіркелу"));
       go.type = "submit";
       f.append(roles, nm.wrap, em.wrap, pw.wrap, codeField.wrap, note, go, msg);
       f.addEventListener("submit", async (e) => {
@@ -194,7 +194,7 @@
         try {
           const r = await A.signUp({ email: em.input.value, password: pw.input.value, name: nm.input.value, role, classCode: codeField.input.value });
           if (r.needsConfirm) {
-            show("Тіркелдің! Поштаңа хат жіберілді: ондағы сілтемені басып, сосын «Кіру» бетінен кір.", false);
+            show(KZ.t("Тіркелдің! Поштаңа хат жіберілді: ондағы сілтемені басып, сосын «Кіру» бетінен кір."), false);
             go.disabled = false;
           } else goAfterLogin();
         } catch (err) {
@@ -210,9 +210,9 @@
       body.textContent = "";
       const f = el("form");
       const em = field("Email", "email", "email", { auto: "email" });
-      const go = el("button", "btn primary big", "Код жіберу");
+      const go = el("button", "btn primary big", KZ.t("Код жіберу"));
       go.type = "submit";
-      f.append(h("p", "hint", "Тіркелген email-ді жаз, поштаңа код жібереміз."), em.wrap, go, link("forgot", "#/login", "← Кіру бетіне"), msg);
+      f.append(h("p", "hint", KZ.t("Тіркелген email-ді жаз, поштаңа код жібереміз.")), em.wrap, go, link("forgot", "#/login", KZ.t("← Кіру бетіне")), msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         go.disabled = true;
@@ -231,25 +231,25 @@
     function codeForm(email) {
       body.textContent = "";
       const f = el("form");
-      const code = field("Поштадағы код", "text", "code", { auto: "one-time-code", ph: "123456" });
+      const code = field(KZ.t("Поштадағы код"), "text", "code", { auto: "one-time-code", ph: "123456" });
       code.input.inputMode = "numeric";
       code.input.maxLength = 12;
-      const pw = field("Жаңа құпиясөз (кемінде 6 таңба)", "password", "password", { auto: "new-password" });
-      const go = el("button", "btn primary big", "Құпиясөзді жаңарту");
+      const pw = field(KZ.t("Жаңа құпиясөз (кемінде 6 таңба)"), "password", "password", { auto: "new-password" });
+      const go = el("button", "btn primary big", KZ.t("Құпиясөзді жаңарту"));
       go.type = "submit";
-      const again = btn("btn small ghost", "Кодты қайта жібер", async () => {
+      const again = btn("btn small ghost", KZ.t("Кодты қайта жібер"), async () => {
         try {
           await A.requestReset(email);
-          show("Жаңа код жіберілді.", false);
+          show(KZ.t("Жаңа код жіберілді."), false);
         } catch (err) {
           show(err.message, true);
         }
       });
-      f.append(h("p", "hint", "Егер " + email + " тіркелген болса, поштаға код жіберілді (спам қалтасын да қара). Кодты және жаңа құпиясөзді енгіз."), code.wrap, pw.wrap, go, again, msg);
+      f.append(h("p", "hint", KZ.t("Егер ") + email + KZ.t(" тіркелген болса, поштаға код жіберілді (спам қалтасын да қара). Кодты және жаңа құпиясөзді енгіз.")), code.wrap, pw.wrap, go, again, msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         show("");
-        if (pw.input.value.length < 6) return show("Құпиясөз кемінде 6 таңбадан тұруы керек.", true);
+        if (pw.input.value.length < 6) return show(KZ.t("Құпиясөз кемінде 6 таңбадан тұруы керек."), true);
         go.disabled = true;
         try {
           await A.resetWithCode(email, code.input.value, pw.input.value);
@@ -278,13 +278,13 @@
       return;
     }
     const p = A.profile;
-    const page = shell(root, null, ["#/", "← Басты бет"]);
+    const page = shell(root, null, ["#/", KZ.t("← Басты бет")]);
 
     const head = el("section", "card profile-head");
     if (p.role === "student" && KZ.hero) {
       const av = h("a", "avatar hero-avatar", KZ.hero.node());
       av.href = "#/hero";
-      av.title = "Менің кейіпкерім";
+      av.title = KZ.t("Менің кейіпкерім");
       head.appendChild(av);
     } else head.appendChild(h("div", "avatar", ROLE_EMOJI[p.role] || "🙂"));
     const info = el("div", "ph-info");
@@ -296,7 +296,7 @@
       const i = el("input");
       i.value = p.full_name;
       i.maxLength = 60;
-      const ok = btn("btn small primary", "Сақтау", async () => {
+      const ok = btn("btn small primary", KZ.t("Сақтау"), async () => {
         try {
           await A.rpc("update_name", { new_name: i.value });
           await A.refreshProfile();
@@ -309,7 +309,7 @@
       nameRow.append(i, ok);
       i.focus();
     });
-    edit.title = "Атын өзгерту";
+    edit.title = KZ.t("Атын өзгерту");
     nameRow.appendChild(edit);
     info.appendChild(nameRow);
     info.appendChild(h("small", null, p.email));
@@ -318,21 +318,21 @@
     page.appendChild(head);
 
     if (p.status === "pending") {
-      notice(page, "info", "⏳ Өтінімің қаралуда", "Құрушы мұғалім аккаунтыңды бекіткенде, сынып аша аласың. Бекітілгеннен кейін бетті жаңарт.");
-      page.appendChild(btn("btn", "↻ Тексеру", async () => { await A.refreshProfile(); account(root); }));
+      notice(page, "info", KZ.t("⏳ Өтінімің қаралуда"), KZ.t("Құрушы мұғалім аккаунтыңды бекіткенде, сынып аша аласың. Бекітілгеннен кейін бетті жаңарт."));
+      page.appendChild(btn("btn", KZ.t("↻ Тексеру"), async () => { await A.refreshProfile(); account(root); }));
     } else if (p.status === "blocked") {
-      notice(page, "bad", "⛔ Аккаунт бұғатталған", "Прогресс сақталмайды. Құрушымен хабарлас.");
+      notice(page, "bad", KZ.t("⛔ Аккаунт бұғатталған"), KZ.t("Прогресс сақталмайды. Құрушымен хабарлас."));
     }
 
     if (A.isActive()) {
       const links = el("div", "cab-links");
-      if (A.canTeach()) links.appendChild(link("btn primary big", "#/teacher", "👩‍🏫 Сыныптар мен оқушылар"));
-      if (A.isStaff()) links.appendChild(link("btn big", "#/admin", "🛠️ Басқару панелі"));
+      if (A.canTeach()) links.appendChild(link("btn primary big", "#/teacher", KZ.t("👩‍🏫 Сыныптар мен оқушылар")));
+      if (A.isStaff()) links.appendChild(link("btn big", "#/admin", KZ.t("🛠️ Басқару панелі")));
       if (links.children.length) page.appendChild(links);
 
       // Прогресс
       const prog = el("section", "card");
-      prog.appendChild(h("div", "card-title", "Менің прогресім"));
+      prog.appendChild(h("div", "card-title", KZ.t("Менің прогресім")));
       KZ.courses.filter((c) => c.status === "ready").forEach((c) => {
         const total = KZ.allLevels(c).length;
         const done = KZ.progress.done(c);
@@ -355,14 +355,14 @@
 
     if (A.isActive()) {
       const det = el("details", "card pw-change");
-      det.appendChild(h("summary", null, "🔑 Құпиясөзді өзгерту"));
+      det.appendChild(h("summary", null, KZ.t("🔑 Құпиясөзді өзгерту")));
       const f = el("form");
       const i = el("input");
       i.type = "password";
       i.autocomplete = "new-password";
-      i.placeholder = "Жаңа құпиясөз (кемінде 6 таңба)";
+      i.placeholder = KZ.t("Жаңа құпиясөз (кемінде 6 таңба)");
       i.required = true;
-      const go = el("button", "btn primary", "Сақтау");
+      const go = el("button", "btn primary", KZ.t("Сақтау"));
       go.type = "submit";
       const m = el("p", "form-msg");
       m.hidden = true;
@@ -372,14 +372,14 @@
         m.hidden = false;
         if (i.value.length < 6) {
           m.className = "form-msg bad";
-          m.textContent = "Құпиясөз кемінде 6 таңбадан тұруы керек.";
+          m.textContent = KZ.t("Құпиясөз кемінде 6 таңбадан тұруы керек.");
           return;
         }
         try {
           await A.changePassword(i.value);
           i.value = "";
           m.className = "form-msg good";
-          m.textContent = "Құпиясөз жаңартылды ✅";
+          m.textContent = KZ.t("Құпиясөз жаңартылды ✅");
         } catch (err) {
           m.className = "form-msg bad";
           m.textContent = err.message;
@@ -389,7 +389,7 @@
       page.appendChild(det);
     }
 
-    page.appendChild(btn("btn ghost", "Аккаунттан шығу", async () => {
+    page.appendChild(btn("btn ghost", KZ.t("Аккаунттан шығу"), async () => {
       await A.signOut();
       location.hash = "#/";
     }));
@@ -406,7 +406,7 @@
     }
     if (!list.length && !levels.length) return;
     const card = el("section", "card");
-    card.appendChild(h("div", "card-title", "📝 Мұғалім тапсырмалары"));
+    card.appendChild(h("div", "card-title", KZ.t("📝 Мұғалім тапсырмалары")));
     levels.forEach((x) => {
       const stars = Math.max(x.stars || 0, KZ.progress.stars(x.course, x.level_id));
       const late = !stars && KZ.assign.overdue(x.due);
@@ -415,7 +415,7 @@
           "row-link" + (stars ? " done" : ""),
           "#/" + x.course + "/play/" + x.level_id + "/open",
           h("span", "rl-title", levelTitle(x.course, x.level_id)),
-          h("span", "rl-meta", x.class + (x.due ? " · " + x.due : "") + (late ? " · мерзімі өтті" : "")),
+          h("span", "rl-meta", x.class + (x.due ? " · " + x.due : "") + (late ? KZ.t(" · мерзімі өтті") : "")),
           h("span", "rl-check", stars ? "⭐".repeat(stars) : "›")
         )
       );
@@ -427,7 +427,7 @@
           "row-link" + (a.stars ? " done" : ""),
           "#/task/" + a.id,
           h("span", "rl-title", a.title),
-          h("span", "rl-meta", a.class + (a.due ? " · " + a.due : "") + (late ? " · мерзімі өтті" : "")),
+          h("span", "rl-meta", a.class + (a.due ? " · " + a.due : "") + (late ? KZ.t(" · мерзімі өтті") : "")),
           h("span", "rl-check", a.stars ? "⭐".repeat(a.stars) : "›")
         )
       );
@@ -439,7 +439,7 @@
   function ratingTable(rows) {
     const wrap = el("div", "rating");
     if (!rows.length) {
-      wrap.appendChild(h("p", "empty-note", "Әзірге оқушы жоқ."));
+      wrap.appendChild(h("p", "empty-note", KZ.t("Әзірге оқушы жоқ.")));
       return wrap;
     }
     const medal = ["🥇", "🥈", "🥉"];
@@ -454,7 +454,7 @@
         h("div", "rating-row" + (r.me ? " me" : ""),
           h("span", "rating-pos", medal[i] || String(i + 1)),
           bit,
-          h("span", "rating-name", r.name + (r.me ? " (сен)" : "") + (lgm ? " " + lgm : "")),
+          h("span", "rating-name", r.name + (r.me ? KZ.t(" (сен)") : "") + (lgm ? " " + lgm : "")),
           h("span", "rating-streak", r.streak > 0 ? "🔥 " + r.streak : ""),
           h("span", "rating-stars", "⭐ " + r.stars))
       );
@@ -462,14 +462,14 @@
     return wrap;
   }
   async function ratingPanel(cid, box) {
-    box.textContent = "Жүктелуде…";
+    box.textContent = KZ.t("Жүктелуде…");
     try {
       const r = await A.rpc("class_rating", { cid });
       box.textContent = "";
       const mine = r.rows.find((x) => x.me);
       if (mine && KZ.hero && KZ.hero.setLeague) KZ.hero.setLeague(mine.lg || null);
       box.appendChild(ratingTable(r.rows));
-      box.appendChild(h("p", "hint rating-note", "🏅 Апталық лига: өткен аптада сыныпта ең көп ⭐ жинаған топ-3 оқушы осы аптаға арнайы зат киеді (Кейіпкер бетінде)."));
+      box.appendChild(h("p", "hint rating-note", KZ.t("🏅 Апталық лига: өткен аптада сыныпта ең көп ⭐ жинаған топ-3 оқушы осы аптаға арнайы зат киеді (Кейіпкер бетінде).")));
     } catch (e) {
       box.textContent = "";
       failWith(box, e);
@@ -478,29 +478,29 @@
 
   async function studentClasses(page, root) {
     const card = el("section", "card");
-    card.appendChild(h("div", "card-title", "Менің сыныптарым"));
+    card.appendChild(h("div", "card-title", KZ.t("Менің сыныптарым")));
     try {
       const list = await A.rpc("student_classes");
-      if (!list.length) card.appendChild(h("p", "empty-note", "Әзірге сыныпқа қосылмағансың. Мұғалімнен код сұра."));
+      if (!list.length) card.appendChild(h("p", "empty-note", KZ.t("Әзірге сыныпқа қосылмағансың. Мұғалімнен код сұра.")));
       list.forEach((c) => {
         const rbox = el("div", "cls-body");
         rbox.hidden = true;
         const acts = el("div", "cls-actions");
         if (c.rating) {
-          const rb = btn("btn small", "🏆 Рейтинг", async () => {
+          const rb = btn("btn small", KZ.t("🏆 Рейтинг"), async () => {
             rbox.hidden = !rbox.hidden;
-            rb.textContent = rbox.hidden ? "🏆 Рейтинг" : "🏆 Жасыру";
+            rb.textContent = rbox.hidden ? KZ.t("🏆 Рейтинг") : KZ.t("🏆 Жасыру");
             if (!rbox.hidden) await ratingPanel(c.id, rbox);
           });
           acts.appendChild(rb);
         }
         acts.appendChild(
-          confirmBtn("btn small ghost", "Сыныптан шығу", "Расымен шығу?", async () => {
+          confirmBtn("btn small ghost", KZ.t("Сыныптан шығу"), KZ.t("Расымен шығу?"), async () => {
             await A.rpc("leave_class", { class_id_in: c.id });
             account(root);
           })
         );
-        card.appendChild(h("div", "cls-row", h("div", null, h("b", null, c.name), h("small", null, "Мұғалім: " + c.teacher)), acts));
+        card.appendChild(h("div", "cls-row", h("div", null, h("b", null, c.name), h("small", null, KZ.t("Мұғалім: ") + c.teacher)), acts));
         card.appendChild(rbox);
       });
     } catch (e) {
@@ -508,10 +508,10 @@
     }
     const f = el("form", "inline-form");
     const i = el("input");
-    i.placeholder = "Сынып коды";
+    i.placeholder = KZ.t("Сынып коды");
     i.maxLength = 12;
     i.required = true;
-    const go = el("button", "btn primary", "Қосылу");
+    const go = el("button", "btn primary", KZ.t("Қосылу"));
     go.type = "submit";
     const msg = el("p", "form-msg");
     msg.hidden = true;
@@ -551,7 +551,7 @@
   function resetPwButton(sid, name) {
     const wrap = el("span", "pw-reset");
     wrap.appendChild(
-      confirmBtn("btn small ghost", "🔑 Жаңа құпиясөз", "Растау?", async () => {
+      confirmBtn("btn small ghost", KZ.t("🔑 Жаңа құпиясөз"), KZ.t("Растау?"), async () => {
         wrap.textContent = "…";
         try {
           const pw = tempPassword();
@@ -559,11 +559,11 @@
           wrap.textContent = "";
           const code = h("button", "code-box pw-box", pw);
           code.type = "button";
-          code.title = "Көшіру";
+          code.title = KZ.t("Көшіру");
           code.addEventListener("click", () => {
             if (navigator.clipboard) navigator.clipboard.writeText(pw).catch(() => {});
           });
-          wrap.append(h("small", null, name + " үшін жаңа құпиясөз (тек қазір көрінеді, оқушыға айт — кіргеннен кейін кабинетінен өзгертсін): "), code);
+          wrap.append(h("small", null, name + KZ.t(" үшін жаңа құпиясөз (тек қазір көрінеді, оқушыға айт — кіргеннен кейін кабинетінен өзгертсін): ")), code);
         } catch (e) {
           wrap.textContent = "";
           wrap.appendChild(h("small", "bad", e.message));
@@ -574,7 +574,7 @@
   }
 
   async function studentDetail(box, sid) {
-    box.textContent = "Жүктелуде…";
+    box.textContent = KZ.t("Жүктелуде…");
     try {
       const r = await A.rpc("student_progress", { sid });
       box.textContent = "";
@@ -594,7 +594,7 @@
         row.appendChild(pills);
         box.appendChild(row);
       });
-      box.appendChild(h("small", null, "Түс: сұр — өтілмеген, 1–3 — алған жұлдыз саны."));
+      box.appendChild(h("small", null, KZ.t("Түс: сұр — өтілмеген, 1–3 — алған жұлдыз саны.")));
     } catch (e) {
       box.textContent = "";
       failWith(box, e);
@@ -616,28 +616,28 @@
     const title = el("input");
     title.maxLength = 80;
     title.required = true;
-    title.placeholder = "Мысалы: Екі санды қос";
+    title.placeholder = KZ.t("Мысалы: Екі санды қос");
     const lang = el("select");
     [["python", "Python"], ["javascript", "JavaScript"]].forEach(([v, l]) => {
       const o = el("option", null, l);
       o.value = v;
       lang.appendChild(o);
     });
-    const body = area(4, "Тапсырма шарты: оқушы не істеуі керек, экранға не шығуы керек…");
+    const body = area(4, KZ.t("Тапсырма шарты: оқушы не істеуі керек, экранға не шығуы керек…"));
     body.maxLength = 4000;
-    const starter = area(3, "Бастапқы код (міндетті емес)", true);
-    const solution = area(4, "Өз шешімің: іске қосқанда күтілетін нәтиже мен жол саны автоматты табылады", true);
-    const run = btn("btn small", "▶ Шешімді іске қосу");
-    const expected = area(2, "Күтілетін нәтиже: оқушы кодының экранға шығарғаны дәл осындай болуы керек", true);
+    const starter = area(3, KZ.t("Бастапқы код (міндетті емес)"), true);
+    const solution = area(4, KZ.t("Өз шешімің: іске қосқанда күтілетін нәтиже мен жол саны автоматты табылады"), true);
+    const run = btn("btn small", KZ.t("▶ Шешімді іске қосу"));
+    const expected = area(2, KZ.t("Күтілетін нәтиже: оқушы кодының экранға шығарғаны дәл осындай болуы керек"), true);
     expected.required = true;
     const par = el("input");
     par.type = "number";
     par.min = "1";
     par.max = "200";
-    par.placeholder = "жол саны";
+    par.placeholder = KZ.t("жол саны");
     const hint = el("input");
     hint.maxLength = 500;
-    hint.placeholder = "Кеңес (міндетті емес)";
+    hint.placeholder = KZ.t("Кеңес (міндетті емес)");
     const due = el("input");
     due.type = "date";
     const msg = el("p", "form-msg");
@@ -649,38 +649,38 @@
     };
 
     run.addEventListener("click", async () => {
-      if (!solution.value.trim()) return say("Алдымен шешім кодын жаз.", true);
+      if (!solution.value.trim()) return say(KZ.t("Алдымен шешім кодын жаз."), true);
       run.disabled = true;
-      say("Іске қосылып жатыр…");
+      say(KZ.t("Іске қосылып жатыр…"));
       try {
         const r = await KZ.play.runOnce(lang.value === "javascript" ? "js" : "python", solution.value);
-        if (r.error) say("Шешімде қате бар: " + (r.error.msg || "белгісіз қате"), true);
+        if (r.error) say(KZ.t("Шешімде қате бар: ") + (r.error.msg || KZ.t("белгісіз қате")), true);
         else {
           expected.value = KZ.assign.normalize(r.output);
           par.value = String(Math.max(1, Math.min(200, r.lines || 1)));
-          say(expected.value ? "Дайын: нәтиже мен жол саны толтырылды. Қаласаң, өзгерт." : "Шешім экранға ештеңе шығармады. Тапсырма үшін нәтиже керек.", !expected.value);
+          say(expected.value ? KZ.t("Дайын: нәтиже мен жол саны толтырылды. Қаласаң, өзгерт.") : KZ.t("Шешім экранға ештеңе шығармады. Тапсырма үшін нәтиже керек."), !expected.value);
         }
       } catch (e) {
-        say("Іске қосу сәтсіз: " + e.message, true);
+        say(KZ.t("Іске қосу сәтсіз: ") + e.message, true);
       }
       run.disabled = false;
     });
 
-    const go = el("button", "btn primary", "Жариялау");
+    const go = el("button", "btn primary", KZ.t("Жариялау"));
     go.type = "submit";
     f.append(
-      lbl("Тақырыбы", title),
-      lbl("Тілі", lang),
-      lbl("Тапсырма шарты", body),
-      lbl("Бастапқы код", starter),
-      lbl("Күтілетін нәтиже (экранға не шығуы керек)", expected),
+      lbl(KZ.t("Тақырыбы"), title),
+      lbl(KZ.t("Тілі"), lang),
+      lbl(KZ.t("Тапсырма шарты"), body),
+      lbl(KZ.t("Бастапқы код"), starter),
+      lbl(KZ.t("Күтілетін нәтиже (экранға не шығуы керек)"), expected),
       (() => {
         const d = el("details", "asg-auto");
-        d.append(h("summary", null, "💡 Нәтижені өзім жазбай, шешім кодын іске қосып алам"), lbl("Шешім (сақталмайды, тек нәтижені есептеу үшін)", solution), run);
+        d.append(h("summary", null, KZ.t("💡 Нәтижені өзім жазбай, шешім кодын іске қосып алам")), lbl(KZ.t("Шешім (сақталмайды, тек нәтижені есептеу үшін)"), solution), run);
         return d;
       })(),
-      h("div", "field-row", lbl("Үздік шешім: ең көбі неше жол", par), lbl("Тапсыру мерзімі", due)),
-      lbl("Кеңес", hint),
+      h("div", "field-row", lbl(KZ.t("Үздік шешім: ең көбі неше жол"), par), lbl(KZ.t("Тапсыру мерзімі"), due)),
+      lbl(KZ.t("Кеңес"), hint),
       go,
       msg
     );
@@ -689,7 +689,7 @@
       go.disabled = true;
       try {
         const exp = KZ.assign.normalize(expected.value);
-        if (!exp) throw new Error("Күтілетін нәтиже бос болмауы керек.");
+        if (!exp) throw new Error(KZ.t("Күтілетін нәтиже бос болмауы керек."));
         const hash = await KZ.assign.hash(exp);
         await A.rpc("create_assignment", {
           cid: c.id,
@@ -721,22 +721,22 @@
       "div",
       "asg-info",
       h("b", null, a.title),
-      h("small", null, (KZ.assign.LANG[a.course] || a.course) + (a.due ? " · мерзімі " + a.due + (late ? " (өтті)" : "") : "") + " · ✅ " + a.done + "/" + a.total)
+      h("small", null, (KZ.assign.LANG[a.course] || a.course) + (a.due ? KZ.t(" · мерзімі ") + a.due + (late ? KZ.t(" (өтті)") : "") : "") + " · ✅ " + a.done + "/" + a.total)
     );
     const detail = el("div", "asg-detail");
     detail.hidden = true;
     let loaded = false;
-    const res = btn("btn small", "Нәтижелер", async () => {
+    const res = btn("btn small", KZ.t("Нәтижелер"), async () => {
       detail.hidden = !detail.hidden;
       if (detail.hidden || loaded) return;
       loaded = true;
-      detail.textContent = "Жүктелуде…";
+      detail.textContent = KZ.t("Жүктелуде…");
       try {
         const list = await A.rpc("assignment_results", { aid: a.id });
         detail.textContent = "";
-        if (!list.length) detail.appendChild(h("p", "empty-note", "Сыныпта оқушы жоқ."));
+        if (!list.length) detail.appendChild(h("p", "empty-note", KZ.t("Сыныпта оқушы жоқ.")));
         list.forEach((s) =>
-          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : "әлі жоқ")))
+          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : KZ.t("әлі жоқ"))))
         );
       } catch (e) {
         detail.textContent = "";
@@ -745,9 +745,9 @@
     });
     const actions = el("div", "u-actions");
     actions.append(
-      link("btn small ghost", "#/task/" + a.id, "👁 Көру"),
+      link("btn small ghost", "#/task/" + a.id, KZ.t("👁 Көру")),
       res,
-      confirmBtn("btn small ghost", "🗑", "Өшіру?", async () => {
+      confirmBtn("btn small ghost", "🗑", KZ.t("Өшіру?"), async () => {
         await A.rpc("delete_assignment", { aid: a.id });
         await reload();
       })
@@ -789,8 +789,8 @@
         level.appendChild(g);
       };
       (cr.topics || []).forEach((t) => add(t.emoji + " " + t.title, (cr.levels || []).filter((l) => KZ.topicOf(l) === t.id)));
-      add("🏆 Қосымша", (cr.bonus || []).filter((l) => !l.debug));
-      add("🐞 Қате тап", (cr.bonus || []).filter((l) => l.debug));
+      add(KZ.t("🏆 Қосымша"), (cr.bonus || []).filter((l) => !l.debug));
+      add(KZ.t("🐞 Қате тап"), (cr.bonus || []).filter((l) => l.debug));
     };
     course.addEventListener("change", fill);
     fill();
@@ -798,13 +798,13 @@
     due.type = "date";
     const msg = el("p", "form-msg");
     msg.hidden = true;
-    const go = el("button", "btn primary", "Сыныпқа беру");
+    const go = el("button", "btn primary", KZ.t("Сыныпқа беру"));
     go.type = "submit";
     f.append(
-      h("p", "muted", "Сайттағы дайын тапсырманы таңда: оқушы оны өз прогресінде орындайды, нәтижесін осы жерден көресің."),
-      lbl("Курс", course),
-      lbl("Тапсырма", level),
-      lbl("Тапсыру мерзімі (міндетті емес)", due),
+      h("p", "muted", KZ.t("Сайттағы дайын тапсырманы таңда: оқушы оны өз прогресінде орындайды, нәтижесін осы жерден көресің.")),
+      lbl(KZ.t("Курс"), course),
+      lbl(KZ.t("Тапсырма"), level),
+      lbl(KZ.t("Тапсыру мерзімі (міндетті емес)"), due),
       go,
       msg
     );
@@ -832,22 +832,22 @@
       "div",
       "asg-info",
       h("b", null, levelTitle(x.course, x.level_id)),
-      h("small", null, (cr ? cr.name : x.course) + " · дайын тапсырма" + (x.due ? " · мерзімі " + x.due + (late ? " (өтті)" : "") : "") + " · ✅ " + x.done + "/" + x.total)
+      h("small", null, (cr ? cr.name : x.course) + KZ.t(" · дайын тапсырма") + (x.due ? KZ.t(" · мерзімі ") + x.due + (late ? KZ.t(" (өтті)") : "") : "") + " · ✅ " + x.done + "/" + x.total)
     );
     const detail = el("div", "asg-detail");
     detail.hidden = true;
     let loaded = false;
-    const res = btn("btn small", "Нәтижелер", async () => {
+    const res = btn("btn small", KZ.t("Нәтижелер"), async () => {
       detail.hidden = !detail.hidden;
       if (detail.hidden || loaded) return;
       loaded = true;
-      detail.textContent = "Жүктелуде…";
+      detail.textContent = KZ.t("Жүктелуде…");
       try {
         const list = await A.rpc("level_results", { lid: x.id });
         detail.textContent = "";
-        if (!list.length) detail.appendChild(h("p", "empty-note", "Сыныпта оқушы жоқ."));
+        if (!list.length) detail.appendChild(h("p", "empty-note", KZ.t("Сыныпта оқушы жоқ.")));
         list.forEach((s) =>
-          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : "әлі жоқ")))
+          detail.appendChild(h("div", "asg-res" + (s.stars ? " ok" : ""), h("span", null, s.full_name), h("b", null, s.stars ? "⭐".repeat(s.stars) : KZ.t("әлі жоқ"))))
         );
       } catch (e) {
         detail.textContent = "";
@@ -856,9 +856,9 @@
     });
     const actions = el("div", "u-actions");
     actions.append(
-      link("btn small ghost", "#/" + x.course + "/play/" + x.level_id + "/open", "👁 Көру"),
+      link("btn small ghost", "#/" + x.course + "/play/" + x.level_id + "/open", KZ.t("👁 Көру")),
       res,
-      confirmBtn("btn small ghost", "🗑", "Өшіру?", async () => {
+      confirmBtn("btn small ghost", "🗑", KZ.t("Өшіру?"), async () => {
         await A.rpc("remove_level", { lid: x.id });
         await reload();
       })
@@ -873,11 +873,11 @@
     let form;
     let pick;
     async function reload() {
-      list.textContent = "Жүктелуде…";
+      list.textContent = KZ.t("Жүктелуде…");
       try {
         const [items, levels] = await Promise.all([A.rpc("class_assignments", { cid: c.id }), A.rpc("class_levels_list", { cid: c.id })]);
         list.textContent = "";
-        if (!items.length && !levels.length) list.appendChild(h("p", "empty-note", "Әзірге тапсырма жоқ. «Дайын тапсырма» түймесі ең оңай жол."));
+        if (!items.length && !levels.length) list.appendChild(h("p", "empty-note", KZ.t("Әзірге тапсырма жоқ. «Дайын тапсырма» түймесі ең оңай жол.")));
         levels.forEach((x) => list.appendChild(levelRow(x, reload)));
         items.forEach((a) => list.appendChild(assignmentRow(a, reload)));
       } catch (e) {
@@ -891,21 +891,21 @@
     form.hidden = true;
     pick = levelPicker(c, reload);
     pick.hidden = true;
-    const addLv = btn("btn small primary", "＋ Дайын тапсырма", () => {
+    const addLv = btn("btn small primary", KZ.t("＋ Дайын тапсырма"), () => {
       pick.hidden = !pick.hidden;
       form.hidden = true;
     });
-    const add = btn("btn small", "✍ Өз тапсырмам", () => {
+    const add = btn("btn small", KZ.t("✍ Өз тапсырмам"), () => {
       form.hidden = !form.hidden;
       pick.hidden = true;
     });
-    wrap.append(h("div", "asg-head", h("b", null, "📝 Тапсырмалар"), h("span", "asg-btns", addLv, add)), pick, form, list);
+    wrap.append(h("div", "asg-head", h("b", null, KZ.t("📝 Тапсырмалар")), h("span", "asg-btns", addLv, add)), pick, form, list);
     reload();
     return wrap;
   }
 
   /* ---------- Сынып статистикасы ---------- */
-  const STATUS = { stuck: ["🧱", "тұрып қалған"], idle: ["💤", "кірмей кеткен"], new: ["🌱", "әлі бастамаған"], done: ["🏁", "бітірген"], ok: ["✅", "жақсы"] };
+  const STATUS = { stuck: ["🧱", KZ.t("тұрып қалған")], idle: ["💤", KZ.t("кірмей кеткен")], new: ["🌱", KZ.t("әлі бастамаған")], done: ["🏁", KZ.t("бітірген")], ok: ["✅", KZ.t("жақсы")] };
 
   /* Апталық есеп: басып шығаруға (не PDF-ке сақтауға) ыңғайлы бет */
   function reportDialog(cls, r) {
@@ -913,53 +913,53 @@
     if (old) old.remove();
     const dlg = el("dialog", "report-dlg");
     dlg.id = "reportDlg";
-    const MONTHS = ["қаңтар", "ақпан", "наурыз", "сәуір", "мамыр", "маусым", "шілде", "тамыз", "қыркүйек", "қазан", "қараша", "желтоқсан"];
+    const MONTHS = [KZ.t("қаңтар"), KZ.t("ақпан"), KZ.t("наурыз"), KZ.t("сәуір"), KZ.t("мамыр"), KZ.t("маусым"), KZ.t("шілде"), KZ.t("тамыз"), KZ.t("қыркүйек"), KZ.t("қазан"), KZ.t("қараша"), KZ.t("желтоқсан")];
     const fmt = (d) => d.getDate() + " " + MONTHS[d.getMonth()];
     const now = new Date();
     const from = new Date(now.getTime() - 6 * 864e5);
     const bar = el("div", "report-bar");
-    const printBtn = btn("btn primary", "🖨 Басып шығару / PDF", () => {
+    const printBtn = btn("btn primary", KZ.t("🖨 Басып шығару / PDF"), () => {
       document.body.classList.add("printing-report");
       const done = () => document.body.classList.remove("printing-report");
       window.addEventListener("afterprint", done, { once: true });
       window.print();
       setTimeout(done, 1500);
     });
-    const closeBtn = btn("btn ghost", "✕ Жабу", () => {
+    const closeBtn = btn("btn ghost", KZ.t("✕ Жабу"), () => {
       dlg.close();
       dlg.remove();
     });
     bar.append(printBtn, closeBtn);
     const sheet = el("div", "report-sheet");
-    sheet.appendChild(h("h2", null, "Bitlings · апталық есеп"));
+    sheet.appendChild(h("h2", null, KZ.t("Bitlings · апталық есеп")));
     sheet.appendChild(h("p", "report-sub", cls.name + " · " + fmt(from) + " – " + fmt(now) + " " + now.getFullYear()));
     const sum = el("div", "report-sum");
-    [[r.n, "оқушы"], [r.active7 + "/" + r.n, "осы аптада кірген"], [r.weekLevels, "аптада өтілген тапсырма"], [r.weekStars, "аптада алынған ⭐"], [r.totalStars, "жалпы ⭐"]].forEach(([v, l]) =>
+    [[r.n, KZ.t("оқушы")], [r.active7 + "/" + r.n, KZ.t("осы аптада кірген")], [r.weekLevels, KZ.t("аптада өтілген тапсырма")], [r.weekStars, KZ.t("аптада алынған ⭐")], [r.totalStars, KZ.t("жалпы ⭐")]].forEach(([v, l]) =>
       sum.appendChild(h("div", "report-stat", h("b", null, String(v)), h("small", null, l)))
     );
     sheet.appendChild(sum);
-    sheet.appendChild(h("h3", null, "Оқушылар"));
+    sheet.appendChild(h("h3", null, KZ.t("Оқушылар")));
     const tbl = el("table", "report-table");
-    tbl.appendChild(h("thead", null, h("tr", null, ...["Оқушы", "Кірген күн (7)", "Апта ⭐", "Барлығы ⭐", "Жағдайы"].map((t) => h("th", null, t)))));
+    tbl.appendChild(h("thead", null, h("tr", null, ...[KZ.t("Оқушы"), KZ.t("Кірген күн (7)"), KZ.t("Апта ⭐"), KZ.t("Барлығы ⭐"), KZ.t("Жағдайы")].map((t) => h("th", null, t)))));
     const body = el("tbody");
     r.people
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name, "kk"))
       .forEach((p) => {
         const [emo] = STATUS[p.status];
-        const where = p.cur && ["stuck", "idle"].includes(p.status) ? " (қазір: " + levelTitle(p.cur.c, p.cur.l) + ")" : "";
-        body.appendChild(h("tr", "st-" + p.status, h("td", null, p.name), h("td", null, p.days7 + "/7"), h("td", null, String(p.weekStars)), h("td", null, String(p.stars)), h("td", null, emo + " " + (p.note || "жақсы жүріп жатыр") + where)));
+        const where = p.cur && ["stuck", "idle"].includes(p.status) ? KZ.t(" (қазір: ") + levelTitle(p.cur.c, p.cur.l) + ")" : "";
+        body.appendChild(h("tr", "st-" + p.status, h("td", null, p.name), h("td", null, p.days7 + "/7"), h("td", null, String(p.weekStars)), h("td", null, String(p.stars)), h("td", null, emo + " " + (p.note || KZ.t("жақсы жүріп жатыр")) + where)));
       });
     tbl.appendChild(body);
     sheet.appendChild(tbl);
-    sheet.appendChild(h("h3", null, "Назар аудару керек"));
-    if (!r.attention.length) sheet.appendChild(h("p", null, "Тұрып қалған не кірмей кеткен оқушы жоқ."));
+    sheet.appendChild(h("h3", null, KZ.t("Назар аудару керек")));
+    if (!r.attention.length) sheet.appendChild(h("p", null, KZ.t("Тұрып қалған не кірмей кеткен оқушы жоқ.")));
     else sheet.appendChild(h("p", null, r.attention.map((p) => p.name + ": " + p.note).join("; ") + "."));
     if (r.hard.length) {
-      sheet.appendChild(h("h3", null, "Қиын болған тапсырмалар"));
+      sheet.appendChild(h("h3", null, KZ.t("Қиын болған тапсырмалар")));
       const ul = el("ul");
       r.hard.forEach((x) =>
-        ul.appendChild(h("li", null, KZ.getCourse(x.c).emoji + " " + levelTitle(x.c, x.l) + ": " + x.done + " оқушы өткен, орташа ⭐ " + x.avg + (x.stuck.length ? ", тұрып қалғандар: " + x.stuck.join(", ") : "")))
+        ul.appendChild(h("li", null, KZ.getCourse(x.c).emoji + " " + levelTitle(x.c, x.l) + ": " + x.done + KZ.nt(x.done, " оқушы өткен, орташа ⭐ ") + x.avg + (x.stuck.length ? KZ.t(", тұрып қалғандар: ") + x.stuck.join(", ") : "")))
       );
       sheet.appendChild(ul);
     }
@@ -971,45 +971,45 @@
   }
 
   async function statsPanel(c, box) {
-    box.textContent = "Жүктелуде…";
+    box.textContent = KZ.t("Жүктелуде…");
     try {
       const data = await A.rpc("class_stats", { cid: c.id });
       const courses = KZ.courses.filter((x) => x.status === "ready");
       const r = KZ.classStats.compute(data, courses);
       box.textContent = "";
       if (!r.n) {
-        box.appendChild(h("p", "empty-note", "Әзірге оқушы жоқ."));
+        box.appendChild(h("p", "empty-note", KZ.t("Әзірге оқушы жоқ.")));
         return;
       }
       const chips = el("div", "chips-row");
-      [["👥 " + r.n + " оқушы"], ["🔥 Осы аптада кірген: " + r.active7 + "/" + r.n], ["⭐ Барлығы: " + r.totalStars], ["⚠ Назар керек: " + r.attention.length]].forEach(([t]) => chips.appendChild(h("span", "mini has", t)));
+      [["👥 " + r.n + KZ.nt(r.n, " оқушы")], [KZ.t("🔥 Осы аптада кірген: ") + r.active7 + "/" + r.n], [KZ.t("⭐ Барлығы: ") + r.totalStars], [KZ.t("⚠ Назар керек: ") + r.attention.length]].forEach(([t]) => chips.appendChild(h("span", "mini has", t)));
       box.appendChild(chips);
-      box.appendChild(btn("btn small", "🖨 Апталық есеп", () => reportDialog(c, r)));
+      box.appendChild(btn("btn small", KZ.t("🖨 Апталық есеп"), () => reportDialog(c, r)));
 
-      box.appendChild(h("h4", "st-h", "⚠ Назар аудару керек"));
-      if (!r.attention.length) box.appendChild(h("p", "empty-note", "Бәрі жақсы: тұрып қалған не кірмей кеткен оқушы жоқ 🎉"));
+      box.appendChild(h("h4", "st-h", KZ.t("⚠ Назар аудару керек")));
+      if (!r.attention.length) box.appendChild(h("p", "empty-note", KZ.t("Бәрі жақсы: тұрып қалған не кірмей кеткен оқушы жоқ 🎉")));
       r.attention.forEach((p) => {
         const [emo] = STATUS[p.status];
-        const where = p.cur ? " · қазір: " + KZ.getCourse(p.cur.c).emoji + " " + levelTitle(p.cur.c, p.cur.l) : "";
+        const where = p.cur ? KZ.t(" · қазір: ") + KZ.getCourse(p.cur.c).emoji + " " + levelTitle(p.cur.c, p.cur.l) : "";
         box.appendChild(h("div", "st-row " + p.status, h("b", null, emo + " " + p.name), h("small", null, p.note + where)));
       });
 
-      box.appendChild(h("h4", "st-h", "🧗 Қиын тапсырмалар"));
-      if (!r.hard.length) box.appendChild(h("p", "empty-note", "Әзірге қиын болған тапсырма байқалмайды."));
+      box.appendChild(h("h4", "st-h", KZ.t("🧗 Қиын тапсырмалар")));
+      if (!r.hard.length) box.appendChild(h("p", "empty-note", KZ.t("Әзірге қиын болған тапсырма байқалмайды.")));
       r.hard.forEach((x) => {
         const course = KZ.getCourse(x.c);
-        const parts = [x.done + " оқушы өткен", "орташа ⭐ " + x.avg];
-        if (x.stuck.length) parts.push("тұрып қалғандар: " + x.stuck.join(", "));
+        const parts = [x.done + KZ.nt(x.done, " оқушы өткен"), KZ.t("орташа ⭐ ") + x.avg];
+        if (x.stuck.length) parts.push(KZ.t("тұрып қалғандар: ") + x.stuck.join(", "));
         box.appendChild(h("div", "st-row", h("b", null, course.emoji + " " + levelTitle(x.c, x.l)), h("small", null, parts.join(" · "))));
       });
 
-      box.appendChild(h("h4", "st-h", "📅 Белсенділік (соңғы 7 күн)"));
+      box.appendChild(h("h4", "st-h", KZ.t("📅 Белсенділік (соңғы 7 күн)")));
       r.people.forEach((p) => {
         const dots = el("span", "st-dots");
         for (let i = 0; i < 7; i++) dots.appendChild(h("i", i < p.days7 ? "on" : ""));
         box.appendChild(h("div", "st-act", h("span", null, p.name), dots, h("small", null, p.days7 + "/7 · ⭐ " + p.stars)));
       });
-      box.appendChild(h("small", "st-note", "«Тұрып қалған» — соңғы күндері кіріп жүр, бірақ 3 күннен бері жаңа жұлдыз алмаған оқушы. «Қиын тапсырма» — орташа жұлдызы төмен не оқушылар қазір тұрған тапсырма."));
+      box.appendChild(h("small", "st-note", KZ.t("«Тұрып қалған» — соңғы күндері кіріп жүр, бірақ 3 күннен бері жаңа жұлдыз алмаған оқушы. «Қиын тапсырма» — орташа жұлдызы төмен не оқушылар қазір тұрған тапсырма.")));
     } catch (e) {
       box.textContent = "";
       failWith(box, e);
@@ -1019,13 +1019,13 @@
   async function classCard(root, c) {
     const card = el("section", "card cls-card");
     const top = el("div", "cls-top");
-    top.appendChild(h("div", null, h("b", "cls-name", c.name), h("small", null, c.students + " оқушы" + (c.mine ? "" : " · " + c.teacher))));
+    top.appendChild(h("div", null, h("b", "cls-name", c.name), h("small", null, c.students + KZ.nt(c.students, " оқушы") + (c.mine ? "" : " · " + c.teacher))));
     const code = h("button", "code-box", c.code);
     code.type = "button";
-    code.title = "Көшіру";
+    code.title = KZ.t("Көшіру");
     code.addEventListener("click", () => {
       if (navigator.clipboard) navigator.clipboard.writeText(c.code).catch(() => {});
-      code.textContent = "✔ көшірілді";
+      code.textContent = KZ.t("✔ көшірілді");
       setTimeout(() => (code.textContent = c.code), 1200);
     });
     top.appendChild(code);
@@ -1034,26 +1034,26 @@
     const body = el("div", "cls-body");
     body.hidden = true;
     let loaded = false;
-    const open = btn("btn small", "Оқушыларды көру", async () => {
+    const open = btn("btn small", KZ.t("Оқушыларды көру"), async () => {
       body.hidden = !body.hidden;
-      open.textContent = body.hidden ? "Оқушыларды көру" : "Жасыру";
+      open.textContent = body.hidden ? KZ.t("Оқушыларды көру") : KZ.t("Жасыру");
       if (loaded || body.hidden) return;
       loaded = true;
       await renderStudents();
     });
     async function renderStudents() {
-      body.textContent = "Жүктелуде…";
+      body.textContent = KZ.t("Жүктелуде…");
       try {
         const list = await A.rpc("class_overview", { cid: c.id });
         body.textContent = "";
-        if (!list.length) body.appendChild(h("p", "empty-note", "Әзірге оқушы жоқ. Кодты оқушыларға бер: " + c.code));
+        if (!list.length) body.appendChild(h("p", "empty-note", KZ.t("Әзірге оқушы жоқ. Кодты оқушыларға бер: ") + c.code));
         const detail = el("div", "detail");
         list.forEach((s) => {
           const row = el("div", "stu-row");
           const main = h("button", "stu-main", h("b", null, s.full_name), h("small", null, ago(s.last_seen)), courseSummary(s.courses), h("span", "stu-stars", "⭐ " + s.stars));
           main.type = "button";
           main.addEventListener("click", () => studentDetail(detail, s.id));
-          row.append(main, confirmBtn("btn small ghost", "✕", "Шығару?", async () => {
+          row.append(main, confirmBtn("btn small ghost", "✕", KZ.t("Шығару?"), async () => {
             await A.rpc("remove_student", { cid: c.id, sid: s.id });
             c.students--;
             await renderStudents();
@@ -1068,16 +1068,16 @@
     }
     const statsBox = el("div", "cls-body stats-box");
     statsBox.hidden = true;
-    const statsBtn = btn("btn small", "📊 Статистика", async () => {
+    const statsBtn = btn("btn small", KZ.t("📊 Статистика"), async () => {
       statsBox.hidden = !statsBox.hidden;
-      statsBtn.textContent = statsBox.hidden ? "📊 Статистика" : "📊 Жасыру";
+      statsBtn.textContent = statsBox.hidden ? KZ.t("📊 Статистика") : KZ.t("📊 Жасыру");
       if (!statsBox.hidden) await statsPanel(c, statsBox);
     });
     const ratingBox = el("div", "cls-body");
     ratingBox.hidden = true;
-    const ratingBtn = btn("btn small", "🏆 Рейтинг", async () => {
+    const ratingBtn = btn("btn small", KZ.t("🏆 Рейтинг"), async () => {
       ratingBox.hidden = !ratingBox.hidden;
-      ratingBtn.textContent = ratingBox.hidden ? "🏆 Рейтинг" : "🏆 Жасыру";
+      ratingBtn.textContent = ratingBox.hidden ? KZ.t("🏆 Рейтинг") : KZ.t("🏆 Жасыру");
       if (ratingBox.hidden) return;
       ratingBox.textContent = "";
       const sw = el("label", "rating-switch");
@@ -1085,7 +1085,7 @@
       cb.type = "checkbox";
       cb.checked = !!c.rating;
       const note = h("small", null, "");
-      const setNote = () => (note.textContent = c.rating ? "Оқушылар рейтингті көреді." : "Қазір рейтинг тек саған көрінеді, оқушыларға жасырын.");
+      const setNote = () => (note.textContent = c.rating ? KZ.t("Оқушылар рейтингті көреді.") : KZ.t("Қазір рейтинг тек саған көрінеді, оқушыларға жасырын."));
       setNote();
       cb.addEventListener("change", async () => {
         cb.disabled = true;
@@ -1098,7 +1098,7 @@
         cb.disabled = false;
         setNote();
       });
-      sw.append(cb, h("span", null, " Оқушыларға көрсету"));
+      sw.append(cb, h("span", null, KZ.t(" Оқушыларға көрсету")));
       const list = el("div");
       ratingBox.append(sw, note, list);
       await ratingPanel(c.id, list);
@@ -1107,7 +1107,7 @@
     actions.appendChild(open);
     actions.appendChild(statsBtn);
     actions.appendChild(ratingBtn);
-    actions.appendChild(confirmBtn("btn small ghost", "Сыныпты өшіру", "Расымен өшіру?", async () => {
+    actions.appendChild(confirmBtn("btn small ghost", KZ.t("Сыныпты өшіру"), KZ.t("Расымен өшіру?"), async () => {
       await A.rpc("delete_class", { cid: c.id });
       teacher(root);
     }));
@@ -1122,17 +1122,17 @@
       location.hash = "#/login";
       return;
     }
-    const page = shell(root, "Сыныптарым", ["#/account", "← Кабинет"]);
+    const page = shell(root, KZ.t("Сыныптарым"), ["#/account", KZ.t("← Кабинет")]);
     if (!A.canTeach()) {
-      notice(page, "info", "Рұқсат жоқ", A.profile.status === "pending" ? "Мұғалім аккаунтың әлі бекітілмеген." : "Бұл бет тек мұғалімдерге арналған.");
+      notice(page, "info", KZ.t("Рұқсат жоқ"), A.profile.status === "pending" ? KZ.t("Мұғалім аккаунтың әлі бекітілмеген.") : KZ.t("Бұл бет тек мұғалімдерге арналған."));
       return;
     }
     const f = el("form", "card inline-form");
     const i = el("input");
-    i.placeholder = "Жаңа сынып атауы, мысалы: 5А";
+    i.placeholder = KZ.t("Жаңа сынып атауы, мысалы: 5А");
     i.required = true;
     i.maxLength = 60;
-    const go = el("button", "btn primary", "＋ Сынып ашу");
+    const go = el("button", "btn primary", KZ.t("＋ Сынып ашу"));
     go.type = "submit";
     f.append(i, go);
     f.addEventListener("submit", async (e) => {
@@ -1147,12 +1147,12 @@
       }
     });
     page.appendChild(f);
-    page.appendChild(h("p", "hint", "Сынып кодын оқушыларға бер: олар тіркелгенде не кабинетінде кодты енгізіп қосылады."));
+    page.appendChild(h("p", "hint", KZ.t("Сынып кодын оқушыларға бер: олар тіркелгенде не кабинетінде кодты енгізіп қосылады.")));
     const box = el("div", "cls-list");
     page.appendChild(box);
     try {
       const list = await A.rpc("teacher_classes");
-      if (!list.length) box.appendChild(h("p", "empty-note", "Әзірге сынып жоқ. Жоғарыдан біріншісін аш."));
+      if (!list.length) box.appendChild(h("p", "empty-note", KZ.t("Әзірге сынып жоқ. Жоғарыдан біріншісін аш.")));
       for (const c of list) box.appendChild(await classCard(root, c));
     } catch (e) {
       failWith(page, e);
@@ -1167,16 +1167,16 @@
       location.hash = "#/login";
       return;
     }
-    const page = shell(root, "Басқару панелі", ["#/account", "← Кабинет"]);
+    const page = shell(root, KZ.t("Басқару панелі"), ["#/account", KZ.t("← Кабинет")]);
     if (!A.isStaff()) {
-      notice(page, "bad", "Рұқсат жоқ", "Бұл бет тек құрушы мен админдерге арналған.");
+      notice(page, "bad", KZ.t("Рұқсат жоқ"), KZ.t("Бұл бет тек құрушы мен админдерге арналған."));
       return;
     }
     const isOwner = A.profile.role === "owner";
     try {
       const [st, users] = await Promise.all([A.rpc("admin_stats"), A.rpc("admin_users")]);
       const stats = el("div", "stats");
-      [["🎒", st.students, "оқушы"], ["👩‍🏫", st.teachers, "мұғалім"], ["🏫", st.classes, "сынып"], ["⭐", st.stars, "жұлдыз"], ["⏳", st.pending, "күтуде"]].forEach(([e, n, l]) =>
+      [["🎒", st.students, KZ.t("оқушы")], ["👩‍🏫", st.teachers, KZ.t("мұғалім")], ["🏫", st.classes, KZ.t("сынып")], ["⭐", st.stars, KZ.t("жұлдыз")], ["⏳", st.pending, KZ.t("күтуде")]].forEach(([e, n, l]) =>
         stats.appendChild(h("div", "stat", h("span", "se", e), h("b", null, String(n)), h("small", null, l)))
       );
       page.appendChild(stats);
@@ -1194,27 +1194,27 @@
       const pend = users.filter((u) => u.status === "pending");
       if (pend.length) {
         const card = el("section", "card");
-        card.appendChild(h("div", "card-title", "⏳ Бекітуді күтіп тұрған мұғалімдер"));
+        card.appendChild(h("div", "card-title", KZ.t("⏳ Бекітуді күтіп тұрған мұғалімдер")));
         pend.forEach((u) => {
           card.appendChild(
             h("div", "user-row",
               h("div", "u-info", h("b", null, u.full_name), h("small", null, u.email)),
               h("div", "u-actions",
-                btn("btn small primary", "Бекіту", act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))),
-                confirmBtn("btn small ghost", "Қабылдамау", "Өшіру?", act(() => A.rpc("admin_delete_user", { uid: u.id })))))
+                btn("btn small primary", KZ.t("Бекіту"), act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))),
+                confirmBtn("btn small ghost", KZ.t("Қабылдамау"), KZ.t("Өшіру?"), act(() => A.rpc("admin_delete_user", { uid: u.id })))))
           );
         });
         page.appendChild(card);
       }
 
       const card = el("section", "card");
-      card.appendChild(h("div", "card-title", "Барлық пайдаланушылар (" + users.length + ")"));
+      card.appendChild(h("div", "card-title", KZ.t("Барлық пайдаланушылар (") + users.length + ")"));
       const filters = el("div", "filters");
       const q = el("input");
       q.type = "search";
-      q.placeholder = "🔍 Аты не email";
+      q.placeholder = KZ.t("🔍 Аты не email");
       const sel = el("select");
-      [["", "Барлық рөл"], ["student", "Оқушылар"], ["teacher", "Мұғалімдер"], ["admin", "Админдер"], ["owner", "Құрушы"]].forEach(([v, l]) => {
+      [["", KZ.t("Барлық рөл")], ["student", KZ.t("Оқушылар")], ["teacher", KZ.t("Мұғалімдер")], ["admin", KZ.t("Админдер")], ["owner", KZ.t("Құрушы")]].forEach(([v, l]) => {
         const o = el("option", null, l);
         o.value = v;
         sel.appendChild(o);
@@ -1234,34 +1234,34 @@
             const canTouch = !me && u.role !== "owner" && (isOwner || u.role !== "admin");
             const actions = el("div", "u-actions");
             if (canTouch) {
-              if (u.status === "pending") actions.appendChild(btn("btn small primary", "Бекіту", act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))));
-              else if (u.status === "blocked") actions.appendChild(btn("btn small", "Ашу", act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))));
-              else actions.appendChild(confirmBtn("btn small ghost", "Бұғаттау", "Бұғаттау?", act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "blocked" }))));
+              if (u.status === "pending") actions.appendChild(btn("btn small primary", KZ.t("Бекіту"), act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))));
+              else if (u.status === "blocked") actions.appendChild(btn("btn small", KZ.t("Ашу"), act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "active" }))));
+              else actions.appendChild(confirmBtn("btn small ghost", KZ.t("Бұғаттау"), KZ.t("Бұғаттау?"), act(() => A.rpc("admin_set_status", { uid: u.id, new_status: "blocked" }))));
               if (isOwner) {
                 const rs = el("select", "role-sel");
-                [["student", "Оқушы"], ["teacher", "Мұғалім"], ["admin", "Админ"]].forEach(([v, l]) => {
+                [["student", KZ.t("Оқушы")], ["teacher", KZ.t("Мұғалім")], ["admin", KZ.t("Админ")]].forEach(([v, l]) => {
                   const o = el("option", null, l);
                   o.value = v;
                   if (v === u.role) o.selected = true;
                   rs.appendChild(o);
                 });
-                rs.title = "Рөлді өзгерту";
+                rs.title = KZ.t("Рөлді өзгерту");
                 rs.addEventListener("change", act(() => A.rpc("admin_set_role", { uid: u.id, new_role: rs.value })));
                 actions.appendChild(rs);
               }
               if (isOwner || u.role === "student" || u.role === "teacher") actions.appendChild(resetPwButton(u.id, u.full_name));
-              actions.appendChild(confirmBtn("btn small ghost", "🗑", "Өшіру?", act(() => A.rpc("admin_delete_user", { uid: u.id }))));
+              actions.appendChild(confirmBtn("btn small ghost", "🗑", KZ.t("Өшіру?"), act(() => A.rpc("admin_delete_user", { uid: u.id }))));
             }
             list.appendChild(
               h("div", "user-row",
                 h("div", "u-info",
-                  h("b", null, (ROLE_EMOJI[u.role] || "") + " " + u.full_name + (me ? " (мен)" : "")),
+                  h("b", null, (ROLE_EMOJI[u.role] || "") + " " + u.full_name + (me ? KZ.t(" (мен)") : "")),
                   h("small", null, u.email),
                   h("small", null, A.roleLabel(u.role) + " · " + A.statusLabel(u.status) + " · ⭐ " + u.stars + " · " + ago(u.last_seen))),
                 actions)
             );
           });
-        if (!list.children.length) list.appendChild(h("p", "empty-note", "Ештеңе табылмады."));
+        if (!list.children.length) list.appendChild(h("p", "empty-note", KZ.t("Ештеңе табылмады.")));
       }
       q.addEventListener("input", renderList);
       sel.addEventListener("change", renderList);
