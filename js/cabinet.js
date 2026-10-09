@@ -445,8 +445,9 @@
     const medal = ["🥇", "🥈", "🥉"];
     rows.forEach((r, i) => {
       const bit = el("span", "rating-bit hero-fig");
-      if (r.hero && r.hero.eq && KZ.hero) {
-        bit.innerHTML = KZ.hero.svg({ color: r.hero.color, eq: r.hero.eq, still: true, lg: r.lg || 0, streak: r.streak || 0 });
+      if (KZ.hero) {
+        const hs = r.hero && r.hero.eq ? r.hero : { color: "#6c5ce7", eq: {} };
+        bit.innerHTML = KZ.hero.svg({ color: hs.color, eq: hs.eq, still: true, lg: r.lg || 0, streak: r.streak || 0 });
       } else bit.textContent = "🙂";
       const lgm = r.lg ? ["🥇", "🥈", "🥉"][r.lg - 1] : "";
       wrap.appendChild(

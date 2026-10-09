@@ -62,6 +62,17 @@
       .filter(Boolean);
     KZ.updateTotal();
 
+    const A_ = KZ.auth;
+    const accounts = !!(A_ && A_.enabled);
+    if (parts[0] === "welcome" || (parts.length === 0 && accounts && !A_.profile)) {
+      if (accounts && !A_.settled && parts[0] !== "welcome") {
+        views.cab.textContent = "Жүктелуде…";
+        A_.ready.then(route);
+        return show("cab", "Bitlings");
+      }
+      KZ.landingPage(views.cab);
+      return show("cab", "Кодты көзбен көр");
+    }
     if (parts.length === 0) {
       KZ.views.home(views.home);
       return show("home");

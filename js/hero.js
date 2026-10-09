@@ -132,6 +132,7 @@
       if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
     });
     KZ.store.set(KEY, s);
+    push();
     return s;
   }
   const LKEY = "kodzholy.league";
