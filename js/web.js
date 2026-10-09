@@ -321,6 +321,7 @@
     const box = $("#webResult");
     box.textContent = "";
     box.className = "card result " + (ok ? "ok" : "bad");
+    if (KZ.hero && KZ.hero.react) KZ.hero.react(ok ? "ok" : "bad");
     box.appendChild(el("h2", null, ok ? "🎉 Тамаша!" : "🤔 Әлі толық емес"));
     if (ok) {
       const stars = KZ.starsFor(level, lines);

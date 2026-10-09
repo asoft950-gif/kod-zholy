@@ -25,6 +25,9 @@ create table if not exists public.profiles (
   last_seen timestamptz
 );
 
+-- Оқушының кейіпкері (Bitlings): { color, starters, eq, t }
+alter table public.profiles add column if not exists hero jsonb;
+
 create table if not exists public.classes (
   id uuid primary key default gen_random_uuid(),
   teacher_id uuid not null references public.profiles(id) on delete cascade,
@@ -185,7 +188,7 @@ declare p jsonb;
 begin
   update public.profiles set last_seen = now() where id = auth.uid();
   select jsonb_build_object('id', id, 'email', email, 'full_name', full_name, 'role', role,
-                            'status', status, 'created_at', created_at)
+                            'status', status, 'created_at', created_at, 'hero', hero)
     into p from public.profiles where id = auth.uid();
   return p;
 end $$;
@@ -665,10 +668,55 @@ begin
   update public.classes set rating_on = coalesce(on_in, false) where id = cid;
 end $$;
 
+-- ---------- Апталық лига ----------
+-- Өткен аптада сыныпта ең көп жұлдыз жинаған үш оқушы осы аптаға арнайы зат алады.
+-- Апта дүйсенбіден басталады (UTC). Нәтиже аптаның басында бір рет қатырылады.
+create table if not exists public.league_weeks (
+  class_id uuid not null references public.classes(id) on delete cascade,
+  week date not null,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  rank int not null,
+  stars int not null,
+  primary key (class_id, week, user_id)
+);
+alter table public.league_weeks enable row level security;
+
+create or replace function public.ensure_league(cid uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare w date := date_trunc('week', now())::date;
+begin
+  if exists (select 1 from public.league_weeks where class_id = cid and week = w) then return; end if;
+  insert into public.league_weeks (class_id, week, user_id, rank, stars)
+  select cid, w, uid, rk, st from (
+    select m.student_id as uid, sum(g.stars)::int as st,
+           row_number() over (order by sum(g.stars) desc, min(p.full_name), m.student_id) as rk
+    from public.class_members m
+    join public.progress g on g.user_id = m.student_id
+    join public.profiles p on p.id = m.student_id
+    where m.class_id = cid and g.stars > 0 and g.updated_at >= (w - 7) and g.updated_at < w
+    group by m.student_id) q
+  where rk <= 3
+  on conflict do nothing;
+end $$;
+
+-- Менің осы аптадағы лига орным (1–3) не null
+create or replace function public.my_league() returns int
+language plpgsql security definer set search_path = public as $$
+declare w date := date_trunc('week', now())::date; c record;
+begin
+  if auth.uid() is null then return null; end if;
+  for c in select cl.id from public.class_members m join public.classes cl on cl.id = m.class_id
+           where m.student_id = auth.uid() and cl.rating_on loop
+    perform public.ensure_league(c.id);
+  end loop;
+  return (select min(l.rank) from public.league_weeks l join public.classes cl on cl.id = l.class_id
+          where l.user_id = auth.uid() and l.week = w and cl.rating_on);
+end $$;
+
 -- Мұғалімге әрдайым, оқушыға тек рейтинг қосулы болғанда (және ол сыныпта болса)
 create or replace function public.class_rating(cid uuid) returns jsonb
 language plpgsql security definer set search_path = public as $$
-declare on_ boolean; mgr boolean := public.can_manage_class(cid);
+declare on_ boolean; mgr boolean := public.can_manage_class(cid); w date := date_trunc('week', now())::date;
 begin
   select rating_on into on_ from public.classes where id = cid;
   if on_ is null then raise exception 'forbidden'; end if;
@@ -676,11 +724,29 @@ begin
       select 1 from public.class_members where class_id = cid and student_id = auth.uid())) then
     raise exception 'forbidden';
   end if;
+  perform public.ensure_league(cid);
   return jsonb_build_object('on', on_, 'rows', coalesce((select jsonb_agg(x order by (x ->> 'stars')::int desc, (x ->> 'streak')::int desc, x ->> 'name') from (
     select jsonb_build_object('name', p.full_name, 'me', p.id = auth.uid(),
       'stars', coalesce((select sum(g.stars) from public.progress g where g.user_id = p.id), 0)::int,
-      'streak', public.user_streak(p.id)) as x
+      'streak', public.user_streak(p.id),
+      'hero', p.hero,
+      'lg', (select l.rank from public.league_weeks l where l.class_id = cid and l.week = w and l.user_id = p.id),
+      'week', coalesce((select sum(g.stars) from public.progress g where g.user_id = p.id and g.updated_at >= w), 0)::int) as x
     from public.class_members m join public.profiles p on p.id = m.student_id where m.class_id = cid) q), '[]'::jsonb));
+end $$;
+
+-- ---------- Кейіпкерді сақтау ----------
+create or replace function public.save_hero(h jsonb) returns void
+language plpgsql security definer set search_path = public as $$
+declare clean jsonb;
+begin
+  if public.active_role() is null then raise exception 'not_active'; end if;
+  if h is null or jsonb_typeof(h) <> 'object' or octet_length(h::text) > 2000 then raise exception 'bad_hero'; end if;
+  if coalesce(h ->> 'color', '') !~ '^#[0-9a-fA-F]{6}$' then raise exception 'bad_hero'; end if;
+  if jsonb_typeof(h -> 'starters') <> 'array' or jsonb_typeof(h -> 'eq') <> 'object' then raise exception 'bad_hero'; end if;
+  clean := jsonb_build_object('color', h -> 'color', 'starters', h -> 'starters', 'eq', h -> 'eq',
+                              't', coalesce((h ->> 't')::numeric, 0));
+  update public.profiles set hero = clean where id = auth.uid();
 end $$;
 
 -- ---------- Құпиясөзді қалпына келтіру (пошта керек емес) ----------
@@ -715,7 +781,7 @@ begin
              'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
              'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
              'get_assignment','submit_assignment',
-             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password','set_class_rating','class_rating')
+             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password','set_class_rating','class_rating','my_league','save_hero')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);
@@ -727,5 +793,6 @@ revoke all on function public.active_role() from public, anon, authenticated;
 revoke all on function public.require_role(text[]) from public, anon, authenticated;
 revoke all on function public.can_manage_class(uuid) from public, anon, authenticated;
 revoke all on function public.user_streak(uuid) from public, anon, authenticated;
+revoke all on function public.ensure_league(uuid) from public, anon, authenticated;
 revoke all on function public.make_class_code() from public, anon, authenticated;
 revoke all on function public.handle_new_user() from public, anon, authenticated;

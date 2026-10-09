@@ -101,6 +101,10 @@
     { id: "flame", slot: "aura", n: "Жалын ауасы", unlock: { streak: 3 }, back: true, svg: () => `<g opacity=".92"><path d="M100 214C40 214 16 172 24 128C30 96 54 84 58 54C72 70 76 86 80 96C82 70 92 48 100 28C108 48 118 70 120 96C124 86 128 70 142 54C146 84 170 96 176 128C184 172 160 214 100 214Z" fill="#ff922b" ${S3}/><path d="M100 210C58 210 42 180 48 150C52 128 68 120 72 100C80 112 84 122 86 130C88 112 94 98 100 84C106 98 112 112 114 130C116 122 120 112 128 100C132 120 148 128 152 150C158 180 142 210 100 210Z" fill="#ffd43b"/></g>` },
     { id: "bolt", slot: "aura", n: "Найзағай ауасы", unlock: { streak: 7 }, back: true, svg: () => `<g fill="#ffe066" ${S3}><path d="M14 54l22 6-12 18 20 6-28 30 6-24-18-6z"/><path d="M176 70l20 6-10 16 18 6-26 28 5-22-16-6z"/></g>` },
     { id: "galaxy", slot: "aura", n: "Галактика ауасы", unlock: { streak: 30 }, back: true, svg: () => `<circle cx="100" cy="132" r="98" fill="rgba(108,92,231,.28)" stroke="#9775fa" stroke-width="3" stroke-dasharray="4 9"/><g fill="#ffffff"><circle cx="20" cy="96" r="3"/><circle cx="178" cy="70" r="3"/><circle cx="172" cy="196" r="2.5"/><circle cx="26" cy="190" r="2.5"/><circle cx="150" cy="40" r="2"/></g>` },
+    /* ---- апталық лига (өткен аптада сыныпта топ-3; тек осы апта ғана) ---- */
+    { id: "lg1", slot: "hat", n: "Алтын лавр (лига 🥇)", unlock: { league: 1 }, svg: () => `<g ${S3} fill="#ffd23f"><ellipse cx="54" cy="84" rx="6" ry="11" transform="rotate(-28 54 84)"/><ellipse cx="47" cy="68" rx="6" ry="11" transform="rotate(-8 47 68)"/><ellipse cx="52" cy="52" rx="6" ry="11" transform="rotate(18 52 52)"/><ellipse cx="66" cy="40" rx="6" ry="11" transform="rotate(42 66 40)"/><ellipse cx="146" cy="84" rx="6" ry="11" transform="rotate(28 146 84)"/><ellipse cx="153" cy="68" rx="6" ry="11" transform="rotate(8 153 68)"/><ellipse cx="148" cy="52" rx="6" ry="11" transform="rotate(-18 148 52)"/><ellipse cx="134" cy="40" rx="6" ry="11" transform="rotate(-42 134 40)"/></g><path d="${star(100, 34, 13)}" fill="#ff6b6b" stroke="${INK}" stroke-width="3"/>` },
+    { id: "lg2", slot: "pin", n: "Күміс медаль (лига 🥈)", unlock: { league: 2 }, svg: () => `<path d="M126 150l10 20M150 150l-10 20" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M126 150l10 20M150 150l-10 20" stroke="#4dabf7" stroke-width="5" stroke-linecap="round"/><circle cx="138" cy="182" r="14" fill="#ced4da" ${S3}/><text x="138" y="188" font-size="16" font-weight="900" text-anchor="middle" fill="#495057">2</text>` },
+    { id: "lg3", slot: "pin", n: "Қола медаль (лига 🥉)", unlock: { league: 3 }, svg: () => `<path d="M126 150l10 20M150 150l-10 20" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M126 150l10 20M150 150l-10 20" stroke="#ff922b" stroke-width="5" stroke-linecap="round"/><circle cx="138" cy="182" r="14" fill="#e0955a" ${S3}/><text x="138" y="188" font-size="16" font-weight="900" text-anchor="middle" fill="#5c2b0f">3</text>` },
   ];
   const BYID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
   const STARTERS_N = 4;
@@ -130,11 +134,36 @@
     KZ.store.set(KEY, s);
     return s;
   }
-  const save = (s) => KZ.store.set(KEY, s);
+  const LKEY = "kodzholy.league";
+  /* апта басы (дүйсенбі, UTC): сервердегі date_trunc('week') сияқты */
+  const weekKey = () => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    return d.toISOString().slice(0, 10);
+  };
+  const leagueRank = () => {
+    const L = KZ.store.get(LKEY, null);
+    return L && L.week === weekKey() ? L.rank : null;
+  };
+  /* аккаунтқа сақтау (қысқа кідіріспен, интернет жоқта үнсіз өтеді) */
+  let pushT = null;
+  function push() {
+    clearTimeout(pushT);
+    pushT = setTimeout(() => {
+      const A = KZ.auth;
+      if (A && A.isActive && A.isActive()) A.rpc("save_hero", { h: ensure() }).catch(() => {});
+    }, 1500);
+  }
+  const save = (s) => {
+    s.t = Date.now();
+    KZ.store.set(KEY, s);
+    push();
+  };
 
   const need = (i) => {
     const u = i.unlock;
     if (u === "start") return "Бастапқы жиынтықта кездейсоқ беріледі";
+    if (u.league) return "Апталық лига: өткен аптада сыныпта " + u.league + "-орын алсаң, осы аптада ғана киесің";
     if (typeof u === "object") return "Серия " + u.streak + " күнге жеткенде ғана көрінеді";
     const a = KZ.ach.defs().find((x) => x.id === u);
     return a ? "Жетістік: " + a.t : "Жетістік арқылы ашылады";
@@ -149,14 +178,56 @@
       s = s || ensure();
       const u = i.unlock;
       if (u === "start") return s.starters.includes(i.id);
+      if (u.league) return leagueRank() === u.league;
       if (typeof u === "object") return hero.bestStreak() >= u.streak;
       return !!KZ.ach.unlocked()[u];
     },
     bestStreak: () => (KZ.activity ? KZ.activity.best() : 0),
     /* серия ауасы тек қазіргі серия жеткілікті болғанда көрінеді */
-    visible(i) {
-      if (typeof i.unlock === "object") return KZ.activity.streak().n >= i.unlock.streak;
+    visible(i, ctx) {
+      const u = i.unlock;
+      if (u && u.league) return ctx && ctx.lg !== undefined ? ctx.lg === u.league : leagueRank() === u.league;
+      if (u && u.streak) return (ctx && ctx.streak !== undefined ? ctx.streak : KZ.activity.streak().n) >= u.streak;
       return true;
+    },
+    weekKey,
+    leagueRank,
+    /* серверден лига орнын алу (кіргенде және рейтинг ашқанда) */
+    async loadLeague() {
+      const A = KZ.auth;
+      if (!A || !A.isActive || !A.isActive()) return;
+      try {
+        const r = await A.rpc("my_league");
+        hero.setLeague(r);
+      } catch (e) {
+        /* офлайн: соңғы белгілі мән қалады */
+      }
+    },
+    setLeague(rank) {
+      const prev = leagueRank();
+      if (rank) KZ.store.set(LKEY, { rank, week: weekKey() });
+      else KZ.store.set(LKEY, null);
+      if (rank && rank !== prev && !hero._lgToast) {
+        hero._lgToast = true;
+        const it = ITEMS.find((x) => x.unlock && x.unlock.league === rank);
+        setTimeout(() => KZ.toast && KZ.toast("🏅", "Апталық лига: " + rank + "-орын!", it ? "Жаңа зат: " + it.n + " — тек осы аптаға" : ""), 1200);
+      }
+      hero.refresh();
+    },
+    /* басқа құрылғыдан келген кейіпкерді қабылдау: жаңасы (t үлкені) жеңеді */
+    fromCloud(c) {
+      const l = load();
+      if (c && c.eq && Array.isArray(c.starters)) {
+        const ct = Number(c.t) || 0;
+        if (!l || ct >= (l.t || 0)) {
+          KZ.store.set(KEY, { color: c.color, starters: c.starters, eq: c.eq, t: ct });
+          hero.refresh();
+        } else push();
+      } else if (l) push();
+    },
+    /* көрінетін өз кейіпкерлерін қайта сызу */
+    refresh() {
+      document.querySelectorAll(".hero-fig[data-own]").forEach((f) => (f.innerHTML = hero.svg()));
     },
     equip(slot, id) {
       const s = ensure();
@@ -185,7 +256,7 @@
       const skin = (str) => str.replace(/fill="(#[0-9a-fA-F]{6})"/g, (m, hx) => `fill="${grad(hx)}"`);
       const get = (slot) => {
         const it = BYID[eq[slot]];
-        return it && it.slot === slot && (s.preview || hero.visible(it)) ? it : null;
+        return it && it.slot === slot && (s.preview || hero.visible(it, s)) ? it : null;
       };
       const draw = (it) => skin(it.svg(c));
       const auras = get("aura");
@@ -221,6 +292,7 @@
       if (!s.still) P.push(`<g class="hf-e2"><path d="M69 130C73 118 87 118 91 130M109 130C113 118 127 118 131 130" fill="none" stroke="#1c1240" stroke-width="6" stroke-linecap="round"/></g>`);
       P.push(`<path class="hf-m1" d="M92 150C96 156 104 156 108 150" fill="none" ${S}/>`);
       if (!s.still) P.push(`<g class="hf-m2"><path d="M87 145C87 163 113 163 113 145Z" fill="#5a1e52" ${S}/><ellipse cx="100" cy="156" rx="7" ry="3.5" fill="#ff7eb6"/></g>`);
+      P.push(`<path class="hf-m3" d="M91 156C95 148 105 148 109 156" fill="none" ${S}/><path class="hf-sweat" d="M152 96C147 105 147 111 152 111C157 111 157 105 152 96Z" fill="#9fe3ff" stroke="${INK}" stroke-width="2.5"/>`);
       const neck = get("neck");
       if (neck) P.push(draw(neck));
       const face = get("face");
@@ -240,6 +312,7 @@
     /* DOM элементі */
     node(cls) {
       const d = el("span", "hero-fig" + (cls ? " " + cls : ""));
+      d.dataset.own = "1";
       d.innerHTML = hero.svg();
       d.addEventListener("click", () => hero.cheer());
       return d;
@@ -247,6 +320,94 @@
     /* Жаңа ашылған заттарды хабарлау үшін: жетістіктен кейін қайсы зат ашылды */
     newFor(achIds) {
       return ITEMS.filter((i) => typeof i.unlock === "string" && achIds.includes(i.unlock));
+    },
+  });
+
+
+  /* ---------- Сабақтағы көмекші: Бит тапсырма мен лекцияда сөйлейді ---------- */
+  const SAY = {
+    err: ["Қате шықты — қорықпа, ол жол сілтеп тұр! Қызыл жазуды оқып көрейік.", "Ештеңе етпейді, бағдарламашылар күніне жүз рет қателеседі 🐞", "Қате жолын тауып, бір әріпті түзетіп көр."],
+    bad: ["Жақынсың! Тапсырма шартын қайта оқып көр.", "Әлі сәл жетпей тұр. Нәтижені күткенмен салыстыр.", "Ойланып көрейік: не өзгертсем болады?"],
+    ok: ["Керемет! Мықтысың! 🎉", "Дәл тапсың! Келесісіне!", "Ура! Бұл тапсырма шешілді ⭐", "Тамаша жұмыс!"],
+    fail3: "Бірнеше рет болмады ма? «Кеңес» батырмасын басып көр 💡",
+  };
+  const FACTS = {
+    python: ["Python атауы жыланнан емес, «Монти Пайтон» комедия шоуынан шыққан.", "Python-да шегініс (бос орын) — синтаксистің бір бөлігі, оны қалай болса солай қоюға болмайды.", "print() ең алғашқы бағдарламаның қатар-қатарында жүреді: «Hello, world!»."],
+    html: ["HTML — бағдарламалау тілі емес, белгілеу тілі: ол бет құрылымын сипаттайды.", "Алғашқы веб-сайт 1991 жылы жасалған және тек мәтіннен тұрған.", "Тегтердің көбі жұп болады: ашатын <p> және жабатын </p>."],
+    css: ["CSS — Cascading Style Sheets: «каскадты» дегені қайсы ереже басым екенін білдіреді.", "Бір элементке бірнеше ереже тисе, нақтырақ селектор жеңеді.", "Flexbox пен Grid болмай тұрған кезде беттер кестелермен жасалған."],
+    javascript: ["JavaScript-ті 1995 жылы небәрі 10 күнде жазған деген әңгіме бар.", "Java мен JavaScript — екі бөлек тіл, аттарының ұқсастығы тек маркетингтен.", "Браузердің өзінде JavaScript жұмыс істейді — қосымша ештеңе орнатпайсың."],
+    sql: ["SQL-ді «сиквел» деп те оқиды, екеуі де дұрыс.", "WHERE — жолдарды сүзеді, HAVING — топтарды сүзеді.", "NULL — нөл емес, «мән жоқ» дегенді білдіреді."],
+    projects: ["Үлкен жоба әрдайым кішкентай бөліктерден құралады.", "Жобаны жазғанда алдымен жұмыс істейтін қарапайым нұсқа жаса, кейін әдемілей бер.", "Кодты жиі іске қосып тексер — қатені ертерек табасың."],
+  };
+  const FACTS_ANY = ["Бағдарламашылардың көбі қатені Google-дан іздейді — бұл ұят емес 😉", "Күнде 10 минут оқу аптасына 1 сағат береді.", "Қате — жаман емес, ол код саған жол көрсетіп тұр."];
+  let helperEl = null;
+  let helperT = null;
+  let failN = 0;
+  let lastHash = "";
+  const helperOn = () => KZ.store.get("kodzholy.helper", true) !== false;
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function helperHide() {
+    clearTimeout(helperT);
+    if (helperEl) helperEl.classList.remove("on", "sad");
+    if (helperEl) helperEl.querySelector(".hero-fig").classList.remove("sad");
+  }
+  function say(mood, text, ms) {
+    if (!helperOn() || !text) return;
+    if (!helperEl) {
+      helperEl = el("div", "bit-helper");
+      helperEl.setAttribute("aria-live", "polite");
+      const fig = el("span", "hero-fig");
+      fig.dataset.own = "1";
+      const bub = el("div", "bit-bubble");
+      const x = h("button", "bit-x", "✕");
+      x.type = "button";
+      x.setAttribute("aria-label", "Жабу");
+      x.addEventListener("click", helperHide);
+      helperEl.append(fig, bub, x);
+      document.body.appendChild(helperEl);
+      window.addEventListener("hashchange", () => {
+        failN = 0;
+        helperHide();
+      });
+    }
+    const fig = helperEl.querySelector(".hero-fig");
+    fig.innerHTML = hero.svg();
+    fig.classList.toggle("sad", mood === "sad");
+    helperEl.querySelector(".bit-bubble").textContent = text;
+    helperEl.classList.add("on");
+    helperEl.classList.toggle("fact", mood === "fact");
+    if (mood === "happy") setTimeout(() => hero.cheer(), 60);
+    clearTimeout(helperT);
+    helperT = setTimeout(helperHide, ms || 5200);
+  }
+  Object.assign(hero, {
+    say,
+    helperOn,
+    setHelper(v) {
+      KZ.store.set("kodzholy.helper", !!v);
+      if (!v) helperHide();
+    },
+    /* тапсырма нәтижесі: "ok" | "bad" | "err" */
+    react(kind) {
+      if (location.hash !== lastHash) {
+        lastHash = location.hash;
+        failN = 0;
+      }
+      if (kind === "ok") {
+        failN = 0;
+        return say("happy", pick(SAY.ok));
+      }
+      failN++;
+      if (failN >= 3 && failN % 3 === 0) return say("sad", SAY.fail3, 6500);
+      say("sad", pick(kind === "err" ? SAY.err : SAY.bad));
+    },
+    /* лекцияда «Білесің бе?» */
+    tip(courseId) {
+      const route = location.hash;
+      setTimeout(() => {
+        if (location.hash !== route || !helperOn()) return;
+        say("fact", "💡 Білесің бе? " + pick((FACTS[courseId] || []).concat(FACTS_ANY)), 8000);
+      }, 3500);
     },
   });
 

@@ -131,12 +131,14 @@
       '<button type="button" data-v="0">A−</button><button type="button" data-v="1">A</button><button type="button" data-v="2">A+</button><button type="button" data-v="3">A++</button></div></div>' +
       '<div class="set-row"><span>Дыбыс</span><div class="seg" data-k="sound">' +
       '<button type="button" data-v="on">🔊 Қосулы</button><button type="button" data-v="off">🔇 Өшірулі</button></div></div>' +
+      '<div class="set-row"><span>Бит көмекші</span><div class="seg" data-k="helper">' +
+      '<button type="button" data-v="on">🙂 Қосулы</button><button type="button" data-v="off">🤐 Өшірулі</button></div></div>' +
       '<div class="set-row off-row" hidden><span>Офлайн</span><div class="off-box"><button type="button" class="btn small" id="offBtn">⬇ Интернетсіз жұмысқа жүктеу</button><small id="offMsg"></small></div></div>' +
       "</div>";
     document.body.appendChild(dlg);
 
     const mark = () => {
-      const cur = { theme: S.theme(), fs: String(S.fs()), sound: S.sound() ? "on" : "off" };
+      const cur = { theme: S.theme(), fs: String(S.fs()), sound: S.sound() ? "on" : "off", helper: KZ.hero && !KZ.hero.helperOn() ? "off" : "on" };
       dlg.querySelectorAll(".seg").forEach((seg) => {
         seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.v === cur[seg.dataset.k]));
       });
@@ -149,6 +151,7 @@
       if (k === "theme") S.setTheme(b.dataset.v);
       else if (k === "fs") S.setFs(parseInt(b.dataset.v, 10));
       else if (k === "sound") S.setSound(b.dataset.v === "on");
+      else if (k === "helper" && KZ.hero) KZ.hero.setHelper(b.dataset.v === "on");
       mark();
     });
     /* Офлайн жүктеу (js/offline.js) */

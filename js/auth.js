@@ -241,7 +241,13 @@
       KZ.store.set("kodzholy.uid", p.id);
     }
     emit();
-    if (A.isActive()) await A.syncNow();
+    if (A.isActive()) {
+      if (KZ.hero) {
+        KZ.hero.fromCloud(p.hero);
+        KZ.hero.loadLeague();
+      }
+      await A.syncNow();
+    }
   }
 
   async function init() {

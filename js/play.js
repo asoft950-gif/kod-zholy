@@ -413,6 +413,7 @@
     box.className = "card result " + kind;
     build(box);
     box.hidden = false;
+    if (KZ.hero && KZ.hero.react && (kind === "ok" || kind === "bad" || kind === "err")) KZ.hero.react(kind);
   }
 
   function nextHref() {

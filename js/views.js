@@ -501,6 +501,7 @@
     foot.appendChild(hint);
     page.appendChild(foot);
     root.appendChild(page);
+    if (KZ.hero && KZ.hero.tip) KZ.hero.tip(c.id);
     return true;
   }
 

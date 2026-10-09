@@ -1077,3 +1077,23 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 @keyframes hfCur { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .15; } }
 @keyframes hfEarL { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
 @keyframes hfEarR { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+
+/* Рейтингтегі Бит */
+.rating-bit { width: 38px; height: 42px; flex: none; }
+.rating-bit svg * { animation: none !important; }
+.rating-note { margin-top: 10px; font-size: 13px; }
+
+/* Сабақтағы көмекші */
+.hf-m3, .hf-sweat { display: none; }
+.hero-fig.sad svg .hf-m1 { display: none; }
+.hero-fig.sad svg .hf-m3, .hero-fig.sad svg .hf-sweat { display: inline; }
+.hero-fig.sad svg .hf-bob { animation: hfSad 1.6s ease-in-out infinite; }
+@keyframes hfSad { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.95) translateY(2px); } }
+.bit-helper { position: fixed; left: 12px; bottom: 14px; z-index: 60; display: flex; align-items: flex-end; gap: 6px; max-width: min(92vw, 380px);
+  transform: translateY(140%); opacity: 0; pointer-events: none; transition: transform .35s cubic-bezier(.2, 1.3, .4, 1), opacity .25s; }
+.bit-helper.on { transform: none; opacity: 1; pointer-events: auto; }
+.bit-helper .hero-fig { width: 64px; height: 70px; flex: none; }
+.bit-bubble { position: relative; background: var(--paper); color: var(--ink); border: 2px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 9px 12px; font-weight: 700; font-size: 14px; line-height: 1.35; box-shadow: 0 6px 18px rgba(0, 0, 0, .15); }
+.bit-helper.fact .bit-bubble { background: var(--sun); }
+.bit-x { position: absolute; right: -4px; top: -10px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--paper); color: var(--ink); font-size: 11px; cursor: pointer; padding: 0; }
+@media (prefers-reduced-motion: reduce) { .bit-helper { transition: none; } }

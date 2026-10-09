@@ -444,10 +444,16 @@
     }
     const medal = ["🥇", "🥈", "🥉"];
     rows.forEach((r, i) => {
+      const bit = el("span", "rating-bit hero-fig");
+      if (r.hero && r.hero.eq && KZ.hero) {
+        bit.innerHTML = KZ.hero.svg({ color: r.hero.color, eq: r.hero.eq, still: true, lg: r.lg || 0, streak: r.streak || 0 });
+      } else bit.textContent = "🙂";
+      const lgm = r.lg ? ["🥇", "🥈", "🥉"][r.lg - 1] : "";
       wrap.appendChild(
         h("div", "rating-row" + (r.me ? " me" : ""),
           h("span", "rating-pos", medal[i] || String(i + 1)),
-          h("span", "rating-name", r.name + (r.me ? " (сен)" : "")),
+          bit,
+          h("span", "rating-name", r.name + (r.me ? " (сен)" : "") + (lgm ? " " + lgm : "")),
           h("span", "rating-streak", r.streak > 0 ? "🔥 " + r.streak : ""),
           h("span", "rating-stars", "⭐ " + r.stars))
       );
@@ -459,7 +465,10 @@
     try {
       const r = await A.rpc("class_rating", { cid });
       box.textContent = "";
+      const mine = r.rows.find((x) => x.me);
+      if (mine && KZ.hero && KZ.hero.setLeague) KZ.hero.setLeague(mine.lg || null);
       box.appendChild(ratingTable(r.rows));
+      box.appendChild(h("p", "hint rating-note", "🏅 Апталық лига: өткен аптада сыныпта ең көп ⭐ жинаған топ-3 оқушы осы аптаға арнайы зат киеді (Кейіпкер бетінде)."));
     } catch (e) {
       box.textContent = "";
       failWith(box, e);

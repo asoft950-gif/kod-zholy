@@ -153,6 +153,7 @@
     const box = $("#sqlResult");
     box.textContent = "";
     box.className = "card result " + (ev.ok ? "ok" : "bad");
+    if (KZ.hero && KZ.hero.react) KZ.hero.react(ev.ok ? "ok" : ev.run && ev.run.error ? "err" : "bad");
     if (ev.ok) {
       const stars = core.starsFor(fails, usedHint);
       KZ.progress.set(course.id, level.id, stars);
