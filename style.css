@@ -1212,3 +1212,43 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 .itry-ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .itry-count { font-weight: 800; font-size: 13px; opacity: .65; margin-left: 4px; }
 .itry-ctl .btn:disabled { opacity: .4; }
+.CodeMirror-hints {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  list-style: none;
+
+  margin: 0;
+  padding: 2px;
+
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  border-radius: 3px;
+  border: 1px solid silver;
+
+  background: white;
+  font-size: 90%;
+  font-family: monospace;
+
+  max-height: 20em;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
+}
+
+li.CodeMirror-hint-active {
+  background: #08f;
+  color: white;
+}
+.CodeMirror-hints { z-index: 1000; font-family: "JetBrains Mono", monospace; font-size: 14px; border: 3px solid var(--line, #1f1d36); border-radius: 12px; padding: 4px; background: var(--paper, #fff); box-shadow: 0 6px 0 rgba(31,29,54,.2); max-height: 14em; }
+.CodeMirror-hint { color: #1f1d36; border-radius: 8px; padding: 4px 8px; white-space: pre; }
+li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }

@@ -55,6 +55,7 @@
       "Cmd-Enter": () => runBtn.click(),
     },
   });
+  KZ.attachHints(editor, () => engine);
   try {
     const input = editor.getInputField();
     input.setAttribute("autocapitalize", "off");

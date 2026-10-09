@@ -81,10 +81,11 @@
     function initEditor() {
       if (cm || !window.CodeMirror) return;
       cm = CodeMirror.fromTextArea(ta, {
-        mode: MODES[engine] || "text", lineNumbers: true, indentUnit: engine === "python" || engine === "kt" ? 4 : 2, tabSize: 4,
+        mode: engine === "web" && webKind() === "css" ? "css" : MODES[engine] || "text", lineNumbers: true, indentUnit: engine === "python" || engine === "kt" ? 4 : 2, tabSize: 4,
         indentWithTabs: false, viewportMargin: Infinity, inputStyle: "contenteditable", autoCloseBrackets: true,
         extraKeys: { Tab: (e) => e.execCommand("insertSoftTab"), "Ctrl-Enter": () => runBtn.click(), "Cmd-Enter": () => runBtn.click() },
       });
+      KZ.attachHints(cm, engine === "web" ? (webKind() === "css" ? "css" : "html") : engine);
       try {
         const input = cm.getInputField();
         input.setAttribute("autocapitalize", "off");

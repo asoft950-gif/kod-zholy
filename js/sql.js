@@ -29,6 +29,7 @@
       "Cmd-Enter": () => run(),
     },
   });
+  KZ.attachHints(editor, "sql");
   try {
     const input = editor.getInputField();
     input.setAttribute("autocapitalize", "off");

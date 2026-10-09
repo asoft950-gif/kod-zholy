@@ -37,6 +37,7 @@
     readOnly: "nocursor",
     viewportMargin: Infinity,
   });
+  KZ.attachHints(editor, () => (editor.getOption("mode") === "css" ? "css" : "html"));
   try {
     const input = editor.getInputField();
     input.setAttribute("autocapitalize", "off");
