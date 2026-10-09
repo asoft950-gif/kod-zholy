@@ -106,67 +106,200 @@
       liveFrame.srcdoc = KZ.buildWebDoc(webKind(), getCode(), b.html, false);
     }
 
+    let stopPlayer = () => {};
+    function clearLineMark() {
+      if (cm && cm.__itryLine != null) {
+        try { cm.removeLineClass(cm.__itryLine, "background", cm.__itryCls); } catch (e) { /* жол өшкен */ }
+        cm.__itryLine = null;
+      }
+    }
+
+    /* Қадамдап ойнатқыш: әр кадрда жол жарықтайды, айнымалылар мен робот анимациямен өзгереді */
     function showRun(res, withDom) {
+      stopPlayer();
       out.textContent = "";
+      const frames = res.frames;
+      const last = frames.length - 1;
+      const my = ++token;
+      let idx = -1;
+      let playing = false;
+      let shown = {};
+      let board = null;
+
+      const ctl = el("div", "itry-ctl");
+      const back = el("button", "btn small", "⏮");
+      const pp = el("button", "btn small primary", "⏸");
+      const fwd = el("button", "btn small", "⏭");
+      [back, pp, fwd].forEach((x) => (x.type = "button"));
+      back.title = KZ.t("Артқа");
+      fwd.title = KZ.t("Алға");
+      const count = el("span", "itry-count", "");
+      ctl.appendChild(back);
+      ctl.appendChild(pp);
+      ctl.appendChild(fwd);
+      ctl.appendChild(count);
+      out.appendChild(ctl);
+
+      let msg = null;
       if (res.robotCfg) {
-        const board = KZ.makeBoard(res.robotCfg);
+        board = KZ.makeBoard(res.robotCfg);
         const wrapB = el("div", "itry-board");
         wrapB.appendChild(board.root);
         out.appendChild(wrapB);
-        const s = res.robotCfg.start;
-        board.setState({ x: s.x, y: s.y, d: s.d == null ? 1 : s.d, stars: res.robotCfg.stars }, null);
-        const msg = el("div", "itry-note", "");
+        msg = el("div", "itry-note", "");
         msg.hidden = true;
         out.appendChild(msg);
-        const frames = res.frames.filter((f) => f.robot);
-        const my = ++token;
-        let i = 0;
-        const tick = () => {
-          if (my !== token) return;
-          const f = frames[i++];
-          if (!f) return;
-          board.setState(f.robot, f.kind);
+      }
+      const varsBox = el("div", "itry-vars");
+      const varsHead = el("div", "itry-h", KZ.t("Айнымалылар"));
+      const consHead = el("div", "itry-h", KZ.t("Экранға шықты"));
+      const cons = el("pre", "itry-console", "");
+      let fr = null;
+      if (!board) {
+        out.appendChild(varsHead);
+        out.appendChild(varsBox);
+      }
+      if (withDom) {
+        out.appendChild(el("div", "itry-h", KZ.t("Бет")));
+        fr = el("iframe", "itry-frame");
+        fr.setAttribute("sandbox", "");
+        out.appendChild(fr);
+      }
+      out.appendChild(consHead);
+      out.appendChild(cons);
+      const errBox = el("div", "itry-note bad");
+      errBox.hidden = true;
+      out.appendChild(errBox);
+
+      function drawVars(vars) {
+        varsBox.textContent = "";
+        const prev = shown;
+        shown = {};
+        (vars || []).forEach((v) => {
+          if (!v || !v.n || String(v.n).startsWith("__")) return;
+          const old = prev[v.n];
+          const isNew = !old;
+          const changed = !isNew && old.r !== v.r;
+          const card = el("div", "var" + (isNew ? " fresh" : changed ? " changed" : ""));
+          card.style.setProperty("--c", KZ.colorFor(v.n));
+          const nm = el("div", "var-name", v.n);
+          if (v.t) nm.appendChild(el("small", null, v.t));
+          card.appendChild(nm);
+          if (v.i) {
+            const cells = el("div", "var-cells");
+            v.i.forEach((item, k) => {
+              const was = old && old.i;
+              const cls = !was || k >= was.length ? (isNew ? "" : " new") : was[k] !== item ? " hot" : "";
+              const cell = el("div", "var-cell" + cls);
+              cell.appendChild(el("div", "v", item));
+              cell.appendChild(el("div", "i", String(k)));
+              cells.appendChild(cell);
+            });
+            if (v.more) cells.appendChild(el("div", "var-cell", "…"));
+            card.appendChild(cells);
+          } else {
+            if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
+            card.appendChild(el("div", "var-box", v.r));
+          }
+          varsBox.appendChild(card);
+          shown[v.n] = { r: v.r, i: v.i };
+        });
+        if (!varsBox.children.length) varsBox.appendChild(el("p", "itry-empty", KZ.t("Айнымалылар жоқ")));
+      }
+
+      function draw(i) {
+        idx = i;
+        const f = frames[i];
+        clearLineMark();
+        if (cm && f.line) {
+          const n = Math.max(0, Math.min(f.line - 1, cm.lastLine()));
+          const cls = f.kind === "error" ? "cm-err" : "cm-exec";
+          cm.addLineClass(n, "background", cls);
+          cm.__itryLine = n;
+          cm.__itryCls = cls;
+        }
+        if (board && f.robot) board.setState(f.robot, f.kind);
+        if (msg) {
           if (f.msg) {
             msg.hidden = false;
             msg.textContent = f.msg;
             msg.className = "itry-note" + (f.kind === "crash" ? " bad" : f.kind === "collect" ? " good" : "");
-          }
-          if (i < frames.length) timer = setTimeout(tick, 380);
-        };
-        tick();
-      }
-      const last = res.frames[res.frames.length - 1];
-      if (!res.robotCfg) {
-        const v = varsView(last && last.vars);
-        if (v) {
-          out.appendChild(el("div", "itry-h", KZ.t("Айнымалылар")));
-          out.appendChild(v);
+          } else msg.hidden = true;
         }
+        if (!board) drawVars(f.vars);
+        cons.textContent = f.out || "";
+        consHead.hidden = cons.hidden = !f.out;
+        if (fr && f.dom !== undefined && f.dom !== fr.__dom) {
+          fr.__dom = f.dom;
+          fr.srcdoc = f.dom;
+        }
+        count.textContent = i + 1 + " / " + frames.length;
+        back.disabled = i <= 0;
+        fwd.disabled = i >= last;
+        if (i >= last) {
+          clearLineMark();
+          if (res.error) {
+            const e = res.error;
+            errBox.textContent = "";
+            errBox.appendChild(el("b", null, "🙈 " + e.msg));
+            if (e.line) errBox.appendChild(el("small", null, " (" + e.line + KZ.t("-жол)")));
+            if (e.tip) errBox.appendChild(el("div", null, "💡 " + e.tip));
+            errBox.hidden = false;
+          }
+          setPlaying(false);
+        } else errBox.hidden = true;
       }
-      if (withDom && last && last.dom) {
-        const fr = el("iframe", "itry-frame");
-        fr.setAttribute("sandbox", "");
-        fr.srcdoc = last.dom;
-        out.appendChild(el("div", "itry-h", KZ.t("Бет")));
-        out.appendChild(fr);
+
+      const delay = board ? 450 : frames.length > 60 ? 120 : 550;
+      function setPlaying(v) {
+        playing = v;
+        pp.textContent = v ? "⏸" : idx >= last ? "↻" : "▶";
+        clearTimeout(timer);
+        if (v) timer = setTimeout(tickPlay, delay);
       }
-      if (res.output) {
-        out.appendChild(el("div", "itry-h", KZ.t("Экранға шықты")));
-        out.appendChild(el("pre", "itry-console", res.output));
+      function tickPlay() {
+        if (my !== token || !playing) return;
+        if (idx < last) draw(idx + 1);
+        if (playing) timer = setTimeout(tickPlay, delay);
       }
-      if (res.error) {
-        const e = res.error;
-        const box = el("div", "itry-note bad");
-        box.appendChild(el("b", null, "🙈 " + e.msg));
-        if (e.line) box.appendChild(el("small", null, " (" + e.line + KZ.t("-жол)")));
-        if (e.tip) box.appendChild(el("div", null, "💡 " + e.tip));
-        out.appendChild(box);
-      } else if (!res.output && !res.robotCfg && !withDom && !out.children.length) {
-        out.appendChild(el("p", "itry-empty", KZ.t("Код орындалды, экранға ештеңе шығарылған жоқ.")));
+      stopPlayer = () => {
+        playing = false;
+        clearTimeout(timer);
+        clearLineMark();
+      };
+      back.addEventListener("click", () => {
+        setPlaying(false);
+        if (idx > 0) draw(idx - 1);
+        pp.textContent = "▶";
+      });
+      fwd.addEventListener("click", () => {
+        setPlaying(false);
+        if (idx < last) draw(idx + 1);
+        pp.textContent = idx >= last ? "↻" : "▶";
+      });
+      pp.addEventListener("click", () => {
+        if (playing) return setPlaying(false);
+        if (idx >= last) {
+          shown = {};
+          if (board) {
+            const s = res.robotCfg.start;
+            board.setState({ x: s.x, y: s.y, d: s.d == null ? 1 : s.d, stars: res.robotCfg.stars }, null);
+          }
+          draw(0);
+        }
+        setPlaying(true);
+      });
+
+      if (board) {
+        const s = res.robotCfg.start;
+        board.setState({ x: s.x, y: s.y, d: s.d == null ? 1 : s.d, stars: res.robotCfg.stars }, null);
       }
+      draw(0);
+      if (last > 0) setPlaying(true);
     }
 
     async function runCode() {
+      stopPlayer();
       token++;
       clearTimeout(timer);
       const code = getCode();
@@ -219,6 +352,7 @@
     runBtn.addEventListener("click", runCode);
     resetBtn.addEventListener("click", () => {
       setCode(startCode);
+      stopPlayer();
       token++;
       clearTimeout(timer);
       out.textContent = "";

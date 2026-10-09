@@ -1209,3 +1209,6 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 .itry-tbl th { background: var(--yellow, #ffd23f); color: #1f1d36; }
 .itry-tbl td.num { text-align: right; }
 .itry-tbl td.null { opacity: .5; font-style: italic; }
+.itry-ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.itry-count { font-weight: 800; font-size: 13px; opacity: .65; margin-left: 4px; }
+.itry-ctl .btn:disabled { opacity: .4; }
