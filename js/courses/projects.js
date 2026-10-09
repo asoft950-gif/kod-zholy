@@ -144,7 +144,7 @@
         task:
           "<p>Бірнеше ойыннан кейінгі талпыныс саны тізімде: <code>natijeler</code>. Ең <b>аз</b> талпынысты (ең жақсы нәтижені) тауып, орташа санды есепте.</p>" +
           "<p class='tip'><code>min()</code> қолданба, цикл және <code>if</code> қолдан. Қосындыны <code>sum(natijeler)</code> береді, санын <code>len(natijeler)</code>.</p>",
-        hint: "eng = natijeler[0] деп баста, for n in natijeler: ішінде if n < eng: eng = n. Орташа: sum(natijeler) / len(natijeler).",
+        hint: "Ең жақсы нәтиже ретінде алдымен тізімнің бірінші элементін ал, сосын for арқылы қалғандарын салыстыр: кішірек табылса, жаңарт. Орташа — қосынды мен санның қатынасы.",
         starter: "natijeler = [3, 1, 4, 2]\n\n# ең жақсы нәтижені тап және шығар: Ең жақсы: 1\n# орташасын шығар: Орташа: 2.5\n",
         solution:
           "natijeler = [3, 1, 4, 2]\n\neng = natijeler[0]\nfor n in natijeler:\n    if n < eng:\n        eng = n\nprint(\"Ең жақсы:\", eng)\nprint(\"Орташа:\", sum(natijeler) / len(natijeler))\n",
@@ -171,7 +171,7 @@
         id: "3.2", topic: T3, title: "Тізімді көрсету",
         task:
           "<p><code>korset(tizim)</code> әр тапсырманы нөмірімен шығарсын: <code>1. Нан алу</code>. Тапсырма атауы — әр ішкі тізімнің <b>0-ші</b> элементі.</p>",
-        hint: "for i in range(len(tizim)): ішінде print(str(i + 1) + \". \" + tizim[i][0]). Нөмірді мәтінге айналдыру үшін str() керек.",
+        hint: "Нөмірді range(len(…)) циклімен ал: ол 0-ден басталады, сондықтан көрсеткенде бірді қос. Атау — ішкі тізімнің нөлінші элементі; нөмірді str() арқылы мәтінге айналдыр.",
         starter: "def korset(tizim):\n    # әр тапсырманы \"1. Нан алу\" түрінде шығар\n    pass\n\n\n" + sig + '\ntizim = [["Нан алу", False], ["Сабақ оқу", False], ["Спорт", False]]\nkorset(tizim)\n',
         solution: "def korset(tizim):\n    for i in range(len(tizim)):\n        print(str(i + 1) + \". \" + tizim[i][0])\n\n\n" + sig + '\ntizim = [["Нан алу", False], ["Сабақ оқу", False], ["Спорт", False]]\nkorset(tizim)\n',
         par: 6, robot: null,

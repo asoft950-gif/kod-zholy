@@ -14,7 +14,7 @@
       id: "1.1", title: "Екі қорап",
       task: "<p><b>a</b> қорабына <code>7</code>, <b>b</b> қорабына <code>3</code> сал. Екеуінің қосындысын <code>console.log</code> арқылы экранға шығар.</p>" +
         "<p class='tip'>Қорап жасау: <code>let a = 7;</code> — оң жақта «a» қорабы пайда болады. Жолдың соңында нүктелі үтір <code>;</code> тұрады.</p>",
-      hint: "let a = 7; let b = 3; содан кейін console.log(a + b);",
+      hint: "Әр қорапқа let арқылы өз атын бер де, мәндерін = белгісімен сал. Содан кейін console.log ішіне екі қорапты + белгісімен жалғап жаз.",
       starter: "// a және b қораптарын жаса\n// қосындысын console.log-пен шығар\n",
       solution: "let a = 7;\nlet b = 3;\nconsole.log(a + b);\n",
       par: 3,
@@ -24,7 +24,7 @@
       id: "1.2", title: "Сәлемдесу",
       task: "<p><code>const name</code> қорабына өз атыңды жаз (тырнақшаға алып). Сосын экранға <code>Сәлем, Алия!</code> сияқты сәлемдесу шығар: Алия орнында сенің атың.</p>" +
         "<p class='tip'>Мәтінді қосуға болады: <code>\"Сәлем, \" + name + \"!\"</code></p>",
-      hint: 'const name = "Алия"; console.log("Сәлем, " + name + "!");',
+      hint: "Алдымен const арқылы мәтінді қорапқа сал (мәтін тырнақшада). Сосын console.log ішінде мәтіннің бөліктерін + белгісімен жалғастыр.",
       starter: "// name қорабына атыңды жаз\n// сәлемдесуді шығар\n",
       solution: 'const name = "Алия";\nconsole.log("Сәлем, " + name + "!");\n',
       par: 2,
@@ -44,7 +44,7 @@
       id: "2.1", title: "Жұп па, тақ па",
       task: "<p><code>x</code> қорабындағы сан <b>жұп</b> болса, экранға <code>жұп</code>, әйтпесе <code>тақ</code> деп шығар. Кодың <code>x</code> басқа сан болғанда да дұрыс жұмыс істеуі керек.</p>" +
         "<p class='tip'><code>x % 2 === 0</code> — x-ті 2-ге бөлгендегі қалдық 0 ме? Үш тең белгі <code>===</code> «тең бе?» деп салыстырады.</p>",
-      hint: "if (x % 2 === 0) { console.log(\"жұп\"); } else { console.log(\"тақ\"); }",
+      hint: "Қалдықты табатын % амалын қолдан да, нәтижені 0-мен === арқылы салыстыр. Екі жолды if (…) { … } else { … } бөледі.",
       starter: "let x = 10;\n// if / else жаз\n",
       solution: 'let x = 10;\nif (x % 2 === 0) {\n  console.log("жұп");\n} else {\n  console.log("тақ");\n}\n',
       par: 6,
@@ -62,7 +62,7 @@
       id: "2.2", title: "Баға",
       task: "<p><code>ball</code> қорабына қарай экранға жаз: <b>90 не одан көп</b> болса — <code>Өте жақсы</code>, <b>50 не одан көп</b> болса — <code>Жақсы</code>, әйтпесе — <code>Қайталап көр</code>.</p>" +
         "<p class='tip'>Шарттарды тізбектеуге болады: <code>if … else if … else …</code></p>",
-      hint: "if (ball >= 90) {…} else if (ball >= 50) {…} else {…}",
+      hint: "Ең қатаң шарттан баста: if (…) { … }, одан кейін else if (…) { … }, ең соңында шарты жоқ else { … }. Салыстыруға >= керек.",
       starter: "let ball = 75;\n// шарттарды жаз\n",
       solution: 'let ball = 75;\nif (ball >= 90) {\n  console.log("Өте жақсы");\n} else if (ball >= 50) {\n  console.log("Жақсы");\n} else {\n  console.log("Қайталап көр");\n}\n',
       par: 9,
@@ -82,7 +82,7 @@
       id: "3.1", title: "Бірден беске дейін",
       task: "<p>Экранға <code>1, 2, 3, 4, 5</code> сандарын шығар, әрқайсысы жаңа жолда. <code>for</code> циклін қолдан.</p>" +
         "<p class='tip'><code>for (let i = 1; i &lt;= 5; i++) { … }</code> — i 1-ден басталып, 5-ке дейін бір-бірден өседі.</p>",
-      hint: "for (let i = 1; i <= 5; i++) { console.log(i); }",
+      hint: "Цикл үш бөліктен тұрады: for (let i = …; …; …). Бастапқы мәнді, тоқтау шартын және қадамды ойла, дене ішінде i-ді console.log-пен шығар.",
       starter: "// for циклін жаз\n",
       solution: "for (let i = 1; i <= 5; i++) {\n  console.log(i);\n}\n",
       par: 3,
@@ -91,7 +91,7 @@
     {
       id: "3.2", title: "Қосынды",
       task: "<p>1-ден 10-ға дейінгі сандардың қосындысын тап: <code>s</code> қорабына жина да, соңында экранға шығар (55 болуы керек). Циклдің әр қадамында оң жақтағы <b>s</b> қорабы қалай өсетінін бақыла!</p>",
-      hint: "let s = 0; for (let i = 1; i <= 10; i++) { s += i; } console.log(s);",
+      hint: "Цикл ішінде i-дің әр мәнін s қорабына қосып отыр (+= белгісі көмектеседі). console.log-ты циклден кейін, тыс жерде жаз.",
       starter: "let s = 0;\n// циклмен қос\n",
       solution: "let s = 0;\nfor (let i = 1; i <= 10; i++) {\n  s += i;\n}\nconsole.log(s);\n",
       par: 5,
@@ -101,7 +101,7 @@
       id: "3.3", title: "Екі еселену",
       task: "<p><code>n = 1</code> болсын. <code>n</code> 100-ден кіші болғанша оны 2-ге көбейте бер (<code>while</code>). Соңында n-ді экранға шығар.</p>" +
         "<p class='tip'><code>while (шарт) { … }</code> шарт ақиқат болғанша қайталайды. <code>n *= 2</code> — n-ді екі еселеу.</p>",
-      hint: "while (n < 100) { n *= 2; } console.log(n);",
+      hint: "while (…) { … } ішіне шартты n-ге қарай жаз: n әлі кіші болса, оны көбейт. Цикл біткен соң ғана console.log шақыр.",
       starter: "let n = 1;\n// while циклін жаз\n",
       solution: "let n = 1;\nwhile (n < 100) {\n  n *= 2;\n}\nconsole.log(n);\n",
       par: 5,
@@ -113,7 +113,7 @@
       id: "4.1", title: "Қосу функциясы",
       task: "<p><code>qosu</code> деген функция жаса: ол екі санды алып, қосындысын <code>return</code> арқылы қайтарсын. Сосын <code>qosu(4, 5)</code> нәтижесін экранға шығар.</p>" +
         "<p class='tip'><code>function атауы(а, б) { return …; }</code> — функцияны бір рет жазасың, көп рет шақыра аласың.</p>",
-      hint: "function qosu(a, b) { return a + b; } console.log(qosu(4, 5));",
+      hint: "function сөзінен кейін атын және жақша ішінде екі параметр жаз. Дене ішінде return арқылы екі параметрді біріктіріп қайтар, сосын функцияны шақырып console.log-қа бер.",
       starter: "// qosu функциясын жаз\n",
       solution: "function qosu(a, b) {\n  return a + b;\n}\nconsole.log(qosu(4, 5));\n",
       par: 4,
@@ -125,7 +125,7 @@
     {
       id: "4.2", title: "Сәлем функциясы",
       task: "<p><code>salem</code> функциясын жаса: ол <code>name</code> параметрін алып, <code>Сәлем, …!</code> мәтінін <b>қайтарсын</b>. Оны екі рет шақырып, экранға <code>Сәлем, Алия!</code> және <code>Сәлем, Бота!</code> шығар (әрқайсысы жаңа жолда).</p>",
-      hint: 'function salem(name) { return "Сәлем, " + name + "!"; } console.log(salem("Алия")); …',
+      hint: "Функция мәтінді console.log емес, return арқылы қайтарсын: мәтін бөліктерін + белгісімен жалғастыр. Содан кейін функцияны екі түрлі атпен шақыр.",
       starter: "// salem функциясы\n",
       solution: 'function salem(name) {\n  return "Сәлем, " + name + "!";\n}\nconsole.log(salem("Алия"));\nconsole.log(salem("Бота"));\n',
       par: 5,
@@ -140,7 +140,7 @@
       id: "5.1", title: "Жемістер массиві",
       task: "<p><code>fruits</code> массивін жаса: <code>\"алма\"</code>, <code>\"алмұрт\"</code>. Сосын <code>push</code> арқылы <code>\"шие\"</code> қос. Массив ұзындығын (<code>fruits.length</code>) экранға шығар.</p>" +
         "<p class='tip'>Массив — қатар тұрған қораптар: <code>[\"а\", \"б\"]</code>. Оң жақта нөмірлері 0-ден басталатынын көр!</p>",
-      hint: 'let fruits = ["алма", "алмұрт"]; fruits.push("шие"); console.log(fruits.length);',
+      hint: "Массивті квадрат жақшада [ … ] үтірмен бөліп жаз. Элемент қосу үшін массив.push(…), санын білу үшін массив.length бар.",
       starter: "// fruits массивін жаса\n",
       solution: 'let fruits = ["алма", "алмұрт"];\nfruits.push("шие");\nconsole.log(fruits.length);\n',
       par: 3,
@@ -150,7 +150,7 @@
       id: "5.2", title: "Сандар қосындысы",
       task: "<p><code>sandar</code> массивіндегі барлық сандардың қосындысын циклмен тап та, экранға шығар. Массив басқа болғанда да код жұмыс істеуі керек.</p>" +
         "<p class='tip'><code>for (const x of sandar) { … }</code> — массивтің әр элементін бір-бірден береді.</p>",
-      hint: "let soma = 0; for (const x of sandar) { soma += x; } console.log(soma);",
+      hint: "Цикл алдында қосынды қорабы бар. for (const x of …) { … } ішінде әр x-ті соған қос, ал console.log-ты цикл біткен соң шақыр.",
       starter: "const sandar = [3, 8, 5, 2];\nlet soma = 0;\n// циклмен қос\n",
       solution: "const sandar = [3, 8, 5, 2];\nlet soma = 0;\nfor (const x of sandar) {\n  soma += x;\n}\nconsole.log(soma);\n",
       par: 6,
@@ -172,7 +172,7 @@
       html: '<h1 id="title">Сәлем</h1>\n<p id="text">Қарапайым мәтін</p>',
       task: "<p>Оң жақта нағыз бет тұр. <code>id=\"title\"</code> тақырыбының мәтінін <b>Сәлем, JavaScript!</b> деп өзгерт.</p>" +
         "<p class='tip'><code>document.getElementById(\"title\")</code> элементті табады, <code>.textContent = \"…\"</code> оның мәтінін ауыстырады.</p>",
-      hint: 'document.getElementById("title").textContent = "Сәлем, JavaScript!";',
+      hint: "Алдымен getElementById арқылы элементті тап, содан кейін оның textContent қасиетіне жаңа мәтінді = белгісімен меншіктеп жібер.",
       starter: "// тақырыптың мәтінін өзгерт\n",
       solution: 'document.getElementById("title").textContent = "Сәлем, JavaScript!";\n',
       par: 2,
@@ -189,7 +189,7 @@
       html: '<h1 id="title">Сәлем</h1>\n<p id="text">Қарапайым мәтін</p>',
       task: "<p><code>id=\"text\"</code> абзацын <b>қызыл</b> (<code>red</code>) түске бояп, қаріп өлшемін <code>24px</code> жаса.</p>" +
         "<p class='tip'><code>элемент.style.color = \"red\"</code>. CSS-тағы <code>font-size</code> мұнда <code>fontSize</code> болып жазылады.</p>",
-      hint: 'let p = document.getElementById("text"); p.style.color = "red"; p.style.fontSize = "24px";',
+      hint: "Элементті getElementById-мен тауып, қорапқа сақта. Сосын оның style қасиетінің ішінен color және fontSize-ты бөлек жолдармен өзгерт.",
       starter: "// абзацты боя\n",
       solution: 'const p = document.getElementById("text");\np.style.color = "red";\np.style.fontSize = "24px";\n',
       par: 3,
@@ -212,7 +212,7 @@
       html: '<button id="btn">Бас</button>\n<p>Басылды: <b id="out">0</b></p>',
       task: "<p>Батырманы басқан сайын <code>out</code> ішіндегі сан <b>1-ге артсын</b>. Бетте батырманы өзің бас: ең соңғы қадамда бет нағыз жұмыс істейді!</p>" +
         "<p class='tip'><code>батырма.addEventListener(\"click\", () => { … })</code> — «басқанда осыны істе».</p>",
-      hint: 'let count = 0;\nconst btn = document.getElementById("btn");\nbtn.addEventListener("click", () => {\n  count++;\n  document.getElementById("out").textContent = count;\n});',
+      hint: "Санды сақтайтын қорап бетінен тыс (цикл ішінде емес) тұрсын. Батырмаға addEventListener қос: әр басқанда қорапты арттырып, оны out мәтініне жаз.",
       starter: "let count = 0;\n// батырманы тыңда\n",
       solution: 'let count = 0;\nconst btn = document.getElementById("btn");\nbtn.addEventListener("click", () => {\n  count++;\n  document.getElementById("out").textContent = count;\n});\n',
       par: 6,
@@ -231,7 +231,7 @@
       id: "7.2", title: "Түс ауыстыру",
       html: '<div id="box" style="padding:20px;border:3px solid #1f1d36">Қорап</div>\n<button id="go">Түсін ауыстыр</button>',
       task: "<p><code>go</code> батырмасын бастағанда <code>box</code> қорабының фоны <b>gold</b> болсын.</p>",
-      hint: 'document.getElementById("go").addEventListener("click", () => { document.getElementById("box").style.background = "gold"; });',
+      hint: "Батырманы getElementById-мен тауып, оған addEventListener қос. Ішінде екінші элементті тауып, оның style қасиетінен фонды өзгерт.",
       starter: "// go батырмасына оқиға қос\n",
       solution: 'const go = document.getElementById("go");\ngo.addEventListener("click", () => {\n  document.getElementById("box").style.background = "gold";\n});\n',
       par: 6,
@@ -255,7 +255,7 @@
     {
       id: "B1", title: "Жетінің кестесі",
       task: "<p>7-нің көбейту кестесін шығар: <code>7 * 1 = 7</code>, <code>7 * 2 = 14</code> … <code>7 * 10 = 70</code>. Әр жол жаңа жолда. Мәтін мен санды <code>+</code> арқылы қос.</p>",
-      hint: 'for (let i = 1; i <= 10; i++) { console.log("7 * " + i + " = " + 7 * i); }',
+      hint: "Көбейткіш 1-ден 10-ға дейін өзгереді, сондықтан for циклін қолдан. Әр қадамда мәтін бөліктерін және есептелген санды + арқылы жалғап шығар.",
       starter: "// 7-нің кестесі\n",
       solution: 'for (let i = 1; i <= 10; i++) {\n  console.log("7 * " + i + " = " + 7 * i);\n}\n',
       par: 3,
@@ -264,7 +264,7 @@
     {
       id: "B2", title: "Ең үлкен сан",
       task: "<p><code>sandar</code> массивіндегі <b>ең үлкен</b> санды тап. <code>Math.max</code> қолдануға болмайды: өз циклің мен <code>if</code>-іңді жаз.</p>",
-      hint: "let engi = sandar[0]; for … if (x > engi) engi = x;",
+      hint: "Ең үлкен деп бірінші элементті алып қой. Сосын массивті айналып өтіп, if арқылы әр элементті сол қорапта тұрғанмен салыстыр да, үлкенірек болса ауыстыр.",
       starter: "const sandar = [4, 17, 9, 12];\n// ең үлкенін тап\n",
       solution: "const sandar = [4, 17, 9, 12];\nlet engi = sandar[0];\nfor (const x of sandar) {\n  if (x > engi) {\n    engi = x;\n  }\n}\nconsole.log(engi);\n",
       par: 8,
@@ -284,7 +284,7 @@
       id: "B3", title: "Тізімді циклмен жасау",
       html: '<ul id="list"></ul>',
       task: "<p><code>zhemis</code> массивін жаса: <code>\"алма\"</code>, <code>\"шие\"</code>, <code>\"өрік\"</code>. Цикл арқылы әрқайсысы үшін <code>li</code> элементін жасап (<code>document.createElement(\"li\")</code>), <code>list</code> ішіне қос (<code>appendChild</code>).</p>",
-      hint: 'const li = document.createElement("li"); li.textContent = f; list.appendChild(li);',
+      hint: "Массивті жасап, for (const … of …) айнал. Әр қадамда createElement-пен li жаса, textContent-ке мәтін бер, сосын appendChild-пен list-ке қос.",
       starter: 'const list = document.getElementById("list");\n// массив және цикл\n',
       solution: 'const list = document.getElementById("list");\nconst zhemis = ["алма", "шие", "өрік"];\nfor (const f of zhemis) {\n  const li = document.createElement("li");\n  li.textContent = f;\n  list.appendChild(li);\n}\n',
       par: 8,

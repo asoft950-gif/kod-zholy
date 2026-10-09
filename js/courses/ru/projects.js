@@ -144,7 +144,7 @@
         task:
           "<p>Число попыток после нескольких игр лежит в списке: <code>results</code>. Найди <b>наименьшее</b> число попыток (лучший результат) и посчитай среднее.</p>" +
           "<p class='tip'>Не используй <code>min()</code>, возьми цикл и <code>if</code>. Сумму даёт <code>sum(results)</code>, количество даёт <code>len(results)</code>.</p>",
-        hint: "Начни с best = results[0], потом for n in results: внутри if n < best: best = n. Среднее: sum(results) / len(results).",
+        hint: "Сначала возьми за лучший результат первый элемент списка, затем сравни с остальными в цикле for: нашёлся меньший — обнови. Среднее — это сумма, делённая на количество.",
         starter: "results = [3, 1, 4, 2]\n\n# найди и выведи лучший результат: Лучший результат: 1\n# выведи среднее: Среднее: 2.5\n",
         solution:
           "results = [3, 1, 4, 2]\n\nbest = results[0]\nfor n in results:\n    if n < best:\n        best = n\nprint(\"Лучший результат:\", best)\nprint(\"Среднее:\", sum(results) / len(results))\n",
@@ -171,7 +171,7 @@
         id: "3.2", topic: T3, title: "Показать список",
         task:
           "<p>Пусть <code>show(tasks)</code> выводит каждую задачу с номером: <code>1. Купить хлеб</code>. Название задачи — это <b>0-й</b> элемент каждого вложенного списка.</p>",
-        hint: "for i in range(len(tasks)): внутри print(str(i + 1) + \". \" + tasks[i][0]). Чтобы превратить номер в строку, нужен str().",
+        hint: "Номера бери из цикла range(len(…)): он начинается с 0, поэтому при показе прибавь единицу. Название — нулевой элемент вложенного списка; номер превращай в текст через str().",
         starter: "def show(tasks):\n    # выведи каждую задачу в виде \"1. Купить хлеб\"\n    pass\n\n\n" + sig + '\ntasks = [["Купить хлеб", False], ["Учить уроки", False], ["Спорт", False]]\nshow(tasks)\n',
         solution: "def show(tasks):\n    for i in range(len(tasks)):\n        print(str(i + 1) + \". \" + tasks[i][0])\n\n\n" + sig + '\ntasks = [["Купить хлеб", False], ["Учить уроки", False], ["Спорт", False]]\nshow(tasks)\n',
         par: 6, robot: null,

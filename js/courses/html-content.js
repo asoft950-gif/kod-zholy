@@ -11,7 +11,7 @@
       id: "1.1", kind: "html", title: "Бірінші тақырып",
       task: "<p>Бетке үлкен тақырып қос: <code>&lt;h1&gt;</code> тегінің ішіне <b>Сәлем, әлем!</b> деп жаз.</p>" +
         "<p class='tip'>Тег екі бөліктен тұрады: ашатын <code>&lt;h1&gt;</code> және жабатын <code>&lt;/h1&gt;</code>. Мәтін солардың арасына жазылады.</p>",
-      hint: "Жазып көр: <h1>Сәлем, әлем!</h1>. Оң жақта бетте тақырып пайда болады, ал «Құрылым ағашында» <h1> көрінеді.",
+      hint: "Мәтінді ашатын және жабатын тегтің арасына қой. Жабатын тегте аты алдында қиғаш сызық (/) тұрады. Оң жақтағы «Құрылым ағашынан» нәтижені тексер.",
       starter: "<!-- кодты осында жаз -->\n",
       solution: "<h1>Сәлем, әлем!</h1>\n",
       par: 1,
@@ -21,7 +21,7 @@
       id: "1.2", kind: "html", title: "Бет қаңқасы",
       task: "<p>Нағыз HTML-бет қаңқасын жаса: <code>&lt;html&gt;</code> ішінде <code>&lt;head&gt;</code> (оның ішінде <code>&lt;title&gt;</code>) және <code>&lt;body&gt;</code> (оның ішінде <code>&lt;h1&gt;</code>) болсын.</p>" +
         "<p class='tip'><b>head</b> — бет туралы мәлімет (браузер қойындысындағы ат), <b>body</b> — көрінетін бөлігі.</p>",
-      hint: "<html>\n  <head>\n    <title>Менің бетім</title>\n  </head>\n  <body>\n    <h1>Сәлем</h1>\n  </body>\n</html>",
+      hint: "Ең сыртқы тег — <html>. Оның ішінде екі бөлек бөлім тұрады: <head> (ішінде <title>) және <body> (ішінде тақырып). Әр ашылған тегті жабуды ұмытпа!",
       starter: "<html>\n\n</html>\n",
       solution: "<html>\n  <head>\n    <title>Менің бетім</title>\n  </head>\n  <body>\n    <h1>Сәлем</h1>\n  </body>\n</html>\n",
       par: 8,
@@ -42,7 +42,7 @@
       id: "2.1", kind: "html", title: "Тақырыптар деңгейі",
       task: "<p>Бір <code>&lt;h1&gt;</code> (<b>Менің блогым</b>) және екі <code>&lt;h2&gt;</code> тақырып жаса (мәтіндерін өзің ойлап тап).</p>" +
         "<p class='tip'>h1 — ең үлкен, h6 — ең кішкентай. Беттің басты тақырыбы (h1) бір ғана болады.</p>",
-      hint: "<h1>Менің блогым</h1> жаз, одан кейін екі рет <h2>…</h2>.",
+      hint: "Тақырыптың деңгейін тегтің атындағы сан көрсетеді: 1 — ең үлкен, 2 — одан кішірек. Әр тақырыпты өз жабатын тегімен жап.",
       starter: "",
       solution: "<h1>Менің блогым</h1>\n<h2>Бүгінгі күн</h2>\n<h2>Менің жоспарым</h2>\n",
       par: 3,
@@ -54,7 +54,7 @@
     {
       id: "2.2", kind: "html", title: "Әдемі абзац",
       task: "<p>Бір <code>&lt;p&gt;</code> абзац жаса. Оның ішінде: <code>&lt;b&gt;</code> (қалың), <code>&lt;i&gt;</code> (көлбеу) және <code>&lt;br&gt;</code> (жаңа жолға өту) болсын.</p>",
-      hint: "<p>Мен <b>HTML</b> үйренемін, <i>өте қызық!</i><br>Жаңа жол осында.</p>",
+      hint: "Абзацтың ішіне басқа тегтерді салуға болады: сөзді <b> немесе <i> ішіне ал. <br> жұп емес — ол жабылмай, жалғыз өзі тұрады.",
       starter: "",
       solution: "<p>Мен <b>HTML</b> үйренемін, <i>өте қызық!</i><br>Жаңа жол осында.</p>\n",
       par: 2,
@@ -83,7 +83,7 @@
     {
       id: "3.2", kind: "html", title: "Сілтеме",
       task: "<p><code>&lt;a&gt;</code> тегімен сілтеме жаса: мәтіні <b>Википедия</b>, мекенжайы <code>https://kk.wikipedia.org</code> болсын.</p>",
-      hint: '<a href="https://kk.wikipedia.org">Википедия</a>',
+      hint: "Сілтемеге <a> тегі және href атрибуты керек: href мекенжайды сақтайды, ал тег ішіндегі мәтін бетте көрінеді. Пішіні: <a href=\"…\">…</a>.",
       starter: "",
       solution: '<a href="https://kk.wikipedia.org">Википедия</a>\n',
       par: 1,
@@ -96,7 +96,7 @@
     {
       id: "4.1", kind: "html", title: "Сатып алу тізімі",
       task: "<p>Маркерлі тізім жаса: <code>&lt;ul&gt;</code> ішінде үш <code>&lt;li&gt;</code> пункт (нан, сүт, алма — не өзің қалағаның).</p>",
-      hint: "<ul>\n  <li>Нан</li>\n  <li>Сүт</li>\n  <li>Алма</li>\n</ul>",
+      hint: "Алдымен бүкіл тізімді қоршайтын тегті жаз, оның ішіне әр пункт үшін жеке <li> қой. Үш пункт — үш <li>.",
       starter: "",
       solution: "<ul>\n  <li>Нан</li>\n  <li>Сүт</li>\n  <li>Алма</li>\n</ul>\n",
       par: 5,
@@ -109,7 +109,7 @@
       id: "4.2", kind: "html", title: "Кішкентай кесте",
       task: "<p>2 жолы және 2 бағаны бар кесте жаса. Бірінші жолда <code>&lt;th&gt;</code> (тақырып ұяшықтары), екіншісінде <code>&lt;td&gt;</code> (деректер) болсын.</p>" +
         "<p class='tip'><code>&lt;tr&gt;</code> — жол, <code>&lt;th&gt;</code>/<code>&lt;td&gt;</code> — жол ішіндегі ұяшықтар.</p>",
-      hint: "<table>\n  <tr>\n    <th>Аты</th>\n    <th>Жасы</th>\n  </tr>\n  <tr>\n    <td>Алия</td>\n    <td>12</td>\n  </tr>\n</table>",
+      hint: "Кесте <table> ішінде жолдардан (<tr>) тұрады, ал әр жолдың ішінде ұяшықтар болады. Бірінші жолға екі <th>, екіншісіне екі <td> қой.",
       starter: "",
       solution: "<table>\n  <tr>\n    <th>Аты</th>\n    <th>Жасы</th>\n  </tr>\n  <tr>\n    <td>Алия</td>\n    <td>12</td>\n  </tr>\n</table>\n",
       par: 10,
@@ -125,7 +125,7 @@
     {
       id: "5.1", kind: "html", title: "Есім формасы",
       task: "<p><code>&lt;form&gt;</code> жаса: ішінде мәтін өрісі <code>&lt;input type=\"text\"&gt;</code> (<code>placeholder</code> — көмекші жазуы болсын) және <code>&lt;button&gt;</code> батырмасы тұрсын.</p>",
-      hint: '<form>\n  <input type="text" placeholder="Атың">\n  <button>Жіберу</button>\n</form>',
+      hint: "<input> жабылмайды: оның түрі мен көмекші жазуы атрибуттармен беріледі. <button> — жұп тег, жазуы ішінде тұрады. Екеуі де <form> ішінде болсын.",
       starter: "",
       solution: '<form>\n  <input type="text" placeholder="Атың">\n  <button>Жіберу</button>\n</form>\n',
       par: 4,
@@ -137,7 +137,7 @@
     {
       id: "5.2", kind: "html", title: "Таңдау формасы",
       task: "<p>Формаға қос: <code>&lt;label&gt;</code> жазуы бар құсбелгі (<code>type=\"checkbox\"</code>) және екі нұсқасы бар <code>&lt;select&gt;</code> (<code>&lt;option&gt;</code> нұсқалары).</p>",
-      hint: '<form>\n  <label><input type="checkbox"> Келісемін</label>\n  <select>\n    <option>Python</option>\n    <option>HTML</option>\n  </select>\n</form>',
+      hint: "Құсбелгі де <input> тегі. Оны <label> ішіне салсаң, жазуды басқанда да белгіленеді. <select> ішіне әр нұсқа үшін бір <option> қой.",
       starter: "<form>\n\n</form>\n",
       solution: '<form>\n  <label><input type="checkbox"> Келісемін</label>\n  <select>\n    <option>Python</option>\n    <option>HTML</option>\n  </select>\n</form>\n',
       par: 8,
@@ -152,7 +152,7 @@
     {
       id: "6.1", kind: "html", title: "Семантикалық қаңқа",
       task: "<p>Бет бөліктерін мағынасына қарай ата: <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code>. Әрқайсысының ішінде қысқа мәтін болсын.</p>",
-      hint: "<header>Тақырып</header>\n<nav>Мәзір</nav>\n<main>Негізгі бөлім</main>\n<footer>Төменгі бөлім</footer>",
+      hint: "Әр бөлікке өз тегін қолдан: ашу, қысқа мәтін, жабу. Бұлар қарапайым жұп тегтер, тек атының мағынасы бар. Бет бөліктері жоғарыдан төменге қарай тізіледі.",
       starter: "",
       solution: "<header>Тақырып</header>\n<nav>Мәзір</nav>\n<main>Негізгі бөлім</main>\n<footer>Төменгі бөлім</footer>\n",
       par: 8,
@@ -161,7 +161,7 @@
     {
       id: "6.2", kind: "html", title: "Бөлімдер",
       task: "<p><code>&lt;main&gt;</code> ішінде екі <code>&lt;section&gt;</code> жаса. Әр бөлімде <code>&lt;h2&gt;</code> тақырып пен <code>&lt;p&gt;</code> абзац болсын.</p>",
-      hint: "<main>\n  <section>\n    <h2>…</h2>\n    <p>…</p>\n  </section>\n  <section>…</section>\n</main>",
+      hint: "Алдымен <main> аш, оның ішіне бірінші <section> қос, ал оның ішіне тақырып пен абзац сал. Содан кейін осы блокты қайталап, екінші бөлімді жаса.",
       starter: "",
       solution: "<main>\n  <section>\n    <h2>Біз туралы</h2>\n    <p>Біз кодтауды үйренеміз.</p>\n  </section>\n  <section>\n    <h2>Байланыс</h2>\n    <p>Хат жаз.</p>\n  </section>\n</main>\n",
       par: 12,
@@ -179,7 +179,7 @@
     {
       id: "7.1", kind: "html", title: "Визит карточкасы",
       task: "<p>Өзің туралы шағын бет жаса: <code>&lt;h1&gt;</code> (атың), <code>&lt;img&gt;</code> (<code>assets/cat.svg</code> не <code>assets/robot.svg</code>), <code>&lt;p&gt;</code> (өзің туралы), <code>&lt;ul&gt;</code> (кемінде 2 хобби) және <code>&lt;a&gt;</code> сілтеме.</p>",
-      hint: "Бұрынғы тапсырмалардағы кодты біріктір: h1, img, p, ul + li, a.",
+      hint: "Бұрынғы сабақтарды біріктір: тақырып, сурет, абзац, тізім және сілтеме. <img> жабылмайды, оған src (жол) және alt (сипаттама) атрибуттары керек.",
       starter: "",
       solution: '<h1>Алия</h1>\n<img src="assets/cat.svg" alt="Мысық">\n<p>Мен 12 жастамын.</p>\n<ul>\n  <li>Сурет салу</li>\n  <li>Кодтау</li>\n</ul>\n<a href="https://kk.wikipedia.org">Википедия</a>\n',
       par: 8,
@@ -194,7 +194,7 @@
     {
       id: "7.2", kind: "html", title: "Толық бет",
       task: "<p>Семантикалық бет жаса: <code>&lt;header&gt;</code> ішінде <code>&lt;h1&gt;</code>; <code>&lt;nav&gt;</code> ішінде 2 сілтеме; <code>&lt;main&gt;</code> ішінде <code>&lt;section&gt;</code> (<code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code> және <code>&lt;img&gt;</code>); <code>&lt;footer&gt;</code> ішінде мәтін.</p>",
-      hint: "Қаңқадан бастап: header, nav, main > section, footer. Содан кейін ішіне мазмұнын толтыр.",
+      hint: "Алдымен төрт үлкен бөлікті ретімен жаз, сосын әрқайсысының ішін толтыр. <nav> ішіне екі <a>, <main> ішіндегі <section> ішіне тақырып, абзац және сурет қой.",
       starter: "",
       solution: '<header>\n  <h1>Менің сайтым</h1>\n</header>\n<nav>\n  <a href="#a">Басты</a>\n  <a href="#b">Байланыс</a>\n</nav>\n<main>\n  <section>\n    <h2>Сәлем</h2>\n    <p>Бұл менің бірінші сайтым.</p>\n    <img src="assets/star.svg" alt="Жұлдыз">\n  </section>\n</main>\n<footer>© 2026</footer>\n',
       par: 17,
@@ -223,7 +223,7 @@
     {
       id: "B2", kind: "html", title: "Ішкі тізім",
       task: "<p>Тізім ішінде тізім жаса: сыртқы <code>&lt;ul&gt;</code>-тың бір <code>&lt;li&gt;</code> пунктінің ішінде екінші <code>&lt;ul&gt;</code> болсын, оның екі пункті бар.</p>",
-      hint: "<ul>\n  <li>Жемістер\n    <ul>\n      <li>Алма</li>\n      <li>Шие</li>\n    </ul>\n  </li>\n</ul>",
+      hint: "Ішкі тізім сыртқы тізімнің жанында емес, оның бір <li> пунктінің ішінде тұрады. Сондықтан сыртқы <li> жабылмай тұрып, жаңа тізім аш.",
       starter: "", solution: "<ul>\n  <li>Жемістер\n    <ul>\n      <li>Алма</li>\n      <li>Шие</li>\n    </ul>\n  </li>\n</ul>\n", par: 8,
       check: { rules: [
         { sel: "ul > li > ul > li", min: 2, text: /\S/, label: "Ішкі тізімде кемінде 2 пункт бар" },
@@ -233,7 +233,7 @@
     {
       id: "B3", kind: "html", title: "Кесте 3×3",
       task: "<p>Үш жол, үш бағаны бар кесте жаса (барлығы 9 ұяшық). Бірінші жолы тақырып (<code>&lt;th&gt;</code>) болсын.</p>",
-      hint: "Бір <tr> жазып, оны көшіріп қой. <th> жолы бір, <td> жолы екі.",
+      hint: "Бір жолды (<tr>) жазып, ұяшықтар санын тексер, сосын көшіріп, ішіндегісін ауыстыр. Бірінші жолда <th>, қалған жолдарда <td> қолдан.",
       starter: "",
       solution: "<table>\n  <tr><th>A</th><th>B</th><th>C</th></tr>\n  <tr><td>1</td><td>2</td><td>3</td></tr>\n  <tr><td>4</td><td>5</td><td>6</td></tr>\n</table>\n", par: 5,
       check: { rules: [

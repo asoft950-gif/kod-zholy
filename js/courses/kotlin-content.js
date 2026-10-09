@@ -18,7 +18,7 @@
       id: "1.1", title: "Екі қорап",
       task: "<p><b>a</b> қорабына <code>7</code>, <b>b</b> қорабына <code>3</code> сал (<code>val</code> арқылы). Екеуінің қосындысын <code>println</code> арқылы экранға шығар.</p>" +
         "<p class='tip'>Kotlin-де бағдарлама <code>fun main() { … }</code> ішінде жұмыс істейді. Қорап жасау: <code>val a = 7</code> — оң жақта «a» қорабы пайда болады. Нүктелі үтір керек емес.</p>",
-      hint: "val a = 7, val b = 3, содан кейін println(a + b)",
+      hint: "Әр қорапты val арқылы жариялап, мәнін = белгісімен сал. Сосын println(…) ішінде екі қорапты + арқылы қос.",
       starter: MAIN("    // a және b қораптарын жаса\n    // қосындысын println-мен шығар\n"),
       solution: MAIN("    val a = 7\n    val b = 3\n    println(a + b)\n"),
       check: { output: "10", vars: { a: "7", b: "3" } },
@@ -27,7 +27,7 @@
       id: "1.2", title: "Сәлемдесу",
       task: "<p><code>val name</code> қорабына өз атыңды жаз (қос тырнақшада). Сосын экранға <code>Сәлем, Алия!</code> сияқты сәлемдесу шығар: Алия орнында сенің атың.</p>" +
         "<p class='tip'>Мәтінді қосуға болады: <code>\"Сәлем, \" + name + \"!\"</code></p>",
-      hint: 'val name = "Алия"; println("Сәлем, " + name + "!")',
+      hint: "Атыңды қос тырнақшаға алып, val name = … деп сақта. Сосын println(…) ішінде үш бөлікті + арқылы жалға: сәлем сөзі, name және леп белгісі.",
       starter: MAIN("    // name қорабына атыңды жаз\n    // сәлемдесуді шығар\n"),
       solution: MAIN('    val name = "Алия"\n    println("Сәлем, " + name + "!")\n'),
       check: {
@@ -44,7 +44,7 @@
       id: "1.3", title: "var: өзгеретін қорап",
       task: "<p><code>coins</code> қорабында <code>10</code> бар. Оған <code>5</code> қос да, нәтижені шығар: <code>15</code>.</p>" +
         "<p class='tip'><code>val</code> қорабын кейін өзгертуге болмайды. Өзгеретін қорап <code>var</code> деп жасалады. <code>coins += 5</code> — «coins-ке 5 қос».</p>",
-      hint: "coins += 5 жазып, одан кейін println(coins)",
+      hint: "+= қорапқа қосып, нәтижені сол қорапқа қайта жазады. println шақыруды қосқаннан кейін қой, әйтпесе ескі мән шығады.",
       starter: MAIN("    var coins = 10\n    // 5 қос\n    // шығар\n"),
       solution: MAIN("    var coins = 10\n    coins += 5\n    println(coins)\n"),
       check: { output: "15", vars: { coins: "15" } },
@@ -69,7 +69,7 @@
       id: "2.1", title: "Бүтін және ондық",
       task: "<p><code>a = 7</code> және <code>b = 2</code>. Алдымен <code>a / b</code> шығар, сосын нақты (ондық) бөлінді шығару үшін <code>a.toDouble() / b</code>.</p>" +
         "<p class='tip'>Kotlin-де <code>Int / Int</code> бүтін сан береді: <code>7 / 2</code> = <b>3</b>. Ондық нәтиже алу үшін бір санды <code>Double</code>-ға айналдыр.</p>",
-      hint: "println(a / b) және println(a.toDouble() / b)",
+      hint: "Екі println керек. Біріншісінде Int-ті Int-ке бөл, бүтін сан шығады. Екіншісінде бөлместен бұрын бір санға .toDouble() қолдан.",
       starter: MAIN("    val a = 7\n    val b = 2\n    // екі нәтижені шығар\n"),
       solution: MAIN("    val a = 7\n    val b = 2\n    println(a / b)\n    println(a.toDouble() / b)\n"),
       check: { output: "3\n3.5" },
@@ -77,7 +77,7 @@
     lv({
       id: "2.2", title: "Мәтін әдістері",
       task: "<p><code>word</code> қорабында <code>\"Kotlin\"</code> бар. Алдымен оның ұзындығын (<code>length</code>), сосын бас әріппен жазылған нұсқасын (<code>uppercase()</code>) шығар.</p>",
-      hint: "println(word.length) және println(word.uppercase())",
+      hint: "Нүкте қойып қорапқа сұрау жасауға болады: ұзындық үшін жақшасыз .length, бас әріптер үшін жақшалы .uppercase(). Әрқайсысын өз println-іне сал.",
       starter: MAIN('    val word = "Kotlin"\n    // ұзындығы\n    // бас әріптермен\n'),
       solution: MAIN('    val word = "Kotlin"\n    println(word.length)\n    println(word.uppercase())\n'),
       check: { output: "6\nKOTLIN" },
@@ -86,7 +86,7 @@
       id: "2.3", title: "Мәтіннен санға",
       task: "<p><code>text</code> қорабында мәтін түрінде <code>\"42\"</code> тұр. Оны санға айналдырып, <code>8</code> қосып, нәтижені шығар: <code>50</code>.</p>" +
         "<p class='tip'><code>\"42\".toInt()</code> мәтінді санға айналдырады. Мәтін мен санды тікелей қосуға болмайды — Kotlin қате береді.</p>",
-      hint: "println(text.toInt() + 8)",
+      hint: "Мәтінді санға .toInt() айналдырады. Қосу амалын айналдырғаннан кейін ғана қолдан, әйтпесе Kotlin қате береді. Нәтижені println-ге бер.",
       starter: MAIN('    val text = "42"\n    // санға айналдырып 8 қос\n'),
       solution: MAIN('    val text = "42"\n    println(text.toInt() + 8)\n'),
       check: { output: "50" },
@@ -95,7 +95,7 @@
       id: "2.4", title: "null және «?»",
       task: "<p><code>city</code> қорабы алдымен бос (<code>null</code>). 1) Экранға <code>city ?: \"белгісіз\"</code> шығар. 2) Қалаға <code>\"Астана\"</code> сал. 3) Қала атының ұзындығын <code>city?.length</code> арқылы шығар. Күтілетін нәтиже: <code>белгісіз</code> және <code>6</code>.</p>" +
         "<p class='tip'>Тип соңындағы <code>?</code> («<code>String?</code>») қорапқа <code>null</code> салуға рұқсат береді. <code>?:</code> — «егер бос болса, мынаны ал». <code>?.</code> — «бос болмаса ғана қолдан».</p>",
-      hint: 'println(city ?: "белгісіз"); city = "Астана"; println(city?.length)',
+      hint: "Үш қадам: println ішінде ?: қойып, бос болғандағы мәтінді жаз; var қорапқа жаңа мән сал; соңында ?. арқылы ұзындықты шығар.",
       starter: MAIN("    var city: String? = null\n    // 1) ?: арқылы шығар\n    // 2) city = \"Астана\"\n    // 3) city?.length шығар\n"),
       solution: MAIN('    var city: String? = null\n    println(city ?: "белгісіз")\n    city = "Астана"\n    println(city?.length)\n'),
       check: { output: "белгісіз\n6" },
@@ -106,7 +106,7 @@
       id: "3.1", title: "Ересек пе, бала ма",
       task: "<p><code>age</code> қорабындағы жас <code>18</code> немесе одан үлкен болса, экранға <code>ересек</code>, әйтпесе <code>бала</code> деп шығар. Кодың <code>age</code> басқа сан болғанда да дұрыс жұмыс істеуі керек.</p>" +
         "<p class='tip'>Kotlin-де <code>if</code> мән де қайтара алады: <code>val s = if (x &gt; 5) \"а\" else \"б\"</code>.</p>",
-      hint: 'if (age >= 18) { println("ересек") } else { println("бала") }',
+      hint: "if (…) { … } else { … } құрылымын қолдан. Шартта жасты «үлкен немесе тең» белгісімен (>=) шекті сан мен салыстыр, әр тармаққа өз println-ін жаз.",
       starter: MAIN("    val age = 15\n    // if / else жаз\n"),
       solution: MAIN('    val age = 15\n    if (age >= 18) {\n        println("ересек")\n    } else {\n        println("бала")\n    }\n'),
       check: {
@@ -161,7 +161,7 @@
       id: "3.4", title: "Диапазонда ма",
       task: "<p><code>n</code> саны <code>10</code>-нан <code>20</code>-ға дейін (екеуін қоса) болса, экранға <code>ішінде</code>, әйтпесе <code>сыртында</code> деп шығар. Кодың <code>n</code> басқа сан болғанда да дұрыс жұмыс істесін.</p>" +
         "<p class='tip'><code>10..20</code> — 10-дан 20-ға дейінгі сандар. <code>n in 10..20</code> — «n осы диапазонда ма?». Бұл <code>n &gt;= 10 &amp;&amp; n &lt;= 20</code> дегеннен қысқа.</p>",
-      hint: 'if (n in 10..20) { println("ішінде") } else { println("сыртында") }',
+      hint: "in шартын if жақшасына қой: диапазонда болса бір сөз, әйтпесе else тармағында екінші сөз шығады. .. екі шетін де қосып есептейді.",
       starter: MAIN("    val n = 15\n    // in 10..20 пайдалан\n"),
       solution: MAIN('    val n = 15\n    if (n in 10..20) {\n        println("ішінде")\n    } else {\n        println("сыртында")\n    }\n'),
       check: {
@@ -181,7 +181,7 @@
       id: "4.1", title: "Бірден беске дейін",
       task: "<p><code>for</code> циклімен <code>1</code>-ден <code>5</code>-ке дейінгі сандарды шығар (әрқайсысы жаңа жолда).</p>" +
         "<p class='tip'><code>for (i in 1..5) { … }</code> — <code>i</code> қорабы 1, 2, 3, 4, 5 мәндерін ретімен қабылдайды. Оң жақтағы циклдің панеліне қара!</p>",
-      hint: "for (i in 1..5) { println(i) }",
+      hint: "Цикл денесінде i-ді шығаратын бір команда жеткілікті: i әр айналымда жаңа мән алады. Диапазонды .. арқылы бастапқы және соңғы сан етіп бер.",
       starter: MAIN("    // for циклін жаз\n"),
       solution: MAIN("    for (i in 1..5) {\n        println(i)\n    }\n"),
       check: { output: "1\n2\n3\n4\n5", requireFor: true },
@@ -190,7 +190,7 @@
       id: "4.2", title: "Жүздің қосындысы",
       task: "<p>1-ден 100-ге дейінгі барлық сандардың қосындысын тап: <code>total</code> қорабына жина, соңында шығар. Жауап: <code>5050</code>.</p>" +
         "<p class='tip'>Алдымен <code>var total = 0</code>, цикл ішінде <code>total += i</code>.</p>",
-      hint: "var total = 0; for (i in 1..100) { total += i }; println(total)",
+      hint: "total — жинақ қорабы: цикл әр айналымда i-ді соған қосады. println-ді циклден кейін, жақшадан тыс бір рет қой, әйтпесе көп жол шығады.",
       starter: MAIN("    var total = 0\n    // циклмен қос\n    // шығар\n"),
       solution: MAIN("    var total = 0\n    for (i in 1..100) {\n        total += i\n    }\n    println(total)\n"),
       check: { output: "5050", vars: { total: "5050" }, requireFor: true },
@@ -199,7 +199,7 @@
       id: "4.3", title: "Кері санақ",
       task: "<p>Мына сандарды шығар: <code>10</code>, <code>8</code>, <code>6</code>, <code>4</code>, <code>2</code> (әрқайсысы жаңа жолда). Цикл керісінше жүріп, екіден секіруі керек.</p>" +
         "<p class='tip'><code>10 downTo 2</code> — кері санақ, <code>step 2</code> — қадамы 2. Бірге: <code>for (i in 10 downTo 2 step 2)</code>.</p>",
-      hint: "for (i in 10 downTo 2 step 2) { println(i) }",
+      hint: "downTo пен step — диапазонға жалғанатын екі сөз. Үлкен санды бірінші жаз, ал step-тен кейін қанша секіру керегін көрсет.",
       starter: MAIN("    // downTo және step\n"),
       solution: MAIN("    for (i in 10 downTo 2 step 2) {\n        println(i)\n    }\n"),
       check: { output: "10\n8\n6\n4\n2", requireFor: true },
@@ -208,7 +208,7 @@
       id: "4.4", title: "Екі еселену",
       task: "<p><code>n</code> қорабы <code>1</code>-ден басталады. <code>while</code> циклімен <code>n</code>-ді екіге көбейте бер, <code>n</code> <b>100</b>-ге жеткенше не асқанша. Соңында <code>n</code>-ді шығар: <code>128</code>.</p>" +
         "<p class='tip'><code>while (шарт) { … }</code> — шарт ақиқат болғанша қайталайды. <code>n *= 2</code> — n-ді екіге көбейт.</p>",
-      hint: "while (n < 100) { n *= 2 }  — одан кейін println(n)",
+      hint: "while шарты «қайталай бер» дегенді білдіреді, сондықтан n әлі жетпей тұрғанда ақиқат болуы керек (<). Цикл біткен соң n-ді бір рет шығар.",
       starter: MAIN("    var n = 1\n    // while циклін жаз\n    // n-ді шығар\n"),
       solution: MAIN("    var n = 1\n    while (n < 100) {\n        n *= 2\n    }\n    println(n)\n"),
       check: { output: "128", vars: { n: "128" }, requireWhile: true },
@@ -219,7 +219,7 @@
       id: "5.1", title: "Квадрат функциясы",
       task: "<p><code>square</code> функциясын жаз: ол <code>Int</code> санды алып, оның квадратын қайтарады. <code>main</code> ішінде <code>square(7)</code> шақырылған — экранда <code>49</code> болуы керек.</p>" +
         "<p class='tip'>Функция: <code>fun аты(параметр: Тип): Қайтару_типі { return … }</code>. Бір жолдық нұсқа: <code>fun square(x: Int): Int = x * x</code>.</p>",
-      hint: "fun square(x: Int): Int { return x * x }",
+      hint: "Функция жазғанда параметр атын мен типін, жақшадан кейін қайтару типін көрсет. Денесінде return арқылы санды өзін-өзіне көбейтіп қайтар.",
       starter: "// square функциясын осы жерге жаз\n\nfun main() {\n    println(square(7))\n}\n",
       solution: "fun square(x: Int): Int {\n    return x * x\n}\n\nfun main() {\n    println(square(7))\n}\n",
       check: { output: "49", requireDef: true },
@@ -228,7 +228,7 @@
       id: "5.2", title: "Әдепкі мән",
       task: "<p><code>greet</code> функциясын жаз: екі параметр — <code>name</code> және <code>greeting</code> (әдепкі мәні <code>\"Сәлем\"</code>). Ол <code>Сәлем, Аян!</code> түріндегі мәтінді қайтарады. <code>main</code> екі рет шақырады.</p>" +
         "<p class='tip'>Әдепкі мән: <code>fun f(a: Int, b: Int = 10)</code>. Шақырғанда екінші аргументті жазбасаң, 10 алынады.</p>",
-      hint: 'fun greet(name: String, greeting: String = "Сәлем"): String { return "€greeting, €name!" }',
+      hint: "Екінші параметрдің типінен кейін = қойып, әдепкі мәнін жаз. Мәтін ішіне қорап мәнін $ белгісімен қоюға болады. Функция String қайтарады.",
       starter: "// greet функциясын жаз\n\nfun main() {\n    println(greet(\"Аян\"))\n    println(greet(\"Дана\", \"Қайырлы таң\"))\n}\n",
       solution: 'fun greet(name: String, greeting: String = "Сәлем"): String {\n    return "€greeting, €name!"\n}\n\nfun main() {\n    println(greet("Аян"))\n    println(greet("Дана", "Қайырлы таң"))\n}\n',
       check: { output: "Сәлем, Аян!\nҚайырлы таң, Дана!", requireDef: true },
@@ -246,7 +246,7 @@
       id: "5.4", title: "Жұп сандар",
       task: "<p><code>isEven(n)</code> функциясын жаз: сан жұп болса <code>true</code> қайтарады. Сосын <code>main</code> ішінде <code>1</code>-ден <code>6</code>-ға дейінгі сандардан тек жұптарын шығар: <code>2</code>, <code>4</code>, <code>6</code>.</p>" +
         "<p class='tip'>Жұптық: <code>n % 2 == 0</code>. Функция <code>Boolean</code> қайтарады.</p>",
-      hint: "fun isEven(n: Int): Boolean = n % 2 == 0   және   for (i in 1..6) { if (isEven(i)) println(i) }",
+      hint: "Екі бөлек іс: Boolean қайтаратын функция (қалдықты % арқылы тексер) және for циклі. Цикл ішінде if арқылы функцияны шақырып, тек сәйкесін шығар.",
       starter: "// isEven функциясын жаз\n\nfun main() {\n    // 1..6 ішінен жұптарын шығар\n}\n",
       solution: "fun isEven(n: Int): Boolean {\n    return n % 2 == 0\n}\n\nfun main() {\n    for (i in 1..6) {\n        if (isEven(i)) {\n            println(i)\n        }\n    }\n}\n",
       check: { output: "2\n4\n6", requireDef: true, requireFor: true },
@@ -257,7 +257,7 @@
       id: "6.1", title: "Жемістер тізімі",
       task: "<p><code>fruits</code> тізімін жаса: <code>\"алма\"</code>, <code>\"алмұрт\"</code>, <code>\"өрік\"</code>. Тізімнің өлшемін (<code>size</code>) және екінші элементін (индекс <b>1</b>) шығар. Күтілетін нәтиже: <code>3</code> және <code>алмұрт</code>.</p>" +
         "<p class='tip'><code>listOf(…)</code> — өзгермейтін тізім. Элемент нөмірі 0-ден басталады: <code>fruits[0]</code> — бірінші.</p>",
-      hint: 'val fruits = listOf("алма", "алмұрт", "өрік"); println(fruits.size); println(fruits[1])',
+      hint: "listOf(…) ішіне элементтерді үтірмен жаз (мәтіндер тырнақшада). Өлшемі — .size, ал элементті [ ] ішіндегі нөмірмен ал; нөмірлеу 0-ден басталады.",
       starter: MAIN("    // fruits тізімін жаса\n    // size және fruits[1] шығар\n"),
       solution: MAIN('    val fruits = listOf("алма", "алмұрт", "өрік")\n    println(fruits.size)\n    println(fruits[1])\n'),
       check: { output: "3\nалмұрт", vars: { fruits: '["алма", "алмұрт", "өрік"]' }, requireList: true },
@@ -266,7 +266,7 @@
       id: "6.2", title: "Тізімге қосу",
       task: "<p><code>nums</code> — өзгеретін тізім (<code>mutableListOf</code>), басында <code>1, 2, 3</code> бар. Оған <code>4</code> пен <code>5</code> қос, сосын барлық сандардың қосындысын (<code>sum()</code>) шығар: <code>15</code>.</p>" +
         "<p class='tip'><code>listOf</code> тізімін өзгерту мүмкін емес, ал <code>mutableListOf</code> тізіміне <code>add(…)</code> арқылы қосуға болады.</p>",
-      hint: "nums.add(4); nums.add(5); println(nums.sum())",
+      hint: "mutableListOf тізіміне .add(…) әр шақырғанда бір элемент қосады, сондықтан екі рет шақыр. Соңында .sum() нәтижесін println-ге бер.",
       starter: MAIN("    val nums = mutableListOf(1, 2, 3)\n    // 4 пен 5 қос\n    // қосындысын шығар\n"),
       solution: MAIN("    val nums = mutableListOf(1, 2, 3)\n    nums.add(4)\n    nums.add(5)\n    println(nums.sum())\n"),
       check: { output: "15", vars: { nums: "[1, 2, 3, 4, 5]" } },
@@ -284,7 +284,7 @@
       id: "6.4", title: "Жас кестесі (Map)",
       task: "<p><code>ages</code> — Map: <code>\"Аян\"</code> → <code>12</code>, <code>\"Дана\"</code> → <code>11</code>. Цикл арқылы әр жұпты <code>Аян: 12</code> түрінде шығар.</p>" +
         "<p class='tip'><code>mapOf(\"а\" to 1, \"б\" to 2)</code> — кілт пен мән жұптары. Циклде жұпты бөлуге болады: <code>for ((name, age) in ages)</code>.</p>",
-      hint: 'for ((name, age) in ages) { println("€name: €age") }',
+      hint: "Цикл жақшасында жұпты екі атқа бөл: for ((…, …) in ages). Денесінде екеуін бір жолға жинау үшін мәтін ішінде $ шаблонын қолдан.",
       starter: MAIN('    val ages = mapOf("Аян" to 12, "Дана" to 11)\n    // циклмен шығар\n'),
       solution: MAIN('    val ages = mapOf("Аян" to 12, "Дана" to 11)\n    for ((name, age) in ages) {\n        println("€name: €age")\n    }\n'),
       check: { output: "Аян: 12\nДана: 11", requireFor: true },
@@ -295,7 +295,7 @@
       id: "7.1", title: "Мысық класы",
       task: "<p><code>Cat</code> класын жаса: ол <code>name</code> (мәтін) қасиетін алады және <code>meow()</code> функциясы бар — ол <code>Мурка: Мияу!</code> түрінде (аты және «Мияу!») шығарады. <code>main</code> дайын.</p>" +
         "<p class='tip'>Класс — объектінің қалыбы: <code>class Dog(val name: String) { fun bark() { println(\"Гав\") } }</code>. Объект жасау: <code>Dog(\"Шарик\")</code>.</p>",
-      hint: 'class Cat(val name: String) { fun meow() { println("€name: Мияу!") } }',
+      hint: "class Cat(…) жақшасында атты val арқылы жарияла, { } ішінде fun meow() жаз. Мәтін ішіндегі $name қасиет мәнін қояды.",
       starter: '// Cat класын осы жерге жаз\n\nfun main() {\n    val cat = Cat("Мурка")\n    cat.meow()\n}\n',
       solution: 'class Cat(val name: String) {\n    fun meow() {\n        println("€name: Мияу!")\n    }\n}\n\nfun main() {\n    val cat = Cat("Мурка")\n    cat.meow()\n}\n',
       check: { output: "Мурка: Мияу!" },
@@ -304,7 +304,7 @@
       id: "7.2", title: "Санауыш",
       task: "<p><code>Counter</code> класын жаса: ішінде <code>var count = 0</code> қасиеті және <code>inc()</code> функциясы бар — ол санды 1-ге арттырады. <code>main</code> оны үш рет шақырады, содан кейін <code>count</code> шығарылады: <code>3</code>.</p>" +
         "<p class='tip'>Класс өз қасиеттерін есте сақтайды. Функцияның ішінде қасиетті тікелей жазасың: <code>count++</code>.</p>",
-      hint: "class Counter { var count = 0; fun inc() { count++ } }",
+      hint: "Класс денесіне бастапқы мәні бар var қасиетін жаз, ал inc() ішінде оны ++ арқылы арттыр. Әр шақыруда сан есте қалады.",
       starter: "// Counter класын жаз\n\nfun main() {\n    val c = Counter()\n    c.inc()\n    c.inc()\n    c.inc()\n    println(c.count)\n}\n",
       solution: "class Counter {\n    var count = 0\n    fun inc() {\n        count++\n    }\n}\n\nfun main() {\n    val c = Counter()\n    c.inc()\n    c.inc()\n    c.inc()\n    println(c.count)\n}\n",
       check: { output: "3" },
@@ -313,7 +313,7 @@
       id: "7.3", title: "data class",
       task: "<p><code>Point</code> деректер класын жаса: екі бүтін сан — <code>x</code> және <code>y</code>. <code>main</code> ішінде <code>p = Point(1, 2)</code> жаса, одан <code>y</code>-ін 5-ке ауыстырып көшірме жаса (<code>copy</code>), екеуін де шығар. Күтілетін нәтиже: <code>Point(x=1, y=2)</code> және <code>Point(x=1, y=5)</code>.</p>" +
         "<p class='tip'><code>data class</code> өзі әдемі мәтінге айналады (<code>toString</code>), салыстырылады, көшіріледі: <code>p.copy(y = 5)</code>.</p>",
-      hint: "data class Point(val x: Int, val y: Int)  және  val q = p.copy(y = 5)",
+      hint: "data class жақшасында екі қасиетті val және типімен жаз, денесі керек емес. copy(…) ішінде тек өзгертетін қасиетті атап жаз, қалғаны сол күйі қалады.",
       starter: "// Point класын жаз\n\nfun main() {\n    // p жаса, q = p.copy(y = 5)\n    // екеуін шығар\n}\n",
       solution: "data class Point(val x: Int, val y: Int)\n\nfun main() {\n    val p = Point(1, 2)\n    val q = p.copy(y = 5)\n    println(p)\n    println(q)\n}\n",
       check: {
@@ -366,7 +366,7 @@
       id: "B3", title: "Тізім статистикасы",
       task: "<p><code>scores</code> тізімінен ең үлкен, ең кіші және орташа мәнді шығар (үш жол). Тізім: <code>8, 5, 9, 6</code>. Күтілетін нәтиже: <code>9</code>, <code>5</code>, <code>7.0</code>.</p>" +
         "<p class='tip'><code>max()</code>, <code>min()</code>, <code>average()</code> — тізімнің дайын әдістері.</p>",
-      hint: "println(scores.max()); println(scores.min()); println(scores.average())",
+      hint: "Тізімнен нүкте арқылы үш дайын әдісті шақыр: ең үлкен, ең кіші және орташа үшін (атаулары тапсырмада). Әрқайсысын өз println-іне сал.",
       starter: MAIN("    val scores = listOf(8, 5, 9, 6)\n    // max, min, average\n"),
       solution: MAIN("    val scores = listOf(8, 5, 9, 6)\n    println(scores.max())\n    println(scores.min())\n    println(scores.average())\n"),
       check: { output: "9\n5\n7.0" },

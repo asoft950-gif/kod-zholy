@@ -14,7 +14,7 @@
       id: "1.1", title: "Две коробки",
       task: "<p>Положи в коробку <b>a</b> число <code>7</code>, а в коробку <b>b</b> число <code>3</code>. Выведи на экран их сумму с помощью <code>console.log</code>.</p>" +
         "<p class='tip'>Как создать коробку: <code>let a = 7;</code> — справа появится коробка «a». В конце строки ставится точка с запятой <code>;</code>.</p>",
-      hint: "let a = 7; let b = 3; а потом console.log(a + b);",
+      hint: "Создай каждую коробку через let и положи значение знаком =. Затем в console.log запиши обе коробки, соединив их знаком +.",
       starter: "// создай коробки a и b\n// выведи сумму через console.log\n",
       solution: "let a = 7;\nlet b = 3;\nconsole.log(a + b);\n",
       par: 3,
@@ -24,7 +24,7 @@
       id: "1.2", title: "Приветствие",
       task: "<p>Запиши своё имя в коробку <code>const name</code> (в кавычках). Потом выведи на экран приветствие вроде <code>Привет, Алия!</code>, только вместо Алии — твоё имя.</p>" +
         "<p class='tip'>Строки можно склеивать: <code>\"Привет, \" + name + \"!\"</code></p>",
-      hint: 'const name = "Алия"; console.log("Привет, " + name + "!");',
+      hint: "Сначала положи текст в коробку через const (текст в кавычках). Потом в console.log склей части текста знаком +.",
       starter: "// запиши своё имя в name\n// выведи приветствие\n",
       solution: 'const name = "Алия";\nconsole.log("Привет, " + name + "!");\n',
       par: 2,
@@ -44,7 +44,7 @@
       id: "2.1", title: "Чётное или нечётное",
       task: "<p>Если число в коробке <code>x</code> <b>чётное</b>, выведи на экран <code>чётное</code>, а иначе — <code>нечётное</code>. Твой код должен работать правильно и при другом значении <code>x</code>.</p>" +
         "<p class='tip'><code>x % 2 === 0</code> — остаток от деления x на 2 равен 0? Три знака равенства <code>===</code> спрашивают «равно ли?».</p>",
-      hint: "if (x % 2 === 0) { console.log(\"чётное\"); } else { console.log(\"нечётное\"); }",
+      hint: "Используй операцию % для остатка и сравни результат с 0 через ===. Два варианта разделит конструкция if (…) { … } else { … }.",
       starter: "let x = 10;\n// напиши if / else\n",
       solution: 'let x = 10;\nif (x % 2 === 0) {\n  console.log("чётное");\n} else {\n  console.log("нечётное");\n}\n',
       par: 6,
@@ -62,7 +62,7 @@
       id: "2.2", title: "Оценка",
       task: "<p>В зависимости от коробки <code>score</code> выведи на экран: если <b>90 или больше</b> — <code>Отлично</code>, если <b>50 или больше</b> — <code>Хорошо</code>, иначе — <code>Попробуй ещё</code>.</p>" +
         "<p class='tip'>Условия можно выстраивать цепочкой: <code>if … else if … else …</code></p>",
-      hint: "if (score >= 90) {…} else if (score >= 50) {…} else {…}",
+      hint: "Начни с самого строгого условия: if (…) { … }, затем else if (…) { … }, в конце else { … } без условия. Для сравнения нужен знак >=.",
       starter: "let score = 75;\n// напиши условия\n",
       solution: 'let score = 75;\nif (score >= 90) {\n  console.log("Отлично");\n} else if (score >= 50) {\n  console.log("Хорошо");\n} else {\n  console.log("Попробуй ещё");\n}\n',
       par: 9,
@@ -82,7 +82,7 @@
       id: "3.1", title: "От одного до пяти",
       task: "<p>Выведи на экран числа <code>1, 2, 3, 4, 5</code>, каждое с новой строки. Используй цикл <code>for</code>.</p>" +
         "<p class='tip'><code>for (let i = 1; i &lt;= 5; i++) { … }</code> — i начинается с 1 и растёт по одному до 5.</p>",
-      hint: "for (let i = 1; i <= 5; i++) { console.log(i); }",
+      hint: "У цикла три части: for (let i = …; …; …). Подумай о начале, условии остановки и шаге, а в теле выведи i через console.log.",
       starter: "// напиши цикл for\n",
       solution: "for (let i = 1; i <= 5; i++) {\n  console.log(i);\n}\n",
       par: 3,
@@ -91,7 +91,7 @@
     {
       id: "3.2", title: "Сумма",
       task: "<p>Найди сумму чисел от 1 до 10: собери её в коробке <code>s</code> и в конце выведи на экран (должно получиться 55). Смотри, как на каждом шаге цикла растёт коробка <b>s</b> справа!</p>",
-      hint: "let s = 0; for (let i = 1; i <= 10; i++) { s += i; } console.log(s);",
+      hint: "Внутри цикла добавляй каждое значение i в коробку s (поможет знак +=). console.log напиши после цикла, снаружи.",
       starter: "let s = 0;\n// складывай в цикле\n",
       solution: "let s = 0;\nfor (let i = 1; i <= 10; i++) {\n  s += i;\n}\nconsole.log(s);\n",
       par: 5,
@@ -101,7 +101,7 @@
       id: "3.3", title: "Удвоение",
       task: "<p>Пусть <code>n = 1</code>. Пока <code>n</code> меньше 100, умножай его на 2 (<code>while</code>). В конце выведи n на экран.</p>" +
         "<p class='tip'><code>while (условие) { … }</code> повторяет, пока условие истинно. <code>n *= 2</code> — удвоить n.</p>",
-      hint: "while (n < 100) { n *= 2; } console.log(n);",
+      hint: "В while (…) { … } запиши условие про n: пока оно истинно, увеличивай n. console.log вызови только после окончания цикла.",
       starter: "let n = 1;\n// напиши цикл while\n",
       solution: "let n = 1;\nwhile (n < 100) {\n  n *= 2;\n}\nconsole.log(n);\n",
       par: 5,
@@ -113,7 +113,7 @@
       id: "4.1", title: "Функция сложения",
       task: "<p>Создай функцию <code>add</code>: она берёт два числа и возвращает их сумму через <code>return</code>. Потом выведи на экран результат <code>add(4, 5)</code>.</p>" +
         "<p class='tip'><code>function имя(а, б) { return …; }</code> — функцию пишешь один раз, а вызывать можно сколько угодно.</p>",
-      hint: "function add(a, b) { return a + b; } console.log(add(4, 5));",
+      hint: "После слова function напиши имя и два параметра в скобках. В теле верни через return результат действия над ними, затем вызови функцию внутри console.log.",
       starter: "// напиши функцию add\n",
       solution: "function add(a, b) {\n  return a + b;\n}\nconsole.log(add(4, 5));\n",
       par: 4,
@@ -125,7 +125,7 @@
     {
       id: "4.2", title: "Функция приветствия",
       task: "<p>Создай функцию <code>greet</code>: она берёт параметр <code>name</code> и <b>возвращает</b> строку <code>Привет, …!</code>. Вызови её два раза и выведи на экран <code>Привет, Алия!</code> и <code>Привет, Бота!</code> (каждое с новой строки).</p>",
-      hint: 'function greet(name) { return "Привет, " + name + "!"; } console.log(greet("Алия")); …',
+      hint: "Функция должна вернуть текст через return, а не печатать его: склей части текста знаком +. Потом вызови функцию с двумя разными именами.",
       starter: "// функция greet\n",
       solution: 'function greet(name) {\n  return "Привет, " + name + "!";\n}\nconsole.log(greet("Алия"));\nconsole.log(greet("Бота"));\n',
       par: 5,
@@ -140,7 +140,7 @@
       id: "5.1", title: "Массив фруктов",
       task: "<p>Создай массив <code>fruits</code>: <code>\"яблоко\"</code>, <code>\"груша\"</code>. Потом добавь через <code>push</code> элемент <code>\"вишня\"</code>. Выведи на экран длину массива (<code>fruits.length</code>).</p>" +
         "<p class='tip'>Массив — это коробки в один ряд: <code>[\"а\", \"б\"]</code>. Посмотри справа: номера начинаются с 0!</p>",
-      hint: 'let fruits = ["яблоко", "груша"]; fruits.push("вишня"); console.log(fruits.length);',
+      hint: "Массив пишется в квадратных скобках [ … ] через запятую. Добавить элемент можно через массив.push(…), а количество узнать через массив.length.",
       starter: "// создай массив fruits\n",
       solution: 'let fruits = ["яблоко", "груша"];\nfruits.push("вишня");\nconsole.log(fruits.length);\n',
       par: 3,
@@ -150,7 +150,7 @@
       id: "5.2", title: "Сумма чисел",
       task: "<p>Найди в цикле сумму всех чисел массива <code>numbers</code> и выведи её на экран. Код должен работать и с другим массивом.</p>" +
         "<p class='tip'><code>for (const x of numbers) { … }</code> — по очереди отдаёт каждый элемент массива.</p>",
-      hint: "let total = 0; for (const x of numbers) { total += x; } console.log(total);",
+      hint: "Коробка для суммы уже есть до цикла. Внутри for (const x of …) { … } прибавляй к ней каждый x, а console.log вызови после цикла.",
       starter: "const numbers = [3, 8, 5, 2];\nlet total = 0;\n// складывай в цикле\n",
       solution: "const numbers = [3, 8, 5, 2];\nlet total = 0;\nfor (const x of numbers) {\n  total += x;\n}\nconsole.log(total);\n",
       par: 6,
@@ -172,7 +172,7 @@
       html: '<h1 id="title">Привет</h1>\n<p id="text">Обычный текст</p>',
       task: "<p>Справа настоящая страница. Измени текст заголовка с <code>id=\"title\"</code> на <b>Привет, JavaScript!</b></p>" +
         "<p class='tip'><code>document.getElementById(\"title\")</code> находит элемент, а <code>.textContent = \"…\"</code> заменяет его текст.</p>",
-      hint: 'document.getElementById("title").textContent = "Привет, JavaScript!";',
+      hint: "Сначала найди элемент через getElementById, затем присвой его свойству textContent новый текст знаком =.",
       starter: "// измени текст заголовка\n",
       solution: 'document.getElementById("title").textContent = "Привет, JavaScript!";\n',
       par: 2,
@@ -189,7 +189,7 @@
       html: '<h1 id="title">Привет</h1>\n<p id="text">Обычный текст</p>',
       task: "<p>Покрась абзац с <code>id=\"text\"</code> в <b>красный</b> цвет (<code>red</code>) и сделай размер шрифта <code>24px</code>.</p>" +
         "<p class='tip'><code>элемент.style.color = \"red\"</code>. Свойство <code>font-size</code> из CSS здесь пишется как <code>fontSize</code>.</p>",
-      hint: 'let p = document.getElementById("text"); p.style.color = "red"; p.style.fontSize = "24px";',
+      hint: "Найди элемент через getElementById и сохрани в коробку. Затем у его свойства style измени color и fontSize отдельными строками.",
       starter: "// покрась абзац\n",
       solution: 'const p = document.getElementById("text");\np.style.color = "red";\np.style.fontSize = "24px";\n',
       par: 3,
@@ -212,7 +212,7 @@
       html: '<button id="btn">Нажми</button>\n<p>Нажато: <b id="out">0</b></p>',
       task: "<p>Пусть при каждом нажатии на кнопку число в <code>out</code> <b>увеличивается на 1</b>. Нажми на кнопку на странице сам: на последнем шаге страница работает по-настоящему!</p>" +
         "<p class='tip'><code>кнопка.addEventListener(\"click\", () => { … })</code> — «когда нажмут, сделай вот это».</p>",
-      hint: 'let count = 0;\nconst btn = document.getElementById("btn");\nbtn.addEventListener("click", () => {\n  count++;\n  document.getElementById("out").textContent = count;\n});',
+      hint: "Коробка со счётом должна быть вне обработчика. Повесь на кнопку addEventListener: при каждом нажатии увеличивай коробку и записывай её в текст out.",
       starter: "let count = 0;\n// слушай кнопку\n",
       solution: 'let count = 0;\nconst btn = document.getElementById("btn");\nbtn.addEventListener("click", () => {\n  count++;\n  document.getElementById("out").textContent = count;\n});\n',
       par: 6,
@@ -231,7 +231,7 @@
       id: "7.2", title: "Смена цвета",
       html: '<div id="box" style="padding:20px;border:3px solid #1f1d36">Коробка</div>\n<button id="go">Поменять цвет</button>',
       task: "<p>Пусть после нажатия на кнопку <code>go</code> фон коробки <code>box</code> становится <b>gold</b>.</p>",
-      hint: 'document.getElementById("go").addEventListener("click", () => { document.getElementById("box").style.background = "gold"; });',
+      hint: "Найди кнопку через getElementById и добавь ей addEventListener. Внутри найди второй элемент и поменяй фон в его свойстве style.",
       starter: "// добавь событие кнопке go\n",
       solution: 'const go = document.getElementById("go");\ngo.addEventListener("click", () => {\n  document.getElementById("box").style.background = "gold";\n});\n',
       par: 6,
@@ -255,7 +255,7 @@
     {
       id: "B1", title: "Таблица на семь",
       task: "<p>Выведи таблицу умножения на 7: <code>7 * 1 = 7</code>, <code>7 * 2 = 14</code> … <code>7 * 10 = 70</code>. Каждая строка — с новой строки. Склеивай текст и число через <code>+</code>.</p>",
-      hint: 'for (let i = 1; i <= 10; i++) { console.log("7 * " + i + " = " + 7 * i); }',
+      hint: "Множитель меняется от 1 до 10, поэтому используй цикл for. На каждом шаге склей части строки и вычисленное число через + и выведи.",
       starter: "// таблица на 7\n",
       solution: 'for (let i = 1; i <= 10; i++) {\n  console.log("7 * " + i + " = " + 7 * i);\n}\n',
       par: 3,
@@ -264,7 +264,7 @@
     {
       id: "B2", title: "Самое большое число",
       task: "<p>Найди в массиве <code>numbers</code> <b>самое большое</b> число. Использовать <code>Math.max</code> нельзя: напиши свой цикл и свой <code>if</code>.</p>",
-      hint: "let biggest = numbers[0]; for … if (x > biggest) biggest = x;",
+      hint: "Сначала возьми первый элемент как наибольший. Затем пройди по массиву и с помощью if сравнивай каждый элемент с запомненным, заменяя его, если он больше.",
       starter: "const numbers = [4, 17, 9, 12];\n// найди самое большое\n",
       solution: "const numbers = [4, 17, 9, 12];\nlet biggest = numbers[0];\nfor (const x of numbers) {\n  if (x > biggest) {\n    biggest = x;\n  }\n}\nconsole.log(biggest);\n",
       par: 8,
@@ -284,7 +284,7 @@
       id: "B3", title: "Список в цикле",
       html: '<ul id="list"></ul>',
       task: "<p>Создай массив <code>fruits</code>: <code>\"яблоко\"</code>, <code>\"вишня\"</code>, <code>\"абрикос\"</code>. В цикле для каждого элемента создай <code>li</code> (<code>document.createElement(\"li\")</code>) и добавь его внутрь <code>list</code> (<code>appendChild</code>).</p>",
-      hint: 'const li = document.createElement("li"); li.textContent = f; list.appendChild(li);',
+      hint: "Создай массив и пройди его через for (const … of …). На каждом шаге сделай li через createElement, задай textContent и добавь в list через appendChild.",
       starter: 'const list = document.getElementById("list");\n// массив и цикл\n',
       solution: 'const list = document.getElementById("list");\nconst fruits = ["яблоко", "вишня", "абрикос"];\nfor (const f of fruits) {\n  const li = document.createElement("li");\n  li.textContent = f;\n  list.appendChild(li);\n}\n',
       par: 8,

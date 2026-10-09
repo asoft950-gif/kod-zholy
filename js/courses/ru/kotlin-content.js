@@ -18,7 +18,7 @@
       id: "1.1", title: "Две коробки",
       task: "<p>Положи в коробку <b>a</b> число <code>7</code>, а в коробку <b>b</b> число <code>3</code> (с помощью <code>val</code>). Выведи на экран их сумму через <code>println</code>.</p>" +
         "<p class='tip'>В Kotlin программа работает внутри <code>fun main() { … }</code>. Как создать коробку: <code>val a = 7</code> — справа появится коробка «a». Точка с запятой не нужна.</p>",
-      hint: "val a = 7, val b = 3, а потом println(a + b)",
+      hint: "Объяви каждую коробку через val и положи в неё число знаком =. Потом в println(…) сложи две коробки знаком +.",
       starter: MAIN("    // создай коробки a и b\n    // выведи сумму через println\n"),
       solution: MAIN("    val a = 7\n    val b = 3\n    println(a + b)\n"),
       check: { output: "10", vars: { a: "7", b: "3" } },
@@ -27,7 +27,7 @@
       id: "1.2", title: "Приветствие",
       task: "<p>Запиши своё имя в коробку <code>val name</code> (в двойных кавычках). Потом выведи на экран приветствие вроде <code>Привет, Алия!</code>, только вместо Алии — твоё имя.</p>" +
         "<p class='tip'>Строки можно склеивать: <code>\"Привет, \" + name + \"!\"</code></p>",
-      hint: 'val name = "Алия"; println("Привет, " + name + "!")',
+      hint: "Запиши своё имя в двойных кавычках: val name = …. Затем в println(…) склей три части знаком +: приветствие, name и восклицательный знак.",
       starter: MAIN("    // запиши своё имя в name\n    // выведи приветствие\n"),
       solution: MAIN('    val name = "Алия"\n    println("Привет, " + name + "!")\n'),
       check: {
@@ -44,7 +44,7 @@
       id: "1.3", title: "var: коробка, которая меняется",
       task: "<p>В коробке <code>coins</code> лежит <code>10</code>. Прибавь к ней <code>5</code> и выведи результат: <code>15</code>.</p>" +
         "<p class='tip'>Коробку <code>val</code> потом менять нельзя. Меняющаяся коробка создаётся через <code>var</code>. <code>coins += 5</code> — «прибавь к coins 5».</p>",
-      hint: "напиши coins += 5, а потом println(coins)",
+      hint: "+= прибавляет число и записывает результат обратно в ту же коробку. Вызывай println после прибавления, иначе выведется старое значение.",
       starter: MAIN("    var coins = 10\n    // прибавь 5\n    // выведи\n"),
       solution: MAIN("    var coins = 10\n    coins += 5\n    println(coins)\n"),
       check: { output: "15", vars: { coins: "15" } },
@@ -69,7 +69,7 @@
       id: "2.1", title: "Целое и дробное",
       task: "<p>Пусть <code>a = 7</code> и <code>b = 2</code>. Сначала выведи <code>a / b</code>, а потом, чтобы получить точное (дробное) частное, выведи <code>a.toDouble() / b</code>.</p>" +
         "<p class='tip'>В Kotlin <code>Int / Int</code> даёт целое число: <code>7 / 2</code> = <b>3</b>. Чтобы получить дробный результат, превратите одно из чисел в <code>Double</code>.</p>",
-      hint: "println(a / b) и println(a.toDouble() / b)",
+      hint: "Нужны два println. В первом дели Int на Int, получится целое число. Во втором перед делением примени .toDouble() к одному из чисел.",
       starter: MAIN("    val a = 7\n    val b = 2\n    // выведи оба результата\n"),
       solution: MAIN("    val a = 7\n    val b = 2\n    println(a / b)\n    println(a.toDouble() / b)\n"),
       check: { output: "3\n3.5" },
@@ -77,7 +77,7 @@
     lv({
       id: "2.2", title: "Методы строки",
       task: "<p>В коробке <code>word</code> лежит <code>\"Kotlin\"</code>. Сначала выведи её длину (<code>length</code>), потом её же, но заглавными буквами (<code>uppercase()</code>).</p>",
-      hint: "println(word.length) и println(word.uppercase())",
+      hint: "После коробки ставится точка: для длины .length без скобок, для заглавных букв .uppercase() со скобками. Каждое выводи своим println.",
       starter: MAIN('    val word = "Kotlin"\n    // длина\n    // заглавными буквами\n'),
       solution: MAIN('    val word = "Kotlin"\n    println(word.length)\n    println(word.uppercase())\n'),
       check: { output: "6\nKOTLIN" },
@@ -86,7 +86,7 @@
       id: "2.3", title: "Из строки в число",
       task: "<p>В коробке <code>text</code> лежит строка <code>\"42\"</code>. Преврати её в число, прибавь <code>8</code> и выведи результат: <code>50</code>.</p>" +
         "<p class='tip'><code>\"42\".toInt()</code> превращает строку в число. Строку и число напрямую складывать нельзя — Kotlin выдаст ошибку.</p>",
-      hint: "println(text.toInt() + 8)",
+      hint: "Текст превращает в число .toInt(). Складывай только после превращения, иначе Kotlin выдаст ошибку. Результат отдай в println.",
       starter: MAIN('    val text = "42"\n    // преврати в число и прибавь 8\n'),
       solution: MAIN('    val text = "42"\n    println(text.toInt() + 8)\n'),
       check: { output: "50" },
@@ -95,7 +95,7 @@
       id: "2.4", title: "null и «?»",
       task: "<p>Коробка <code>city</code> сначала пустая (<code>null</code>). 1) Выведи на экран <code>city ?: \"неизвестно\"</code>. 2) Положи в город <code>\"Астана\"</code>. 3) Выведи длину названия города через <code>city?.length</code>. Ожидаемый результат: <code>неизвестно</code> и <code>6</code>.</p>" +
         "<p class='tip'>Знак <code>?</code> в конце типа («<code>String?</code>») разрешает класть в коробку <code>null</code>. <code>?:</code> — «если пусто, возьми вот это». <code>?.</code> — «используй, только если не пусто».</p>",
-      hint: 'println(city ?: "неизвестно"); city = "Астана"; println(city?.length)',
+      hint: "Три шага: в println поставь ?: и текст на случай пустоты; положи в var-коробку новое значение; в конце выведи длину через ?..",
       starter: MAIN("    var city: String? = null\n    // 1) выведи через ?:\n    // 2) city = \"Астана\"\n    // 3) выведи city?.length\n"),
       solution: MAIN('    var city: String? = null\n    println(city ?: "неизвестно")\n    city = "Астана"\n    println(city?.length)\n'),
       check: { output: "неизвестно\n6" },
@@ -106,7 +106,7 @@
       id: "3.1", title: "Взрослый или ребёнок",
       task: "<p>Если возраст в коробке <code>age</code> равен <code>18</code> или больше, выведи на экран <code>взрослый</code>, а иначе — <code>ребёнок</code>. Твой код должен работать правильно и при другом значении <code>age</code>.</p>" +
         "<p class='tip'>В Kotlin <code>if</code> может и возвращать значение: <code>val s = if (x &gt; 5) \"а\" else \"б\"</code>.</p>",
-      hint: 'if (age >= 18) { println("взрослый") } else { println("ребёнок") }',
+      hint: "Используй конструкцию if (…) { … } else { … }. В условии сравни возраст с границей знаком «больше или равно» (>=), в каждой ветке свой println.",
       starter: MAIN("    val age = 15\n    // напиши if / else\n"),
       solution: MAIN('    val age = 15\n    if (age >= 18) {\n        println("взрослый")\n    } else {\n        println("ребёнок")\n    }\n'),
       check: {
@@ -161,7 +161,7 @@
       id: "3.4", title: "В диапазоне ли",
       task: "<p>Если число <code>n</code> от <code>10</code> до <code>20</code> (включая оба края), выведи на экран <code>внутри</code>, а иначе — <code>снаружи</code>. Твой код должен работать и при другом значении <code>n</code>.</p>" +
         "<p class='tip'><code>10..20</code> — числа от 10 до 20. <code>n in 10..20</code> — «n входит в этот диапазон?». Это короче, чем <code>n &gt;= 10 &amp;&amp; n &lt;= 20</code>.</p>",
-      hint: 'if (n in 10..20) { println("внутри") } else { println("снаружи") }',
+      hint: "Поставь проверку in в скобки if: если число в диапазоне, выводится одно слово, иначе в ветке else другое. .. включает оба края.",
       starter: MAIN("    val n = 15\n    // используй in 10..20\n"),
       solution: MAIN('    val n = 15\n    if (n in 10..20) {\n        println("внутри")\n    } else {\n        println("снаружи")\n    }\n'),
       check: {
@@ -181,7 +181,7 @@
       id: "4.1", title: "От одного до пяти",
       task: "<p>С помощью цикла <code>for</code> выведи числа от <code>1</code> до <code>5</code> (каждое с новой строки).</p>" +
         "<p class='tip'><code>for (i in 1..5) { … }</code> — коробка <code>i</code> по очереди принимает значения 1, 2, 3, 4, 5. Посмотри на панель цикла справа!</p>",
-      hint: "for (i in 1..5) { println(i) }",
+      hint: "В теле цикла хватит одной команды, которая выводит i: на каждом круге он получает новое значение. Диапазон задай через .. из первого и последнего числа.",
       starter: MAIN("    // напиши цикл for\n"),
       solution: MAIN("    for (i in 1..5) {\n        println(i)\n    }\n"),
       check: { output: "1\n2\n3\n4\n5", requireFor: true },
@@ -190,7 +190,7 @@
       id: "4.2", title: "Сумма до ста",
       task: "<p>Найди сумму всех чисел от 1 до 100: собери её в коробке <code>total</code> и в конце выведи. Ответ: <code>5050</code>.</p>" +
         "<p class='tip'>Сначала <code>var total = 0</code>, а внутри цикла <code>total += i</code>.</p>",
-      hint: "var total = 0; for (i in 1..100) { total += i }; println(total)",
+      hint: "total — копилка: цикл на каждом круге добавляет в неё i. Поставь println после цикла, вне скобок, один раз, иначе выведется много строк.",
       starter: MAIN("    var total = 0\n    // складывай в цикле\n    // выведи\n"),
       solution: MAIN("    var total = 0\n    for (i in 1..100) {\n        total += i\n    }\n    println(total)\n"),
       check: { output: "5050", vars: { total: "5050" }, requireFor: true },
@@ -199,7 +199,7 @@
       id: "4.3", title: "Обратный отсчёт",
       task: "<p>Выведи такие числа: <code>10</code>, <code>8</code>, <code>6</code>, <code>4</code>, <code>2</code> (каждое с новой строки). Цикл должен идти в обратную сторону и прыгать через одно.</p>" +
         "<p class='tip'><code>10 downTo 2</code> — обратный отсчёт, <code>step 2</code> — шаг 2. Вместе: <code>for (i in 10 downTo 2 step 2)</code>.</p>",
-      hint: "for (i in 10 downTo 2 step 2) { println(i) }",
+      hint: "downTo и step — два слова, которые дописываются к диапазону. Большее число пиши первым, а после step укажи размер прыжка.",
       starter: MAIN("    // downTo и step\n"),
       solution: MAIN("    for (i in 10 downTo 2 step 2) {\n        println(i)\n    }\n"),
       check: { output: "10\n8\n6\n4\n2", requireFor: true },
@@ -208,7 +208,7 @@
       id: "4.4", title: "Удвоение",
       task: "<p>Коробка <code>n</code> начинается с <code>1</code>. В цикле <code>while</code> умножай <code>n</code> на два, пока <code>n</code> не достигнет <b>100</b> или не станет больше. В конце выведи <code>n</code>: <code>128</code>.</p>" +
         "<p class='tip'><code>while (условие) { … }</code> повторяет, пока условие истинно. <code>n *= 2</code> — умножить n на два.</p>",
-      hint: "while (n < 100) { n *= 2 }  — а после него println(n)",
+      hint: "Условие while значит «повторяй, пока…», поэтому оно должно быть истинно, пока n ещё не дорос до границы (<). После цикла выведи n один раз.",
       starter: MAIN("    var n = 1\n    // напиши цикл while\n    // выведи n\n"),
       solution: MAIN("    var n = 1\n    while (n < 100) {\n        n *= 2\n    }\n    println(n)\n"),
       check: { output: "128", vars: { n: "128" }, requireWhile: true },
@@ -219,7 +219,7 @@
       id: "5.1", title: "Функция квадрата",
       task: "<p>Напиши функцию <code>square</code>: она берёт число <code>Int</code> и возвращает его квадрат. В <code>main</code> уже вызывается <code>square(7)</code> — на экране должно быть <code>49</code>.</p>" +
         "<p class='tip'>Функция: <code>fun имя(параметр: Тип): ТипРезультата { return … }</code>. Версия в одну строку: <code>fun square(x: Int): Int = x * x</code>.</p>",
-      hint: "fun square(x: Int): Int { return x * x }",
+      hint: "В функции укажи имя параметра и его тип, а после скобок тип результата. В теле через return верни число, умноженное само на себя.",
       starter: "// напиши функцию square здесь\n\nfun main() {\n    println(square(7))\n}\n",
       solution: "fun square(x: Int): Int {\n    return x * x\n}\n\nfun main() {\n    println(square(7))\n}\n",
       check: { output: "49", requireDef: true },
@@ -228,7 +228,7 @@
       id: "5.2", title: "Значение по умолчанию",
       task: "<p>Напиши функцию <code>greet</code> с двумя параметрами — <code>name</code> и <code>greeting</code> (значение по умолчанию <code>\"Привет\"</code>). Она возвращает строку вида <code>Привет, Аян!</code>. <code>main</code> вызывает её два раза.</p>" +
         "<p class='tip'>Значение по умолчанию: <code>fun f(a: Int, b: Int = 10)</code>. Если при вызове не написать второй аргумент, возьмётся 10.</p>",
-      hint: 'fun greet(name: String, greeting: String = "Привет"): String { return "€greeting, €name!" }',
+      hint: "После типа второго параметра поставь = и значение по умолчанию. Значение коробки внутрь текста вставляется знаком $. Функция возвращает String.",
       starter: "// напиши функцию greet\n\nfun main() {\n    println(greet(\"Аян\"))\n    println(greet(\"Дана\", \"Доброе утро\"))\n}\n",
       solution: 'fun greet(name: String, greeting: String = "Привет"): String {\n    return "€greeting, €name!"\n}\n\nfun main() {\n    println(greet("Аян"))\n    println(greet("Дана", "Доброе утро"))\n}\n',
       check: { output: "Привет, Аян!\nДоброе утро, Дана!", requireDef: true },
@@ -246,7 +246,7 @@
       id: "5.4", title: "Чётные числа",
       task: "<p>Напиши функцию <code>isEven(n)</code>: если число чётное, она возвращает <code>true</code>. Потом в <code>main</code> выведи из чисел от <code>1</code> до <code>6</code> только чётные: <code>2</code>, <code>4</code>, <code>6</code>.</p>" +
         "<p class='tip'>Чётность: <code>n % 2 == 0</code>. Функция возвращает <code>Boolean</code>.</p>",
-      hint: "fun isEven(n: Int): Boolean = n % 2 == 0   и   for (i in 1..6) { if (isEven(i)) println(i) }",
+      hint: "Два отдельных дела: функция, возвращающая Boolean (проверь остаток через %), и цикл for. Внутри цикла вызови функцию в if и выводи только подходящие числа.",
       starter: "// напиши функцию isEven\n\nfun main() {\n    // выведи чётные числа из 1..6\n}\n",
       solution: "fun isEven(n: Int): Boolean {\n    return n % 2 == 0\n}\n\nfun main() {\n    for (i in 1..6) {\n        if (isEven(i)) {\n            println(i)\n        }\n    }\n}\n",
       check: { output: "2\n4\n6", requireDef: true, requireFor: true },
@@ -257,7 +257,7 @@
       id: "6.1", title: "Список фруктов",
       task: "<p>Создай список <code>fruits</code>: <code>\"яблоко\"</code>, <code>\"груша\"</code>, <code>\"абрикос\"</code>. Выведи размер списка (<code>size</code>) и его второй элемент (индекс <b>1</b>). Ожидаемый результат: <code>3</code> и <code>груша</code>.</p>" +
         "<p class='tip'><code>listOf(…)</code> — неизменяемый список. Номера элементов начинаются с 0: <code>fruits[0]</code> — первый.</p>",
-      hint: 'val fruits = listOf("яблоко", "груша", "абрикос"); println(fruits.size); println(fruits[1])',
+      hint: "Перечисли элементы в listOf(…) через запятую (тексты в кавычках). Размер даёт .size, а элемент берётся номером в [ ]; нумерация идёт с 0.",
       starter: MAIN("    // создай список fruits\n    // выведи size и fruits[1]\n"),
       solution: MAIN('    val fruits = listOf("яблоко", "груша", "абрикос")\n    println(fruits.size)\n    println(fruits[1])\n'),
       check: { output: "3\nгруша", vars: { fruits: '["яблоко", "груша", "абрикос"]' }, requireList: true },
@@ -266,7 +266,7 @@
       id: "6.2", title: "Добавляем в список",
       task: "<p><code>nums</code> — изменяемый список (<code>mutableListOf</code>), в котором сначала лежат <code>1, 2, 3</code>. Добавь в него <code>4</code> и <code>5</code>, а потом выведи сумму всех чисел (<code>sum()</code>): <code>15</code>.</p>" +
         "<p class='tip'>Список <code>listOf</code> изменить нельзя, а в <code>mutableListOf</code> можно добавлять через <code>add(…)</code>.</p>",
-      hint: "nums.add(4); nums.add(5); println(nums.sum())",
+      hint: ".add(…) добавляет в mutableListOf по одному элементу, так что вызови его дважды. В конце отдай результат .sum() в println.",
       starter: MAIN("    val nums = mutableListOf(1, 2, 3)\n    // добавь 4 и 5\n    // выведи сумму\n"),
       solution: MAIN("    val nums = mutableListOf(1, 2, 3)\n    nums.add(4)\n    nums.add(5)\n    println(nums.sum())\n"),
       check: { output: "15", vars: { nums: "[1, 2, 3, 4, 5]" } },
@@ -284,7 +284,7 @@
       id: "6.4", title: "Таблица возрастов (Map)",
       task: "<p><code>ages</code> — это Map: <code>\"Аян\"</code> → <code>12</code>, <code>\"Дана\"</code> → <code>11</code>. В цикле выведи каждую пару в виде <code>Аян: 12</code>.</p>" +
         "<p class='tip'><code>mapOf(\"а\" to 1, \"б\" to 2)</code> — пары «ключ — значение». В цикле пару можно разобрать на части: <code>for ((name, age) in ages)</code>.</p>",
-      hint: 'for ((name, age) in ages) { println("€name: €age") }',
+      hint: "В скобках цикла раздели пару на два имени: for ((…, …) in ages). В теле собери обе части в одну строку с помощью шаблона $ внутри текста.",
       starter: MAIN('    val ages = mapOf("Аян" to 12, "Дана" to 11)\n    // выведи в цикле\n'),
       solution: MAIN('    val ages = mapOf("Аян" to 12, "Дана" to 11)\n    for ((name, age) in ages) {\n        println("€name: €age")\n    }\n'),
       check: { output: "Аян: 12\nДана: 11", requireFor: true },
@@ -295,7 +295,7 @@
       id: "7.1", title: "Класс кошки",
       task: "<p>Создай класс <code>Cat</code>: у него есть свойство <code>name</code> (строка) и функция <code>meow()</code>, которая выводит <code>Мурка: Мяу!</code> (имя и «Мяу!»). <code>main</code> уже готов.</p>" +
         "<p class='tip'>Класс — шаблон объекта: <code>class Dog(val name: String) { fun bark() { println(\"Гав\") } }</code>. Создать объект: <code>Dog(\"Шарик\")</code>.</p>",
-      hint: 'class Cat(val name: String) { fun meow() { println("€name: Мяу!") } }',
+      hint: "В скобках class Cat(…) объяви имя через val, а внутри { } напиши fun meow(). Шаблон $name в тексте подставит значение свойства.",
       starter: '// напиши класс Cat здесь\n\nfun main() {\n    val cat = Cat("Мурка")\n    cat.meow()\n}\n',
       solution: 'class Cat(val name: String) {\n    fun meow() {\n        println("€name: Мяу!")\n    }\n}\n\nfun main() {\n    val cat = Cat("Мурка")\n    cat.meow()\n}\n',
       check: { output: "Мурка: Мяу!" },
@@ -304,7 +304,7 @@
       id: "7.2", title: "Счётчик",
       task: "<p>Создай класс <code>Counter</code>: внутри него свойство <code>var count = 0</code> и функция <code>inc()</code>, которая увеличивает число на 1. <code>main</code> вызывает её три раза, а потом выводится <code>count</code>: <code>3</code>.</p>" +
         "<p class='tip'>Класс запоминает свои свойства. Внутри функции свойство пишется напрямую: <code>count++</code>.</p>",
-      hint: "class Counter { var count = 0; fun inc() { count++ } }",
+      hint: "В теле класса объяви var-свойство с начальным значением, а в inc() увеличь его через ++. Объект запоминает число между вызовами.",
       starter: "// напиши класс Counter\n\nfun main() {\n    val c = Counter()\n    c.inc()\n    c.inc()\n    c.inc()\n    println(c.count)\n}\n",
       solution: "class Counter {\n    var count = 0\n    fun inc() {\n        count++\n    }\n}\n\nfun main() {\n    val c = Counter()\n    c.inc()\n    c.inc()\n    c.inc()\n    println(c.count)\n}\n",
       check: { output: "3" },
@@ -313,7 +313,7 @@
       id: "7.3", title: "data class",
       task: "<p>Создай класс данных <code>Point</code>: два целых числа — <code>x</code> и <code>y</code>. В <code>main</code> создай <code>p = Point(1, 2)</code>, сделай его копию с заменой <code>y</code> на 5 (<code>copy</code>) и выведи обе. Ожидаемый результат: <code>Point(x=1, y=2)</code> и <code>Point(x=1, y=5)</code>.</p>" +
         "<p class='tip'><code>data class</code> сам превращается в красивый текст (<code>toString</code>), сравнивается и копируется: <code>p.copy(y = 5)</code>.</p>",
-      hint: "data class Point(val x: Int, val y: Int)  и  val q = p.copy(y = 5)",
+      hint: "В скобках data class опиши два свойства с val и типом, тело не нужно. В copy(…) назови только то свойство, которое меняешь, остальные сохранятся.",
       starter: "// напиши класс Point\n\nfun main() {\n    // создай p, q = p.copy(y = 5)\n    // выведи обе\n}\n",
       solution: "data class Point(val x: Int, val y: Int)\n\nfun main() {\n    val p = Point(1, 2)\n    val q = p.copy(y = 5)\n    println(p)\n    println(q)\n}\n",
       check: {
@@ -366,7 +366,7 @@
       id: "B3", title: "Статистика списка",
       task: "<p>Выведи из списка <code>scores</code> наибольшее, наименьшее и среднее значения (три строки). Список: <code>8, 5, 9, 6</code>. Ожидаемый результат: <code>9</code>, <code>5</code>, <code>7.0</code>.</p>" +
         "<p class='tip'><code>max()</code>, <code>min()</code>, <code>average()</code> — готовые методы списка.</p>",
-      hint: "println(scores.max()); println(scores.min()); println(scores.average())",
+      hint: "Вызови у списка через точку три готовых метода: для наибольшего, наименьшего и среднего (названия в задании). Каждый выводи своим println.",
       starter: MAIN("    val scores = listOf(8, 5, 9, 6)\n    // max, min, average\n"),
       solution: MAIN("    val scores = listOf(8, 5, 9, 6)\n    println(scores.max())\n    println(scores.min())\n    println(scores.average())\n"),
       check: { output: "9\n5\n7.0" },

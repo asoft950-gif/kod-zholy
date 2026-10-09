@@ -11,7 +11,7 @@
       id: "1.1", kind: "html", title: "Первый заголовок",
       task: "<p>Добавь на страницу большой заголовок: внутри тега <code>&lt;h1&gt;</code> напиши <b>Привет, мир!</b></p>" +
         "<p class='tip'>Тег состоит из двух частей: открывающего <code>&lt;h1&gt;</code> и закрывающего <code>&lt;/h1&gt;</code>. Текст пишется между ними.</p>",
-      hint: "Попробуй написать: <h1>Привет, мир!</h1>. Справа на странице появится заголовок, а в «Дереве структуры» будет виден <h1>.",
+      hint: "Поставь текст между открывающим и закрывающим тегом. В закрывающем теге перед именем стоит косая черта (/). Проверь результат в «Дереве структуры» справа.",
       starter: "<!-- пиши код здесь -->\n",
       solution: "<h1>Привет, мир!</h1>\n",
       par: 1,
@@ -21,7 +21,7 @@
       id: "1.2", kind: "html", title: "Каркас страницы",
       task: "<p>Сделай настоящий каркас HTML-страницы: внутри <code>&lt;html&gt;</code> должны быть <code>&lt;head&gt;</code> (а в нём <code>&lt;title&gt;</code>) и <code>&lt;body&gt;</code> (а в нём <code>&lt;h1&gt;</code>).</p>" +
         "<p class='tip'><b>head</b> — сведения о странице (название на вкладке браузера), <b>body</b> — видимая часть.</p>",
-      hint: "<html>\n  <head>\n    <title>Моя страница</title>\n  </head>\n  <body>\n    <h1>Привет</h1>\n  </body>\n</html>",
+      hint: "Самый внешний тег — <html>. Внутри него два отдельных раздела: <head> (внутри <title>) и <body> (внутри заголовок). Не забывай закрывать каждый открытый тег!",
       starter: "<html>\n\n</html>\n",
       solution: "<html>\n  <head>\n    <title>Моя страница</title>\n  </head>\n  <body>\n    <h1>Привет</h1>\n  </body>\n</html>\n",
       par: 8,
@@ -42,7 +42,7 @@
       id: "2.1", kind: "html", title: "Уровни заголовков",
       task: "<p>Сделай один заголовок <code>&lt;h1&gt;</code> (<b>Мой блог</b>) и два заголовка <code>&lt;h2&gt;</code> (тексты придумай сам).</p>" +
         "<p class='tip'>h1 — самый большой, h6 — самый маленький. Главный заголовок страницы (h1) бывает только один.</p>",
-      hint: "Напиши <h1>Мой блог</h1>, а потом два раза <h2>…</h2>.",
+      hint: "Уровень заголовка показывает цифра в имени тега: 1 — самый крупный, 2 — поменьше. Закрывай каждый заголовок своим закрывающим тегом.",
       starter: "",
       solution: "<h1>Мой блог</h1>\n<h2>Сегодняшний день</h2>\n<h2>Мои планы</h2>\n",
       par: 3,
@@ -54,7 +54,7 @@
     {
       id: "2.2", kind: "html", title: "Красивый абзац",
       task: "<p>Сделай один абзац <code>&lt;p&gt;</code>. Внутри него должны быть: <code>&lt;b&gt;</code> (жирный), <code>&lt;i&gt;</code> (наклонный) и <code>&lt;br&gt;</code> (переход на новую строку).</p>",
-      hint: "<p>Я учу <b>HTML</b>, это <i>очень интересно!</i><br>Новая строка здесь.</p>",
+      hint: "Внутрь абзаца можно вкладывать другие теги: оберни слово в <b> или <i>. <br> непарный — он ничего не закрывает и стоит сам по себе.",
       starter: "",
       solution: "<p>Я учу <b>HTML</b>, это <i>очень интересно!</i><br>Новая строка здесь.</p>\n",
       par: 2,
@@ -83,7 +83,7 @@
     {
       id: "3.2", kind: "html", title: "Ссылка",
       task: "<p>Сделай ссылку тегом <code>&lt;a&gt;</code>: текст ссылки — <b>Википедия</b>, адрес — <code>https://ru.wikipedia.org</code>.</p>",
-      hint: '<a href="https://ru.wikipedia.org">Википедия</a>',
+      hint: "Для ссылки нужен тег <a> с атрибутом href: он хранит адрес, а текст внутри тега виден на странице. Форма: <a href=\"…\">…</a>.",
       starter: "",
       solution: '<a href="https://ru.wikipedia.org">Википедия</a>\n',
       par: 1,
@@ -96,7 +96,7 @@
     {
       id: "4.1", kind: "html", title: "Список покупок",
       task: "<p>Сделай маркированный список: внутри <code>&lt;ul&gt;</code> три пункта <code>&lt;li&gt;</code> (хлеб, молоко, яблоко — или что хочешь).</p>",
-      hint: "<ul>\n  <li>Хлеб</li>\n  <li>Молоко</li>\n  <li>Яблоко</li>\n</ul>",
+      hint: "Сначала напиши тег, который охватывает весь список, а внутрь положи отдельный <li> для каждого пункта. Три пункта — три <li>.",
       starter: "",
       solution: "<ul>\n  <li>Хлеб</li>\n  <li>Молоко</li>\n  <li>Яблоко</li>\n</ul>\n",
       par: 5,
@@ -109,7 +109,7 @@
       id: "4.2", kind: "html", title: "Маленькая таблица",
       task: "<p>Сделай таблицу из 2 строк и 2 столбцов. В первой строке должны быть <code>&lt;th&gt;</code> (ячейки-заголовки), во второй — <code>&lt;td&gt;</code> (данные).</p>" +
         "<p class='tip'><code>&lt;tr&gt;</code> — строка, <code>&lt;th&gt;</code>/<code>&lt;td&gt;</code> — ячейки внутри строки.</p>",
-      hint: "<table>\n  <tr>\n    <th>Имя</th>\n    <th>Возраст</th>\n  </tr>\n  <tr>\n    <td>Алия</td>\n    <td>12</td>\n  </tr>\n</table>",
+      hint: "Таблица <table> состоит из строк (<tr>), а внутри каждой строки лежат ячейки. В первую строку поставь две <th>, во вторую — две <td>.",
       starter: "",
       solution: "<table>\n  <tr>\n    <th>Имя</th>\n    <th>Возраст</th>\n  </tr>\n  <tr>\n    <td>Алия</td>\n    <td>12</td>\n  </tr>\n</table>\n",
       par: 10,
@@ -125,7 +125,7 @@
     {
       id: "5.1", kind: "html", title: "Форма с именем",
       task: "<p>Сделай <code>&lt;form&gt;</code>: внутри текстовое поле <code>&lt;input type=\"text\"&gt;</code> (с <code>placeholder</code> — подсказкой в поле) и кнопка <code>&lt;button&gt;</code>.</p>",
-      hint: '<form>\n  <input type="text" placeholder="Твоё имя">\n  <button>Отправить</button>\n</form>',
+      hint: "<input> не закрывается: его тип и подсказка задаются атрибутами. <button> — парный тег, надпись пишется внутри. Оба элемента должны быть внутри <form>.",
       starter: "",
       solution: '<form>\n  <input type="text" placeholder="Твоё имя">\n  <button>Отправить</button>\n</form>\n',
       par: 4,
@@ -137,7 +137,7 @@
     {
       id: "5.2", kind: "html", title: "Форма с выбором",
       task: "<p>Добавь в форму: флажок (<code>type=\"checkbox\"</code>) с подписью <code>&lt;label&gt;</code> и <code>&lt;select&gt;</code> с двумя вариантами (<code>&lt;option&gt;</code>).</p>",
-      hint: '<form>\n  <label><input type="checkbox"> Согласен</label>\n  <select>\n    <option>Python</option>\n    <option>HTML</option>\n  </select>\n</form>',
+      hint: "Флажок — тоже тег <input>. Если положить его внутрь <label>, он будет отмечаться и при клике на надпись. В <select> добавь по одному <option> на каждый вариант.",
       starter: "<form>\n\n</form>\n",
       solution: '<form>\n  <label><input type="checkbox"> Согласен</label>\n  <select>\n    <option>Python</option>\n    <option>HTML</option>\n  </select>\n</form>\n',
       par: 8,
@@ -152,7 +152,7 @@
     {
       id: "6.1", kind: "html", title: "Семантический каркас",
       task: "<p>Назови части страницы по смыслу: <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code>. В каждой должен быть короткий текст.</p>",
-      hint: "<header>Заголовок</header>\n<nav>Меню</nav>\n<main>Основная часть</main>\n<footer>Нижняя часть</footer>",
+      hint: "Для каждой части используй свой тег: открыть, короткий текст, закрыть. Это обычные парные теги, просто с говорящим названием. Части страницы идут сверху вниз.",
       starter: "",
       solution: "<header>Заголовок</header>\n<nav>Меню</nav>\n<main>Основная часть</main>\n<footer>Нижняя часть</footer>\n",
       par: 8,
@@ -161,7 +161,7 @@
     {
       id: "6.2", kind: "html", title: "Разделы",
       task: "<p>Внутри <code>&lt;main&gt;</code> сделай два <code>&lt;section&gt;</code>. В каждом разделе должны быть заголовок <code>&lt;h2&gt;</code> и абзац <code>&lt;p&gt;</code>.</p>",
-      hint: "<main>\n  <section>\n    <h2>…</h2>\n    <p>…</p>\n  </section>\n  <section>…</section>\n</main>",
+      hint: "Сначала открой <main>, внутрь добавь первый <section>, а в него — заголовок и абзац. Затем повтори этот блок для второго раздела.",
       starter: "",
       solution: "<main>\n  <section>\n    <h2>О нас</h2>\n    <p>Мы учимся программировать.</p>\n  </section>\n  <section>\n    <h2>Связь</h2>\n    <p>Напиши письмо.</p>\n  </section>\n</main>\n",
       par: 12,
@@ -179,7 +179,7 @@
     {
       id: "7.1", kind: "html", title: "Визитка",
       task: "<p>Сделай маленькую страницу о себе: <code>&lt;h1&gt;</code> (твоё имя), <code>&lt;img&gt;</code> (<code>assets/cat.svg</code> или <code>assets/robot.svg</code>), <code>&lt;p&gt;</code> (о себе), <code>&lt;ul&gt;</code> (не меньше 2 увлечений) и ссылка <code>&lt;a&gt;</code>.</p>",
-      hint: "Соедини код из прошлых заданий: h1, img, p, ul + li, a.",
+      hint: "Объедини прошлые уроки: заголовок, картинка, абзац, список и ссылка. <img> не закрывается, ему нужны атрибуты src (путь) и alt (описание).",
       starter: "",
       solution: '<h1>Алия</h1>\n<img src="assets/cat.svg" alt="Кошка">\n<p>Мне 12 лет.</p>\n<ul>\n  <li>Рисование</li>\n  <li>Программирование</li>\n</ul>\n<a href="https://ru.wikipedia.org">Википедия</a>\n',
       par: 8,
@@ -194,7 +194,7 @@
     {
       id: "7.2", kind: "html", title: "Полная страница",
       task: "<p>Сделай семантическую страницу: в <code>&lt;header&gt;</code> — <code>&lt;h1&gt;</code>; в <code>&lt;nav&gt;</code> — 2 ссылки; в <code>&lt;main&gt;</code> — <code>&lt;section&gt;</code> (с <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code> и <code>&lt;img&gt;</code>); в <code>&lt;footer&gt;</code> — текст.</p>",
-      hint: "Начни с каркаса: header, nav, main > section, footer. Потом наполни его содержимым.",
+      hint: "Сначала напиши четыре крупные части по порядку, затем наполни каждую. В <nav> — две ссылки <a>, а в <section> внутри <main> — заголовок, абзац и картинку.",
       starter: "",
       solution: '<header>\n  <h1>Мой сайт</h1>\n</header>\n<nav>\n  <a href="#a">Главная</a>\n  <a href="#b">Связь</a>\n</nav>\n<main>\n  <section>\n    <h2>Привет</h2>\n    <p>Это мой первый сайт.</p>\n    <img src="assets/star.svg" alt="Звезда">\n  </section>\n</main>\n<footer>© 2026</footer>\n',
       par: 17,
@@ -223,7 +223,7 @@
     {
       id: "B2", kind: "html", title: "Вложенный список",
       task: "<p>Сделай список внутри списка: в одном пункте <code>&lt;li&gt;</code> внешнего <code>&lt;ul&gt;</code> должен быть второй <code>&lt;ul&gt;</code> с двумя пунктами.</p>",
-      hint: "<ul>\n  <li>Фрукты\n    <ul>\n      <li>Яблоко</li>\n      <li>Вишня</li>\n    </ul>\n  </li>\n</ul>",
+      hint: "Вложенный список стоит не рядом с внешним, а внутри одного его пункта <li>. Поэтому открой новый список до того, как закроешь внешний <li>.",
       starter: "", solution: "<ul>\n  <li>Фрукты\n    <ul>\n      <li>Яблоко</li>\n      <li>Вишня</li>\n    </ul>\n  </li>\n</ul>\n", par: 8,
       check: { rules: [
         { sel: "ul > li > ul > li", min: 2, text: /\S/, label: "Во вложенном списке не меньше 2 пунктов" },
@@ -233,7 +233,7 @@
     {
       id: "B3", kind: "html", title: "Таблица 3×3",
       task: "<p>Сделай таблицу из трёх строк и трёх столбцов (всего 9 ячеек). Первая строка — заголовки (<code>&lt;th&gt;</code>).</p>",
-      hint: "Напиши один <tr> и скопируй его. Строка с <th> одна, строк с <td> две.",
+      hint: "Напиши одну строку (<tr>), проверь число ячеек, затем скопируй её и поменяй содержимое. В первой строке используй <th>, в остальных — <td>.",
       starter: "",
       solution: "<table>\n  <tr><th>A</th><th>B</th><th>C</th></tr>\n  <tr><td>1</td><td>2</td><td>3</td></tr>\n  <tr><td>4</td><td>5</td><td>6</td></tr>\n</table>\n", par: 5,
       check: { rules: [

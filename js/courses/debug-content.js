@@ -79,7 +79,7 @@
     D({
       id: "D11", title: "Return ұмытылған",
       task: "<p><code>qos(2, 3)</code> нәтижесі <code>5</code> болуы керек, бірақ экранда <code>None</code> шығады. Функция жауабын қайтарып тұр ма?</p>",
-      hint: "Функция ішінде нәтижені return арқылы қайтару керек: return a + b.",
+      hint: "Функция ішінде қосу есептеледі, бірақ жауап сыртқа берілмейді, сондықтан None шығады. Жауапты қайтаратын кілт сөзді есіңе түсір.",
       starter: "def qos(a, b):\n    a + b\nprint(qos(2, 3))\n", solution: "def qos(a, b):\n    return a + b\nprint(qos(2, 3))\n", par: 3, robot: null,
       check: { output: "5", requireDef: true },
     }),
@@ -111,7 +111,7 @@
     D({
       id: "D3", title: "Қате жазылған ат",
       task: "<p>Экранға <code>8</code> шығуы керек (<b>sany</b> қорабы екіге көбейтіледі). Код қате береді.</p>" + TIP_RUN,
-      hint: "console.log ішіндегі қорап атын тексер: let sany = 4; деп жасалған.",
+      hint: "Қате хабарындағы атты console.log-тағы атпен әріптеп салыстыр. JavaScript-те қорап аты қалай жасалса, дәл солай жазылуы керек.",
       starter: "let sany = 4;\nconsole.log(san * 2);\n", solution: "let sany = 4;\nconsole.log(sany * 2);\n", par: 2,
       check: { output: "8", vars: { sany: "4" } },
     }),
@@ -179,7 +179,7 @@
     D({
       id: "D2", kind: "html", title: "Сурет көрінбейді",
       task: "<p>Жұлдыз суреті көрінбейді. Атрибуттың атында қате бар: суретке жол көрсететін атрибутты тап.</p>",
-      hint: "Сурет жолы src атрибутымен беріледі (scr емес).",
+      hint: "Атрибуттың атын әріптеп оқы. Ол ағылшынша source («дереккөз») сөзінің қысқартылуы. Әріптердің ретін қарап, қайсысы орнын ауыстырғанын тап.",
       starter: '<img scr="assets/star.svg" alt="Жұлдыз">\n', solution: '<img src="assets/star.svg" alt="Жұлдыз">\n', par: 1,
       check: { rules: [{ sel: "img[src]", attr: { alt: /Жұлдыз/ }, label: "<img> src атрибутымен тұр" }] },
     }),
@@ -197,7 +197,7 @@
       id: "D1", kind: "css", title: "Нүктелі үтір жоқ",
       html: '<p class="a">Сәлем</p>',
       task: "<p>Мәтін қызыл болып, өлшемі <code>24px</code> болуы керек, бірақ екеуі де қолданылмай тұр. Бір жолда нүктелі үтір жетіспейді.</p>",
-      hint: "Әр қасиеттің соңына «;» қою керек: color: red;",
+      hint: "Әр декларация ; белгісімен аяқталуы керек, әйтпесе браузер екі жолды біреу деп оқиды. Кодты жолма-жол қарап, белгісі жоқ жерді тап.",
       starter: ".a {\n  color: red\n  font-size: 24px;\n}\n", solution: ".a {\n  color: red;\n  font-size: 24px;\n}\n", par: 4,
       check: { rules: [{ sel: ".a", style: { color: "rgb(255, 0, 0)", fontSize: "24px" }, label: "Мәтін қызыл, 24px" }] },
     }),

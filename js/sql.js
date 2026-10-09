@@ -14,6 +14,7 @@
   let listKind = "tasks";
   let fails = 0;
   let usedHint = false;
+  let usedSolution = false;
 
   const editor = CodeMirror.fromTextArea($("#sqlCode"), {
     mode: "text/x-sqlite",
@@ -156,14 +157,14 @@
     box.className = "card result " + (ev.ok ? "ok" : "bad");
     if (KZ.hero && KZ.hero.react) KZ.hero.react(ev.ok ? "ok" : ev.run && ev.run.error ? "err" : "bad");
     if (ev.ok) {
-      const stars = core.starsFor(fails, usedHint);
+      const stars = Math.min(core.starsFor(fails, usedHint), usedSolution ? 1 : 3);
       KZ.progress.set(course.id, level.id, stars);
       KZ.updateTotal();
       refreshStars();
       if (window.KZS) window.KZS.beep("win");
       box.appendChild(h("h2", null, KZ.t("🎉 Тамаша!")));
       box.appendChild(el("div", "big-stars", "⭐".repeat(stars) + "☆".repeat(3 - stars)));
-      if (stars < 3) box.appendChild(h("p", null, KZ.t("3 ⭐ алу үшін кеңес қарамай, бірінші талпыныста дұрыс жаз.")));
+      if (stars < 3) box.appendChild(h("p", null, usedSolution ? KZ.t("Шешімді қарағандықтан 1 ⭐. Келесі тапсырманы өзің шешіп көр!") : KZ.t("3 ⭐ алу үшін кеңес қарамай, бірінші талпыныста дұрыс жаз.")));
       const row = el("div", "row");
       const next = nextHref();
       const lec = next ? KZ.nextLectureHref(course, level, list, listKind) : null;
@@ -214,6 +215,7 @@
   function loadLevel() {
     fails = 0;
     usedHint = false;
+    usedSolution = false;
     $("#sqlBadge").textContent = level.sandbox ? KZ.t("Еркін алаң") : KZ.t("Деңгей ") + level.id;
     $("#sqlTitle").textContent = level.title;
     $("#sqlTaskBody").innerHTML = level.task;
@@ -251,6 +253,7 @@
   $("#sqlSolutionBtn").addEventListener("click", () => {
     const s = $("#sqlSolution");
     s.hidden = !s.hidden;
+    if (!s.hidden && level && !level.sandbox) usedSolution = true;
   });
 
   KZ.sql = {
