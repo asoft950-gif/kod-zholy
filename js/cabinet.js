@@ -151,7 +151,7 @@
       const pw = field(KZ.t("Құпиясөз"), "password", "password", { auto: "current-password" });
       const go = el("button", "btn primary big", KZ.t("Кіру"));
       go.type = "submit";
-      f.append(em.wrap, pw.wrap, go, (KZ.config || {}).emailReset ? link("forgot", "#/login/reset", KZ.t("Құпиясөзді ұмыттым (поштамен)")) : null, h("p", "forgot", KZ.t("Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді.")), msg);
+      f.append(em.wrap, pw.wrap, go, ...((KZ.config || {}).emailReset ? [link("forgot", "#/login/reset", KZ.t("Құпиясөзді ұмыттым (поштамен)"))] : []), h("p", "forgot", KZ.t("Құпиясөзді ұмытсаң, мұғаліміңе айт: ол саған жаңасын береді.")), msg);
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
         go.disabled = true;
