@@ -209,7 +209,13 @@
     colors: COLORS,
     state: ensure,
     need,
+    /* жасаушыға (owner) барлық зат ашық: көрініп тұрғанын тексеру үшін */
+    god() {
+      const A = KZ.auth;
+      return !!(A && A.isActive && A.isActive() && A.profile && A.profile.role === "owner");
+    },
     owned(i, s) {
+      if (hero.god()) return true;
       s = s || ensure();
       const u = i.unlock;
       if (u === "start" || u === "chest") return s.starters.includes(i.id);
@@ -280,7 +286,8 @@
     },
     /* SVG жолы. opts: { eq, color, preview, still } */
     svg(opts) {
-      const s = opts && opts.eq ? opts : ensure();
+      const own = !(opts && opts.eq);
+      const s = own ? ensure() : opts;
       const c = s.color || "#6c5ce7";
       const eq = s.eq || {};
       const uid = "hg" + ++gradN;
@@ -294,7 +301,7 @@
       const skin = (str) => str.replace(/fill="(#[0-9a-fA-F]{6})"/g, (m, hx) => `fill="${grad(hx)}"`);
       const get = (slot) => {
         const it = BYID[eq[slot]];
-        return it && it.slot === slot && (s.preview || hero.visible(it, s)) ? it : null;
+        return it && it.slot === slot && (s.preview || (own && hero.god()) || hero.visible(it, s)) ? it : null;
       };
       const draw = (it) => skin(it.svg(c));
       const auras = get("aura");
