@@ -68,7 +68,7 @@ begin
   if public.active_role() is null then raise exception 'not_active'; end if;
   return coalesce((select jsonb_agg(x order by (x ->> 'last_at') desc nulls last, x ->> 'full_name') from (
     select jsonb_build_object(
-      'id', p.id, 'full_name', p.full_name, 'role', p.role, 'hero', p.hero,
+      'id', p.id, 'full_name', p.full_name, 'role', p.role, 'hero', p.hero, 'last_seen', p.last_seen,
       'unread', (select count(*) from public.messages m where m.sender = p.id and m.recipient = me and m.read_at is null),
       'last', (select left(m.body, 80) from public.messages m
                where (m.sender = me and m.recipient = p.id) or (m.sender = p.id and m.recipient = me) order by m.id desc limit 1),
@@ -114,10 +114,14 @@ begin
   return jsonb_build_object('id', m.id, 'me', true, 'b', m.body, 'at', m.created_at, 'r', false);
 end $$;
 
+-- Хабарлама санын сұрағанда «соңғы кіру» уақытын да жаңартады (онлайн белгісі үшін)
 create or replace function public.msg_unread() returns int
-language sql stable security definer set search_path = public as $$
-  select count(*)::int from public.messages where recipient = auth.uid() and read_at is null;
-$$;
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.profiles set last_seen = now()
+   where id = auth.uid() and (last_seen is null or last_seen < now() - interval '30 seconds');
+  return (select count(*)::int from public.messages where recipient = auth.uid() and read_at is null);
+end $$;
 
 -- Мұғалім (не админ) сыныптағы оқушылардың бір-біріне жазған хаттарын көреді
 create or replace function public.class_messages(cid uuid) returns jsonb

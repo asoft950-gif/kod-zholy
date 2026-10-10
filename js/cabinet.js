@@ -48,6 +48,14 @@
     return Math.round(s / 86400) + KZ.t(" күн бұрын");
   }
 
+  /* Онлайн/оффлайн белгісі: жасыл — соңғы 3 минутта белсенді, қызыл — жоқ */
+  KZ.presence = (ts, short) => {
+    const on = !!ts && Date.now() - new Date(ts).getTime() < 180000;
+    const sp = el("span", "pres-line");
+    sp.append(el("i", "pres-dot " + (on ? "on" : "off")), document.createTextNode(on ? KZ.t("онлайн") : (short ? "" : KZ.t("соңғы кіру: ")) + ago(ts)));
+    return sp;
+  };
+
   const ROLE_EMOJI = { owner: "👑", admin: "🛠️", teacher: "👩‍🏫", student: "🎒" };
 
   function shell(root, title, back) {
@@ -693,7 +701,7 @@
     try {
       const r = await A.rpc("student_progress", { sid });
       box.textContent = "";
-      box.appendChild(h("h3", null, r.profile.full_name + " · " + ago(r.profile.last_seen)));
+      box.appendChild(h("h3", null, r.profile.full_name + " · ", KZ.presence(r.profile.last_seen, true)));
       if (sid !== (A.profile && A.profile.id)) box.appendChild(resetPwButton(sid, r.profile.full_name));
       /* Жиынтық: кейіпкер, жұлдыз, серия, жетістіктер (сервердегі деректерден есептеледі) */
       if (KZ.ach && KZ.ach.evalFor && r.days) {
@@ -1198,7 +1206,7 @@
         const detail = el("div", "detail");
         list.forEach((s) => {
           const row = el("div", "stu-row");
-          const main = h("button", "stu-main", h("b", null, s.full_name), h("small", null, ago(s.last_seen)), courseSummary(s.courses), h("span", "stu-stars", "⭐ " + s.stars));
+          const main = h("button", "stu-main", h("b", null, s.full_name), h("small", null, KZ.presence(s.last_seen, true)), courseSummary(s.courses), h("span", "stu-stars", "⭐ " + s.stars));
           main.type = "button";
           main.addEventListener("click", () => studentDetail(detail, s.id));
           row.append(main, confirmBtn("btn small ghost", "✕", KZ.t("Шығару?"), async () => {
@@ -1426,7 +1434,7 @@
                 h("div", "u-info",
                   h("b", null, (ROLE_EMOJI[u.role] || "") + " " + u.full_name + (me ? KZ.t(" (мен)") : "")),
                   h("small", null, u.email),
-                  h("small", null, A.roleLabel(u.role) + " · " + A.statusLabel(u.status) + " · ⭐ " + u.stars + " · " + ago(u.last_seen))),
+                  h("small", null, A.roleLabel(u.role) + " · " + A.statusLabel(u.status) + " · ⭐ " + u.stars + " · ", KZ.presence(u.last_seen, true))),
                 actions)
             );
             list.appendChild(det);

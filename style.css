@@ -1452,3 +1452,14 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .gm-chipbtn { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 13px; padding: 7px 10px; border-radius: 10px; border: 2px solid #1c6b52; background: #0b2a20; color: #3dffb0; cursor: pointer; }
 .gm-chipbtn:active { transform: scale(.95); background: #14503c; }
 .gm-tip { margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--muted, #6c757d); min-height: 18px; }
+
+.pres-line { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; }
+.pres-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.pres-dot.on { background: #2f9e44; box-shadow: 0 0 0 3px rgba(47, 158, 68, .25); }
+.pres-dot.off { background: #e03131; }
+.pres-dot.corner { position: absolute; right: -2px; bottom: -2px; width: 13px; height: 13px; border: 2px solid var(--card, #fff); }
+.msg-av { position: relative; overflow: visible; }
+.msg-av svg { border-radius: 14px; }
+.msg-pres { display: block; font-size: 12px; color: var(--muted, #6c757d); }
+.tick { font-weight: 800; color: var(--muted, #868e96); }
+.tick.seen { color: #1c7ed6; }

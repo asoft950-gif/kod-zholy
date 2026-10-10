@@ -19,6 +19,10 @@
     const a = el("span", "msg-av" + (cls ? " " + cls : ""));
     if (KZ.hero && p.hero && p.hero.eq) a.innerHTML = KZ.hero.svg({ color: p.hero.color || "#6c5ce7", eq: p.hero.eq, still: true, lite: true, lg: 0, streak: 0 });
     else a.textContent = ROLE[p.role] || "🙂";
+    if (p.last_seen !== undefined) {
+      const on = !!p.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000;
+      a.appendChild(el("i", "pres-dot corner " + (on ? "on" : "off")));
+    }
     return a;
   }
 
@@ -101,7 +105,7 @@
         .forEach((p) => {
           const a = h("a", "msg-row" + (p.unread ? " unread" : ""));
           a.href = "#/account/msg/" + p.id;
-          const mid = h("div", "msg-mid", h("b", null, p.full_name + " ", h("small", null, A.roleLabel(p.role))), h("small", "msg-last", p.last || KZ.t("Хат жоқ — бірінші болып жаз!")));
+          const mid = h("div", "msg-mid", h("b", null, p.full_name + " ", h("small", null, A.roleLabel(p.role))), h("small", "msg-pres", KZ.presence(p.last_seen)), h("small", "msg-last", p.last || KZ.t("Хат жоқ — бірінші болып жаз!")));
           a.append(avatar(p), mid);
           const right = el("div", "msg-right");
           if (p.last_at) right.appendChild(h("small", null, fmtTime(p.last_at)));
@@ -113,6 +117,18 @@
     };
     q.addEventListener("input", render);
     render();
+    /* онлайн белгілері мен жаңа хаттар 30 секунд сайын жаңарады */
+    const route = location.hash;
+    threadTimer = setInterval(async () => {
+      if (location.hash !== route || !box.isConnected) return stopThread();
+      if (document.hidden) return;
+      try {
+        list = await A.rpc("msg_contacts");
+        render();
+      } catch (e) {
+        /* үнсіз */
+      }
+    }, 30000);
   }
 
   async function thread(box, uid) {
@@ -135,7 +151,8 @@
     const back = h("a", "btn small ghost", "←");
     back.href = "#/account/msg";
     back.setAttribute("aria-label", KZ.t("Барлық хаттар"));
-    const who = h("div", "msg-who", h("b", null, o.full_name), h("small", null, (ROLE[o.role] || "") + " " + A.roleLabel(o.role) + (o.grade ? " · " + o.grade + KZ.t("-сынып") : "")));
+    let pres = KZ.presence(o.last_seen);
+    const who = h("div", "msg-who", h("b", null, o.full_name), h("small", null, (ROLE[o.role] || "") + " " + A.roleLabel(o.role) + (o.grade ? " · " + o.grade + KZ.t("-сынып") : "")), pres);
     if (o.bio) who.appendChild(h("small", "msg-bio", "“" + o.bio + "”"));
     top.append(back, avatar(o, "big"), who);
     box.appendChild(top);
@@ -143,12 +160,24 @@
     feed.setAttribute("aria-live", "polite");
     box.appendChild(feed);
     let lastId = 0;
+    const ticks = {};
+    const tickText = (r) => (r ? "✓✓ " + KZ.t("көрілді") : "✓ " + KZ.t("жіберілді"));
     const add = (m) => {
       if (m.id <= lastId) return;
       lastId = m.id;
-      const b = h("div", "bubble " + (m.me ? "me" : "them"), h("span", "bb-text", m.b), h("small", null, fmtTime(m.at) + (m.me ? (m.r ? " ✓✓" : " ✓") : "")));
+      const tk = m.me ? h("span", "tick" + (m.r ? " seen" : ""), tickText(m.r)) : null;
+      if (tk) ticks[m.id] = tk;
+      const b = h("div", "bubble " + (m.me ? "me" : "them"), h("span", "bb-text", m.b), h("small", null, fmtTime(m.at) + (tk ? " · " : ""), tk || ""));
       feed.appendChild(b);
     };
+    const refreshTicks = (items) =>
+      items.forEach((m) => {
+        const tk = ticks[m.id];
+        if (tk && m.r && !tk.classList.contains("seen")) {
+          tk.classList.add("seen");
+          tk.textContent = tickText(true);
+        }
+      });
     const paint = (items) => {
       const atBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 40;
       items.forEach(add);
@@ -209,6 +238,10 @@
       try {
         const n = await A.rpc("msg_thread", { other: uid });
         paint(n.items.filter((m) => m.id > lastId));
+        refreshTicks(n.items);
+        const np = KZ.presence(n.other.last_seen);
+        pres.replaceWith(np);
+        pres = np;
       } catch (ex) {
         /* үнсіз */
       }
