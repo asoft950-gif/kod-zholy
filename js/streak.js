@@ -226,14 +226,17 @@
   };
 
   /* ---------- Жетістіктер ---------- */
-  function stats() {
-    const st = { levels: 0, perfect: 0, bonus: 0, bugs: 0, courses: 0, read: 0, complete: {} };
+  function stats(src) {
+    /* src болмаса, өз прогресі; болса (админ қарауы үшін) басқа оқушының деректері: { stars(c,l), read(c), best, daily } */
+    const starsOf = src ? src.stars : (c, l) => KZ.progress.stars(c, l);
+    const readOf = src ? src.read : (c) => KZ.read.count(c);
+    const st = { levels: 0, perfect: 0, bonus: 0, bugs: 0, courses: 0, read: 0, complete: {}, best: src ? src.best : act.best(), daily: src ? src.daily : act.dailyCount() };
     KZ.courses.forEach((c) => {
       if (c.status !== "ready") return;
       let any = false;
       let all = (c.levels || []).length > 0;
       (c.levels || []).forEach((l) => {
-        const s = KZ.progress.stars(c.id, l.id);
+        const s = starsOf(c.id, l.id);
         if (s > 0) {
           st.levels++;
           any = true;
@@ -241,7 +244,7 @@
         if (s === 3) st.perfect++;
       });
       (c.bonus || []).forEach((l) => {
-        const s = KZ.progress.stars(c.id, l.id);
+        const s = starsOf(c.id, l.id);
         if (s > 0) {
           st.levels++;
           st.bonus++;
@@ -252,7 +255,7 @@
       });
       if (any) st.courses++;
       st.complete[c.id] = all;
-      st.read += KZ.read.count(c.id);
+      st.read += readOf(c.id);
     });
     return st;
   }
@@ -272,13 +275,13 @@
       { id: "bug10", e: "🕵️", t: KZ.t("Бас детектив"), d: KZ.t("10 қате тауып түзет"), ok: (s) => s.bugs >= 10 },
       { id: "poly", e: "🌍", t: KZ.t("Көп тілді"), d: KZ.t("3 түрлі курстан тапсырма шеш"), ok: (s) => s.courses >= 3 },
       { id: "reader", e: "📖", t: KZ.t("Оқымысты"), d: KZ.t("10 лекцияны оқыдым деп белгіле"), ok: (s) => s.read >= 10 },
-      { id: "streak3", e: "🔥", t: KZ.t("3 күн қатарынан"), d: KZ.t("3 күн қатарынан тапсырма шеш"), ok: () => act.best() >= 3 },
-      { id: "streak7", e: "⚡", t: KZ.t("Бір апта"), d: KZ.t("7 күн қатарынан тапсырма шеш"), ok: () => act.best() >= 7 },
-      { id: "streak14", e: "🌠", t: KZ.t("Екі апта"), d: KZ.t("14 күн қатарынан тапсырма шеш"), ok: () => act.best() >= 14 },
+      { id: "streak3", e: "🔥", t: KZ.t("3 күн қатарынан"), d: KZ.t("3 күн қатарынан тапсырма шеш"), ok: (s) => s.best >= 3 },
+      { id: "streak7", e: "⚡", t: KZ.t("Бір апта"), d: KZ.t("7 күн қатарынан тапсырма шеш"), ok: (s) => s.best >= 7 },
+      { id: "streak14", e: "🌠", t: KZ.t("Екі апта"), d: KZ.t("14 күн қатарынан тапсырма шеш"), ok: (s) => s.best >= 14 },
       { id: "read30", e: "📚", t: KZ.t("Кітапқұмар"), d: KZ.t("30 лекцияны оқыдым деп белгіле"), ok: (s) => s.read >= 30 },
-      { id: "streak30", e: "☄️", t: KZ.t("Бір ай"), d: KZ.t("30 күн қатарынан тапсырма шеш"), ok: () => act.best() >= 30 },
-      { id: "daily1", e: "📅", t: KZ.t("Күннің тапсырмасы"), d: KZ.t("Күннің тапсырмасын орында"), ok: () => act.dailyCount() >= 1 },
-      { id: "daily7", e: "🗓️", t: KZ.t("Тұрақты оқушы"), d: KZ.t("Күннің тапсырмасын 7 рет орында"), ok: () => act.dailyCount() >= 7 },
+      { id: "streak30", e: "☄️", t: KZ.t("Бір ай"), d: KZ.t("30 күн қатарынан тапсырма шеш"), ok: (s) => s.best >= 30 },
+      { id: "daily1", e: "📅", t: KZ.t("Күннің тапсырмасы"), d: KZ.t("Күннің тапсырмасын орында"), ok: (s) => s.daily >= 1 },
+      { id: "daily7", e: "🗓️", t: KZ.t("Тұрақты оқушы"), d: KZ.t("Күннің тапсырмасын 7 рет орында"), ok: (s) => s.daily >= 7 },
     ];
     KZ.courses.forEach((c) => {
       if (c.status !== "ready") return;
@@ -293,8 +296,40 @@
     return list;
   }
 
+  /* Күндер тізімінен ([{d, y}]) ең ұзақ және қазіргі серия */
+  function runsOf(days) {
+    const set = new Set(days.map((x) => String(x.d).slice(0, 10)));
+    const keys = [...set].filter(isDay).sort();
+    let best = 0;
+    let run = 0;
+    let prev = null;
+    keys.forEach((k) => {
+      run = prev && addDays(prev, 1) === k ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = k;
+    });
+    const t = act.today();
+    let day = set.has(t) ? t : addDays(t, -1);
+    let cur = 0;
+    while (set.has(day)) {
+      cur++;
+      day = addDays(day, -1);
+    }
+    return { best, cur, daily: days.filter((x) => x.y).length, active: keys.length };
+  }
+
   const ach = (KZ.ach = {
     defs,
+    /* басқа пайдаланушының жетістіктері (сервердегі прогресс, оқылған лекция, белсенді күндер бойынша) */
+    evalFor(r) {
+      const map = {};
+      (r.progress || []).forEach((x) => ((map[x.c] = map[x.c] || {})[x.l] = x.s));
+      const rd = {};
+      (r.read || []).forEach((x) => (rd[x.c] = (rd[x.c] || 0) + 1));
+      const runs = runsOf(r.days || []);
+      const s = stats({ stars: (c, l) => (map[c] && map[c][l]) || 0, read: (c) => rd[c] || 0, best: runs.best, daily: runs.daily });
+      return { stats: s, runs, list: defs().map((a) => ({ a, ok: !!a.ok(s) })) };
+    },
     unlocked: () => KZ.store.get(ACH_KEY, {}),
     /* Жаңа ашылғандарды тіркеу. silent: хабарламасыз (алғашқы жүктеу, синхрондаудан кейін) */
     check(silent) {

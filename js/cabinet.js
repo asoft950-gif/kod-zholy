@@ -580,6 +580,39 @@
       box.textContent = "";
       box.appendChild(h("h3", null, r.profile.full_name + " · " + ago(r.profile.last_seen)));
       if (sid !== (A.profile && A.profile.id)) box.appendChild(resetPwButton(sid, r.profile.full_name));
+      /* Жиынтық: кейіпкер, жұлдыз, серия, жетістіктер (сервердегі деректерден есептеледі) */
+      if (KZ.ach && KZ.ach.evalFor && r.days) {
+        const ev = KZ.ach.evalFor(r);
+        const sum = el("div", "det-sum");
+        if (KZ.hero && r.hero && r.hero.eq) {
+          const f = el("span", "hero-fig det-hero");
+          f.innerHTML = KZ.hero.svg({ color: r.hero.color || "#6c5ce7", eq: r.hero.eq, still: true, streak: ev.runs.cur, lg: 0 });
+          sum.appendChild(f);
+        }
+        const stars = r.progress.reduce((a, x) => a + (x.s || 0), 0);
+        const got = ev.list.filter((x) => x.ok).length;
+        const chips = el("div", "det-chips");
+        [
+          ["⭐", stars, KZ.t("жұлдыз")],
+          ["✅", ev.stats.levels, KZ.t("тапсырма")],
+          ["💎", ev.stats.perfect, KZ.t("3 жұлдызбен")],
+          ["📖", ev.stats.read, KZ.t("лекция оқыды")],
+          ["🔥", ev.runs.cur + " / " + ev.runs.best, KZ.t("серия: қазір / ең ұзақ")],
+          ["📅", ev.runs.active, KZ.t("белсенді күн")],
+          ["🏆", got + " / " + ev.list.length, KZ.t("жетістік")],
+        ].forEach(([e, v, t]) => chips.appendChild(h("div", "det-chip", h("span", null, e), h("b", null, String(v)), h("small", null, t))));
+        sum.appendChild(chips);
+        box.appendChild(sum);
+        const al = el("div", "det-ach");
+        ev.list.forEach(({ a, ok }) => {
+          const it = h("span", "det-a" + (ok ? " on" : ""), a.e + " " + a.t);
+          it.title = a.d;
+          al.appendChild(it);
+        });
+        box.appendChild(h("b", null, KZ.t("🏆 Жетістіктер")));
+        box.appendChild(al);
+        box.appendChild(h("b", null, KZ.t("📚 Курстар бойынша үлгерім")));
+      }
       const map = {};
       r.progress.forEach((x) => ((map[x.c] = map[x.c] || {})[x.l] = x.s));
       KZ.courses.filter((c) => c.status === "ready").forEach((c) => {
@@ -1252,6 +1285,18 @@
               if (isOwner || u.role === "student" || u.role === "teacher") actions.appendChild(resetPwButton(u.id, u.full_name));
               actions.appendChild(confirmBtn("btn small ghost", "🗑", KZ.t("Өшіру?"), act(() => A.rpc("admin_delete_user", { uid: u.id }))));
             }
+            /* толық үлгерім мен жетістіктер (ашылып-жабылады) */
+            const det = el("div", "student-detail admin-detail");
+            det.hidden = true;
+            const more = btn("btn small", KZ.t("📊 Үлгерімі"), () => {
+              det.hidden = !det.hidden;
+              more.classList.toggle("on", !det.hidden);
+              if (!det.hidden && !det.dataset.loaded) {
+                det.dataset.loaded = "1";
+                studentDetail(det, u.id);
+              }
+            });
+            actions.prepend(more);
             list.appendChild(
               h("div", "user-row",
                 h("div", "u-info",
@@ -1260,6 +1305,7 @@
                   h("small", null, A.roleLabel(u.role) + " · " + A.statusLabel(u.status) + " · ⭐ " + u.stars + " · " + ago(u.last_seen))),
                 actions)
             );
+            list.appendChild(det);
           });
         if (!list.children.length) list.appendChild(h("p", "empty-note", KZ.t("Ештеңе табылмады.")));
       }

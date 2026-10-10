@@ -1341,3 +1341,15 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .mk-list { display: grid; gap: 8px; }
 .mk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
 .mk-row small { color: var(--muted); }
+/* Админ: пайдаланушы үлгерімі */
+.admin-detail { padding: 12px; margin: 4px 0 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--sun); display: grid; gap: 10px; }
+.admin-detail h3 { margin: 0; }
+.det-sum { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.det-hero { width: 84px; height: 90px; flex: none; }
+.det-hero svg * { animation: none !important; }
+.det-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; flex: 1; min-width: 0; }
+.det-chip { display: grid; justify-items: center; text-align: center; padding: 6px 4px; border: 2px solid var(--line); border-radius: 12px; background: var(--paper); }
+.det-chip b { font-size: 17px; } .det-chip small { color: var(--muted); font-weight: 700; font-size: 11px; line-height: 1.2; }
+.det-ach { display: flex; flex-wrap: wrap; gap: 6px; }
+.det-a { font-size: 12px; font-weight: 800; padding: 4px 8px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper); opacity: .45; }
+.det-a.on { opacity: 1; background: var(--mint); }

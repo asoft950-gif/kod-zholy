@@ -380,7 +380,14 @@ begin
     'profile', (select jsonb_build_object('id', id, 'full_name', full_name, 'email', email, 'last_seen', last_seen)
                 from public.profiles where id = sid),
     'progress', coalesce((select jsonb_agg(jsonb_build_object('c', course_id, 'l', level_id, 's', stars, 'at', updated_at))
-                          from public.progress where user_id = sid), '[]'::jsonb));
+                          from public.progress where user_id = sid), '[]'::jsonb),
+    'read', coalesce((select jsonb_agg(jsonb_build_object('c', course_id, 'l', lecture_id))
+                      from public.lectures_read where user_id = sid), '[]'::jsonb),
+    'days', coalesce((select jsonb_agg(jsonb_build_object('d', day, 'y', case when daily then 1 else 0 end))
+                      from public.activity_days where user_id = sid), '[]'::jsonb),
+    'hero', (select hero from public.profiles where id = sid),
+    'role', (select role from public.profiles where id = sid),
+    'created_at', (select created_at from public.profiles where id = sid));
 end $$;
 
 -- ---------- Мұғалімнің тапсырмалары ----------
