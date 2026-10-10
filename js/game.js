@@ -179,19 +179,72 @@
     const getCode = () => (cm ? cm.getValue() : ta.value);
     const setCode = (v) => (cm ? cm.setValue(v) : (ta.value = v));
 
-    const det = h("details", "gm-api", h("summary", null, "📖 " + t("Қандай командалар бар?")));
+    /* Командалар панелі: басқанда код жазатын жерге түседі */
+    const cmds = el("div", "gm-cmds");
+    const tip = el("div", "gm-tip", t("Команданы бас — ол кодқа түседі 👇"));
+    const chipRow = el("div", "gm-chips");
+    function insert(text, stmt) {
+      if (cm) {
+        cm.focus();
+        const cur = cm.getCursor();
+        const line = cm.getLine(cur.line);
+        const ind = line.match(/^\s*/)[0];
+        const body = text.split("\n").join("\n" + ind);
+        if (stmt && line.trim() !== "") {
+          const end = { line: cur.line, ch: line.length };
+          cm.replaceRange("\n" + ind + body, end);
+          const nl = cm.lineCount();
+          void nl;
+        } else cm.replaceSelection(stmt ? body : text);
+        cm.setCursor(cm.getCursor());
+        cm.scrollIntoView(null, 80);
+      } else {
+        const v = ta.value;
+        const pos = ta.selectionStart || v.length;
+        const ls = v.lastIndexOf("\n", pos - 1) + 1;
+        const lineEnd = v.indexOf("\n", pos) < 0 ? v.length : v.indexOf("\n", pos);
+        const ind = v.slice(ls, lineEnd).match(/^\s*/)[0];
+        const body = text.split("\n").join("\n" + ind);
+        if (stmt && v.slice(ls, lineEnd).trim() !== "") {
+          ta.value = v.slice(0, lineEnd) + "\n" + ind + body + v.slice(lineEnd);
+          ta.selectionStart = ta.selectionEnd = lineEnd + 1 + ind.length + body.length;
+        } else {
+          ta.value = v.slice(0, pos) + (stmt ? body : text) + v.slice(pos);
+          ta.selectionStart = ta.selectionEnd = pos + (stmt ? body : text).length;
+        }
+        ta.focus();
+      }
+    }
+    /* [белгі, кодқа түсетін мәтін, сипаттама, тұтас жол ма] */
     const api = [
-      ["alga(n)", t("n қадам алға")],
-      ["onga() / solga()", t("оңға / солға бұрыл")],
-      ["zhol_bos()", t("алдында жол бос па? (True/False)")],
-      ["tiken_bar()", t("алдында тікен бар ма?")],
+      ["alga(1)", "alga(1)", t("n қадам алға"), true],
+      ["onga()", "onga()", t("оңға бұрыл"), true],
+      ["solga()", "solga()", t("солға бұрыл"), true],
+      ["zhol_bos()", "zhol_bos()", t("алдында жол бос па? (True/False)"), false],
+      ["tiken_bar()", "tiken_bar()", t("алдында тікен бар ма?"), false],
+      ["for", "for i in range(3):\n    ", t("қайталау: 3 рет"), true],
+      ["while", "while zhol_bos():\n    ", t("шарт орындалғанша қайтала"), true],
+      ["if", "if zhol_bos():\n    ", t("шарт дұрыс болса ғана орында"), true],
+      ["def", "def jur(n):\n    ", t("өз функцияңды жаса"), true],
     ];
-    if (isFarm) api.push(["ek()", t("тұқым ек")], ["zhi()", t("пісіп тұрғанды жина")], ["pisti()", t("осы жердегі егін піскен бе?")]);
-    if (L.enemies) api.push(["def shaiqas(men, zhau):", t("әр раундта шақырылады; 'ur', 'qorgan' не 'emde' қайтар")], ["men.hp  men.heals  zhau.hp  zhau.auyr", t("денсаулығың, емделу саны, жау денсаулығы, ауыр соққы келе ме")]);
-    const ul = el("div", "gm-apilist");
-    api.forEach(([a, b]) => ul.appendChild(h("div", null, h("code", null, a), " — " + b)));
-    det.appendChild(ul);
-    w.appendChild(det);
+    if (isFarm) api.push(["ek()", "ek()", t("тұқым ек"), true], ["zhi()", "zhi()", t("пісіп тұрғанды жина"), true], ["pisti()", "pisti()", t("осы жердегі егін піскен бе?"), false]);
+    if (L.enemies) {
+      api.push(["def shaiqas", "def shaiqas(men, zhau):\n    return \"ur\"\n", t("әр раундта шақырылады; 'ur', 'qorgan' не 'emde' қайтар"), true]);
+      api.push(["return ur", "return \"ur\"", t("жауды ұр"), true], ["return qorgan", "return \"qorgan\"", t("қорған"), true], ["return emde", "return \"emde\"", t("емделу"), true]);
+      api.push(["men.hp", "men.hp", t("денсаулығың"), false], ["men.heals", "men.heals", t("емделу саны"), false], ["zhau.hp", "zhau.hp", t("жау денсаулығы"), false], ["zhau.auyr", "zhau.auyr", t("ауыр соққы келе ме"), false], ["zhau.kezek", "zhau.kezek", t("раунд нөмірі"), false]);
+    }
+    api.forEach(([lab, code, desc, stmt]) => {
+      const b = el("button", "gm-chipbtn", lab);
+      b.type = "button";
+      b.title = desc;
+      b.addEventListener("click", () => {
+        insert(code, stmt);
+        tip.textContent = lab + " — " + desc;
+      });
+      chipRow.appendChild(b);
+    });
+    cmds.append(h("b", "gm-cmdtitle", "🧩 " + t("Командалар")), chipRow, tip);
+    w.insertBefore(cmds, msg);
 
     /* ---------- Әлем күйі ---------- */
     const rows = L.map.length;

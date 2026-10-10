@@ -1445,3 +1445,10 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .gm-api summary { cursor: pointer; font-weight: 800; padding: 6px 0; }
 .gm-apilist { display: grid; gap: 6px; padding: 6px 0; }
 .gm-apilist code { background: rgba(108, 92, 231, .12); padding: 2px 6px; border-radius: 6px; }
+
+.gm-cmds { margin: 8px 0; padding: 10px; background: rgba(108, 92, 231, .08); border-radius: 14px; }
+.gm-cmdtitle { display: block; margin-bottom: 6px; }
+.gm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gm-chipbtn { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 13px; padding: 7px 10px; border-radius: 10px; border: 2px solid #1c6b52; background: #0b2a20; color: #3dffb0; cursor: pointer; }
+.gm-chipbtn:active { transform: scale(.95); background: #14503c; }
+.gm-tip { margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--muted, #6c757d); min-height: 18px; }
