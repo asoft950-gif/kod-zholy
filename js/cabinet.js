@@ -270,7 +270,91 @@
   }
 
   /* ================= Жеке кабинет ================= */
-  async function account(root) {
+  /* Өз жиынтығым: жұлдыз, тапсырма, серия, жетістік (KZ.ach.evalFor ережелерімен) */
+  function mySummary() {
+    const r = { progress: [], read: [], days: KZ.activity.toCloud() };
+    const pr = KZ.progress._load();
+    Object.keys(pr).forEach((c) => Object.keys(pr[c]).forEach((l) => r.progress.push({ c, l, s: pr[c][l] })));
+    const rd = KZ.read._all();
+    Object.keys(rd).forEach((c) => rd[c].forEach((l) => r.read.push({ c, l })));
+    const ev = KZ.ach.evalFor(r);
+    const stars = r.progress.reduce((a, x) => a + (x.s || 0), 0);
+    const got = Object.keys(KZ.ach.unlocked()).length;
+    const box = el("section", "card cab-sum");
+    const chips = el("div", "det-chips");
+    [
+      ["⭐", stars, KZ.t("жұлдыз"), null],
+      ["✅", ev.stats.levels, KZ.t("тапсырма"), null],
+      ["💎", ev.stats.perfect, KZ.t("3 жұлдызбен"), null],
+      ["📖", ev.stats.read, KZ.t("лекция оқыды"), null],
+      ["🔥", KZ.activity.streak().n + " / " + KZ.activity.best(), KZ.t("серия: қазір / ең ұзақ"), null],
+      ["🏆", got + " / " + ev.list.length, KZ.t("жетістік"), "#/account/ach"],
+    ].forEach(([e, v, t, href]) => {
+      const c = h(href ? "a" : "div", "det-chip", h("span", null, e), h("b", null, String(v)), h("small", null, t));
+      if (href) c.href = href;
+      chips.appendChild(c);
+    });
+    box.appendChild(chips);
+    return box;
+  }
+
+  /* «Өзім туралы»: қысқа сипаттама және сынып (балағат сөздер серверде жасырылады) */
+  function aboutCard(p, root) {
+    const card = el("section", "card about-card");
+    card.appendChild(h("div", "card-title", KZ.t("📝 Өзім туралы")));
+    const view = () => {
+      card.querySelectorAll(":scope > :not(.card-title)").forEach((x) => x.remove());
+      card.appendChild(h("p", "about-bio", p.bio ? p.bio : KZ.t("Әзірге ештеңе жазылмаған. Өзің туралы қысқаша жаз: не ұнайды, нені үйренгің келеді.")));
+      if (p.grade) card.appendChild(h("small", null, "🎓 " + p.grade + KZ.t("-сынып")));
+      card.appendChild(btn("btn small", KZ.t("✏️ Өзгерту"), edit));
+    };
+    const edit = () => {
+      card.querySelectorAll(":scope > :not(.card-title)").forEach((x) => x.remove());
+      const f = el("form", "about-form");
+      const ta = el("textarea");
+      ta.id = "aboutBio";
+      ta.rows = 3;
+      ta.maxLength = 200;
+      ta.value = p.bio || "";
+      ta.placeholder = KZ.t("Мысалы: Ойын жасағанды ұнатамын, Python үйреніп жүрмін 🐍");
+      const gr = el("select");
+      gr.id = "aboutGrade";
+      const o0 = el("option", null, KZ.t("Сынып: көрсетпеймін"));
+      o0.value = "";
+      gr.appendChild(o0);
+      for (let i = 1; i <= 11; i++) {
+        const o = el("option", null, i + KZ.t("-сынып"));
+        o.value = String(i);
+        if (p.grade === i) o.selected = true;
+        gr.appendChild(o);
+      }
+      const save = el("button", "btn primary small", KZ.t("Сақтау"));
+      save.type = "submit";
+      const cancel = btn("btn small ghost", KZ.t("Болдырмау"), view);
+      const msg = el("small", "form-msg bad");
+      msg.hidden = true;
+      f.append(ta, h("small", "hint", KZ.t("Сыныптастарың мен мұғалімің көреді. Мекенжай, телефон сияқты жеке мәліметтерді жазба.")), gr, h("div", "u-actions", save, cancel), msg);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        save.disabled = true;
+        try {
+          await A.rpc("update_about", { bio_in: ta.value, grade_in: gr.value ? Number(gr.value) : null });
+          await A.refreshProfile();
+          account(root);
+        } catch (err) {
+          msg.hidden = false;
+          msg.textContent = err.message;
+          save.disabled = false;
+        }
+      });
+      card.appendChild(f);
+      ta.focus();
+    };
+    view();
+    return card;
+  }
+
+  async function account(root, tab, arg) {
     if (!A.enabled) return disabledPage(root);
     await A.ready;
     if (!A.profile) {
@@ -283,7 +367,7 @@
     const head = el("section", "card profile-head");
     if (p.role === "student" && KZ.hero) {
       const av = h("a", "avatar hero-avatar", KZ.hero.node());
-      av.href = "#/hero";
+      av.href = "#/account/hero";
       av.title = KZ.t("Менің кейіпкерім");
       head.appendChild(av);
     } else head.appendChild(h("div", "avatar", ROLE_EMOJI[p.role] || "🙂"));
@@ -322,6 +406,37 @@
       page.appendChild(btn("btn", KZ.t("↻ Тексеру"), async () => { await A.refreshProfile(); account(root); }));
     } else if (p.status === "blocked") {
       notice(page, "bad", KZ.t("⛔ Аккаунт бұғатталған"), KZ.t("Прогресс сақталмайды. Құрушымен хабарлас."));
+    }
+
+    if (A.isActive()) {
+      /* Қойындылар: профиль, жетістіктер, кейіпкер, хабарламалар */
+      const tabs = el("nav", "cab-tabs");
+      tabs.setAttribute("aria-label", KZ.t("Кабинет бөлімдері"));
+      [["", KZ.t("👤 Профиль")], ["ach", KZ.t("🏆 Жетістіктер")], ["hero", KZ.t("🎽 Кейіпкерім")], ["msg", KZ.t("💬 Хабарламалар")]].forEach(([id, label]) => {
+        const a = h("a", "cab-tab" + ((tab || "") === id ? " on" : ""), label);
+        a.href = "#/account" + (id ? "/" + id : "");
+        if ((tab || "") === id) a.setAttribute("aria-current", "page");
+        if (id === "msg") {
+          const b = h("span", "tab-badge");
+          b.dataset.msgBadge = "1";
+          const n = KZ.msg ? KZ.msg.unread() : 0;
+          b.hidden = !n;
+          b.textContent = String(n);
+          a.appendChild(b);
+        }
+        tabs.appendChild(a);
+      });
+      page.appendChild(tabs);
+      if (tab === "ach" || tab === "hero" || tab === "msg") {
+        const box = el("div", "cab-embed cab-" + tab);
+        page.appendChild(box);
+        if (tab === "ach") KZ.achievementsPage(box);
+        else if (tab === "hero") KZ.heroPage(box);
+        else if (KZ.msg) KZ.msg.view(box, arg);
+        return;
+      }
+      page.appendChild(mySummary());
+      page.appendChild(aboutCard(p, root));
     }
 
     if (A.isActive()) {
@@ -1140,11 +1255,20 @@
     actions.appendChild(open);
     actions.appendChild(statsBtn);
     actions.appendChild(ratingBtn);
+    /* сыныптағы оқушылардың бір-біріне жазған хаттары (қауіпсіздік үшін) */
+    const msgBox = el("div", "cls-body");
+    msgBox.hidden = true;
+    const msgBtn = btn("btn small", KZ.t("💬 Хаттар"), () => {
+      msgBox.hidden = !msgBox.hidden;
+      msgBtn.textContent = msgBox.hidden ? KZ.t("💬 Хаттар") : KZ.t("💬 Жасыру");
+      if (!msgBox.hidden && KZ.msg) KZ.msg.classLog(msgBox, c.id);
+    });
+    actions.appendChild(msgBtn);
     actions.appendChild(confirmBtn("btn small ghost", KZ.t("Сыныпты өшіру"), KZ.t("Расымен өшіру?"), async () => {
       await A.rpc("delete_class", { cid: c.id });
       teacher(root);
     }));
-    card.append(actions, statsBox, ratingBox, body, assignmentsPanel(c));
+    card.append(actions, statsBox, ratingBox, msgBox, body, assignmentsPanel(c));
     return card;
   }
 

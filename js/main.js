@@ -117,7 +117,7 @@
     if (["login", "account", "teacher", "admin"].includes(parts[0])) {
       const titles = { login: KZ.t("Кіру"), account: KZ.t("Кабинет"), teacher: KZ.t("Сыныптар"), admin: KZ.t("Басқару") };
       show("cab", titles[parts[0]]);
-      KZ.cabinet[parts[0]](views.cab, parts[1]);
+      KZ.cabinet[parts[0]](views.cab, parts[1], parts[2]);
       return;
     }
     const course = KZ.getCourse(parts[0]);
