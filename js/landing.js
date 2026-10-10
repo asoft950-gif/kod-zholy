@@ -77,7 +77,7 @@
     /* --- Бит --- */
     const b = sec("lp-bits", head(KZ.t("Кейіпкерің Бит"), KZ.t("Өзіңнің Битіңді жаса"), KZ.t("Түсін таңда, жетістік пен серия арқылы бас киім, көзілдірік, жапқыш пен аура аш. Апталық лигада топ-3 арнайы зат алады.")));
     const row = el("div", "lp-bitrow");
-    [["#ff6b6b", { hat: "wizard" }], ["#2ec4b6", { hat: "crown", face: "round" }], ["#ffa94d", { hat: "party", back: "cape" }], ["#4dabf7", { hat: "helmet" }], ["#f783ac", { hat: "takiya", face: "round" }]].forEach(([c, eq]) => row.appendChild(bit(c, eq)));
+    [["#ff6b6b", { hat: "wizard" }], ["#2ec4b6", { hat: "crown_gold", face: "round" }], ["#ffa94d", { hat: "party", back: "cape" }], ["#4dabf7", { hat: "helmet" }], ["#f783ac", { hat: "takiya", face: "round" }]].forEach(([c, eq]) => row.appendChild(bit(c, eq)));
     b.appendChild(row);
     page.appendChild(b);
 
