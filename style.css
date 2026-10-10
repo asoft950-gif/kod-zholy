@@ -1404,3 +1404,10 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .msg-form .form-msg { grid-column: 1 / -1; }
 .cm-row { display: grid; gap: 2px; padding: 6px 0; border-top: 2px dashed #d9d3c2; }
 .cm-row small { color: var(--muted); font-weight: 700; }
+
+/* Өнімділік: гардероб превьюлері тоқтап тұрады (тінтуір апарғанда не таңдалғанда ғана қозғалады),
+   экраннан тыс бөлімдер сызылмайды */
+.hi-fig svg .fx { animation-play-state: paused; }
+.hero-item:hover .hi-fig svg .fx, .hero-item:focus-visible .hi-fig svg .fx, .hero-item.on .hi-fig svg .fx { animation-play-state: running; }
+.hero-slot, .hero-vit { content-visibility: auto; contain-intrinsic-size: auto 340px; }
+.rating-bit svg *, .msg-av svg *, .hero-avatar svg .fx { animation: none !important; }

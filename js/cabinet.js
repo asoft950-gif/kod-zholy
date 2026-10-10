@@ -562,7 +562,7 @@
       const bit = el("span", "rating-bit hero-fig");
       if (KZ.hero) {
         const hs = r.hero && r.hero.eq ? r.hero : { color: "#6c5ce7", eq: {} };
-        bit.innerHTML = KZ.hero.svg({ color: hs.color, eq: hs.eq, still: true, lg: r.lg || 0, streak: r.streak || 0 });
+        bit.innerHTML = KZ.hero.svg({ color: hs.color, eq: hs.eq, still: true, lite: true, lg: r.lg || 0, streak: r.streak || 0 });
       } else bit.textContent = "🙂";
       const lgm = r.lg ? ["🥇", "🥈", "🥉"][r.lg - 1] : "";
       wrap.appendChild(
@@ -701,7 +701,7 @@
         const sum = el("div", "det-sum");
         if (KZ.hero && r.hero && r.hero.eq) {
           const f = el("span", "hero-fig det-hero");
-          f.innerHTML = KZ.hero.svg({ color: r.hero.color || "#6c5ce7", eq: r.hero.eq, still: true, streak: ev.runs.cur, lg: 0 });
+          f.innerHTML = KZ.hero.svg({ color: r.hero.color || "#6c5ce7", eq: r.hero.eq, still: true, lite: true, streak: ev.runs.cur, lg: 0 });
           sum.appendChild(f);
         }
         const stars = r.progress.reduce((a, x) => a + (x.s || 0), 0);

@@ -18,7 +18,7 @@
   const feat = (emoji, title, text) => h("div", "lp-feat", h("span", "lp-fe", emoji), h("b", null, title), h("p", null, text));
   const bit = (color, eq, cls) => {
     const f = el("span", "hero-fig lp-bit" + (cls ? " " + cls : ""));
-    f.innerHTML = KZ.hero ? KZ.hero.svg({ color, eq, preview: true }) : "🤖";
+    f.innerHTML = KZ.hero ? KZ.hero.svg({ color, eq, preview: true, lite: cls !== "lp-bit-main" }) : "🤖";
     f.addEventListener("click", () => KZ.hero && KZ.hero.cheer());
     return f;
   };

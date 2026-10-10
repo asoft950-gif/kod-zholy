@@ -17,7 +17,7 @@
   /* кішкентай аватар: кейіпкер (бар болса) не рөл белгісі */
   function avatar(p, cls) {
     const a = el("span", "msg-av" + (cls ? " " + cls : ""));
-    if (KZ.hero && p.hero && p.hero.eq) a.innerHTML = KZ.hero.svg({ color: p.hero.color || "#6c5ce7", eq: p.hero.eq, still: true, lg: 0, streak: 0 });
+    if (KZ.hero && p.hero && p.hero.eq) a.innerHTML = KZ.hero.svg({ color: p.hero.color || "#6c5ce7", eq: p.hero.eq, still: true, lite: true, lg: 0, streak: 0 });
     else a.textContent = ROLE[p.role] || "🙂";
     return a;
   }

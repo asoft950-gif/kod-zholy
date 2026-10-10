@@ -277,7 +277,7 @@
     },
     /* көрінетін өз кейіпкерлерін қайта сызу */
     refresh() {
-      document.querySelectorAll(".hero-fig[data-own]").forEach((f) => (f.innerHTML = hero.svg()));
+      document.querySelectorAll(".hero-fig[data-own]").forEach((f) => (f.innerHTML = hero.svg({ lite: f.dataset.lite === "1" })));
     },
     equip(slot, id) {
       const s = ensure();
@@ -292,6 +292,7 @@
     },
     /* SVG жолы (Мульт 3D стилі). opts: { eq, color, preview, still } */
     svg(opts) {
+      const lite = !!(opts && opts.lite); // кішкентай суреттер: бұлыңғыр сүзгісіз (телефонға жеңіл)
       const own = !(opts && opts.eq);
       const s = own ? ensure() : opts;
       const c = s.color || "#6c5ce7";
@@ -351,7 +352,7 @@
         <radialGradient id="${u}foot" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="${L(c, 0.25)}"/><stop offset="1" stop-color="${Dk(c, 0.5)}"/></radialGradient>
         <linearGradient id="${u}cur" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b2f2ea"/><stop offset=".45" stop-color="#2ec4b6"/><stop offset="1" stop-color="#0b7f74"/></linearGradient>`;
       const P = [];
-      P.push(`<ellipse cx="100" cy="208" rx="62" ry="9" fill="#120d2a" opacity=".22" filter="url(#${u}b3)"/>`);
+      P.push(`<ellipse data-k="1" cx="100" cy="208" rx="62" ry="9" fill="#120d2a" opacity="${lite ? 0.13 : 0.22}" filter="url(#${u}b3)"/>`);
       if (auras) P.push(`<g class="hf-aura">${draw(auras)}</g>`);
       P.push('<g class="hf-bob">');
       if (back && back.back) P.push(draw(back));
@@ -371,7 +372,7 @@
       if (outfit) P.push(draw(outfit));
       if (pin) P.push(draw(pin));
       // ұрт
-      P.push(`<ellipse cx="60" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity=".5" filter="url(#${u}b3)"/><ellipse cx="140" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity=".5" filter="url(#${u}b3)"/>`);
+      P.push(`<ellipse data-k="1" cx="60" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity="${lite ? 0.32 : 0.5}" filter="url(#${u}b3)"/><ellipse data-k="1" cx="140" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity="${lite ? 0.32 : 0.5}" filter="url(#${u}b3)"/>`);
       // көздер: ақ алма, түрлі-түсті қарашық, жарқыл
       const eye = (x) =>
         `<ellipse cx="${x}" cy="129" rx="15" ry="18" fill="${Dk(c, 0.5)}" opacity=".35" filter="url(#${u}b3)"/><ellipse cx="${x}" cy="126" rx="13.5" ry="16" fill="#fff"/><ellipse cx="${x + 1}" cy="129" rx="10" ry="12" fill="url(#${u}iris)"/><ellipse cx="${x + 1}" cy="130" rx="5.5" ry="7" fill="#0a0720"/><path d="M${x - 13} 120Q${x} 106 ${x + 13} 120" fill="none" stroke="${Dk(c, 0.4)}" stroke-width="3" opacity=".35" filter="url(#${u}b1)"/><ellipse cx="${x + 4.5}" cy="122" rx="4.6" ry="5.4" fill="#fff"/><circle cx="${x - 4}" cy="135" r="2" fill="#fff" opacity=".9"/><circle cx="${x + 6}" cy="131" r="1.1" fill="#fff" opacity=".8"/>`;
@@ -387,8 +388,14 @@
       if (face) P.push(draw(face));
       if (hat) P.push(draw(hat));
       P.push("</g>");
-      const defsStr = fx + Object.values(defs).join("") + (rich ? richDefs(u) : "");
-      return KZ.tt("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-12 -16 224 236\" role=\"img\" aria-label=\"Бит кейіпкері\"><defs>{0}</defs>{1}</svg>", defsStr, P.join(""));
+      let defsStr = fx + Object.values(defs).join("") + (rich ? richDefs(u) : "");
+      let body = P.join("");
+      if (lite) {
+        /* сүзгілерді алып тастаймыз: бұлыңғыр әшекейлер өшеді, қалғаны сүзгісіз қалады */
+        defsStr = defsStr.replace(/<filter\b[\s\S]*?<\/filter>/g, "");
+        body = body.replace(/<(\w+)([^>]*?) filter="url\(#hg\d+(\w+)\)"([^>]*?)(\/?)>/g, (m, tag, a1, id, a2, sl) => ((id === "b3" || id === "b7") && sl && !/data-k=/.test(a1 + a2) ? "" : `<${tag}${a1}${a2}${sl}>`));
+      }
+      return KZ.tt("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-12 -16 224 236\" role=\"img\" aria-label=\"Бит кейіпкері\"><defs>{0}</defs>{1}</svg>", defsStr, body);
     },
     /* Қуану: барлық көрінетін кейіпкер секіріп, күлімдейді */
     cheer() {
@@ -401,7 +408,8 @@
     node(cls) {
       const d = el("span", "hero-fig" + (cls ? " " + cls : ""));
       d.dataset.own = "1";
-      d.innerHTML = hero.svg();
+      d.dataset.lite = "1"; // кішкентай: сүзгісіз
+      d.innerHTML = hero.svg({ lite: true });
       d.addEventListener("click", () => hero.cheer());
       return d;
     },
@@ -554,7 +562,8 @@
       });
     }
     const fig = helperEl.querySelector(".hero-fig");
-    fig.innerHTML = hero.svg();
+    fig.dataset.lite = "1";
+    fig.innerHTML = hero.svg({ lite: true });
     fig.classList.toggle("sad", mood === "sad");
     helperEl.querySelector(".bit-bubble").textContent = text;
     helperEl.classList.add("on");
@@ -651,6 +660,29 @@
       }, "image/png");
     };
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  /* Превьюлерді экранға жақындағанда ғана сызамыз (бет бірден жеңіл ашылады) */
+  let lazyIO = null;
+  function lazyFig(f, make) {
+    if (!("IntersectionObserver" in window)) {
+      f.innerHTML = make();
+      return;
+    }
+    if (!lazyIO)
+      lazyIO = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (!e.isIntersecting) return;
+            lazyIO.unobserve(e.target);
+            const fn = e.target._make;
+            e.target._make = null;
+            if (fn) e.target.innerHTML = fn();
+          }),
+        { rootMargin: "300px 0px" }
+      );
+    f._make = make;
+    lazyIO.observe(f);
   }
 
   /* ---------- Гардероб беті ---------- */
@@ -770,7 +802,8 @@
       const ok = legHave.includes(i);
       const c = el("div", "vit-slot" + (ok ? " on" : ""));
       const f = el("span", "hi-fig");
-      f.innerHTML = ok ? hero.svg({ color: s.color, eq: { [i.slot]: i.id }, preview: true }) : "🔒";
+      if (ok) lazyFig(f, () => hero.svg({ color: s.color, eq: { [i.slot]: i.id }, preview: true, lite: true }));
+      else f.textContent = "🔒";
       c.append(f, h("small", null, i.n));
       shelf.appendChild(c);
     });
@@ -803,7 +836,8 @@
         b.dataset.id = i.id;
         const f = el("span", "hi-fig");
         // алдын ала көру: сол заттың өзі киілген кейіпкер
-        f.innerHTML = ok ? hero.svg({ color: ensure().color, eq: { [sl.id]: i.id }, preview: true }) : "🔒";
+        if (ok) lazyFig(f, () => hero.svg({ color: ensure().color, eq: { [sl.id]: i.id }, preview: true, lite: true }));
+        else f.textContent = "🔒";
         b.append(f, h("small", null, i.n));
         if (i.chest) b.appendChild(h("small", "hi-legend", KZ.t("🎁 Сандықтан")));
         if (i.legend) b.appendChild(h("small", "hi-legend", i.unlock.season ? KZ.t("⏳ Маусымдық") : KZ.t("✨ Аңыз")));
