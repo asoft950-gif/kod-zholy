@@ -154,6 +154,7 @@
     box.textContent = "";
     box.className = "card result " + (ev.ok ? "ok" : "bad");
     if (KZ.hero && KZ.hero.react) KZ.hero.react(ev.ok ? "ok" : ev.run && ev.run.error ? "err" : "bad");
+    if (KZ.mistakes && level && !level.sandbox) ev.ok ? KZ.mistakes.ok(course.id, KZ.topicOf(level)) : KZ.mistakes.add(course.id, KZ.topicOf(level));
     if (ev.ok) {
       const cap = KZ.penalty.cap(course.id, level.id);
       const stars = Math.min(core.starsFor(fails, cap < 3), cap);

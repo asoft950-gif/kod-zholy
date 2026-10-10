@@ -379,7 +379,7 @@
     d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
     let n = 0;
     for (let i = 0; i < 7; i++) {
-      if (all[dstr(d)]) n++;
+      if ((all[dstr(d)] || 0) & 3) n++;
       d.setDate(d.getDate() + 1);
     }
     return n;

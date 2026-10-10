@@ -428,6 +428,10 @@
     build(box);
     box.hidden = false;
     if (KZ.hero && KZ.hero.react && (kind === "ok" || kind === "bad" || kind === "err")) KZ.hero.react(kind);
+    if (KZ.mistakes && level && !level.sandbox && !level.assign && course) {
+      if (kind === "bad" || kind === "err") KZ.mistakes.add(course.id, KZ.topicOf(level));
+      else if (kind === "ok") KZ.mistakes.ok(course.id, KZ.topicOf(level));
+    }
   }
 
   function nextHref() {

@@ -16,8 +16,40 @@
   }
   const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s));
 
+  /* Серия қалқаны: аптасына бір рет, 1 күн жіберіп алсаң серия үзілмейді (күн мәніне 4 бит қосылады) */
+  const SH_KEY = "kodzholy.shield.start";
+  const monOf = (d) => {
+    const [y, m, dd] = d.split("-").map(Number);
+    return addDays(d, -((new Date(y, m - 1, dd).getDay() + 6) % 7));
+  };
+  const shieldStart = () => {
+    let s = KZ.store.get(SH_KEY, null);
+    if (!s) {
+      s = ymd(new Date());
+      KZ.store.set(SH_KEY, s);
+    }
+    return s;
+  };
+  const shieldUsedInWeek = (all, day) => {
+    const mon = monOf(day);
+    for (let i = 0; i < 7; i++) if ((all[addDays(mon, i)] || 0) & 4) return true;
+    return false;
+  };
+
   /* ---------- Белсенді күндер ---------- */
   const act = (KZ.activity = {
+    /* кеше жіберілген және алдыңғы күн белсенді болса, қалқан серияны сақтай алады */
+    canFreeze() {
+      const all = act.all();
+      const y = addDays(ymd(new Date()), -1);
+      return !all[y] && !!all[addDays(y, -1)] && y >= shieldStart() && !shieldUsedInWeek(all, y);
+    },
+    shield() {
+      const all = act.all();
+      const t = ymd(new Date());
+      const saving = !all[t] && act.canFreeze();
+      return { has: !shieldUsedInWeek(all, t), saving };
+    },
     today: () => ymd(new Date()),
     addDays,
     all: () => KZ.store.get(DAYS_KEY, {}),
@@ -29,6 +61,10 @@
       const cur = all[t] || 0;
       const nv = cur | (daily ? 3 : 1);
       if (nv === cur) return { first: false, daily: false };
+      if (cur === 0 && act.canFreeze()) {
+        all[addDays(t, -1)] = 5; // қалқан кешегі күнді «қатырып» қояды
+        setTimeout(() => KZ.toast("🛡️", KZ.t("Серия қалқаны жұмыс істеді!"), KZ.t("Кеше жіберіп алдың, бірақ серия үзілмеді.")), 800);
+      }
       all[t] = nv;
       KZ.store.set(DAYS_KEY, all);
       KZ.updateStreak();
@@ -39,9 +75,11 @@
     streak() {
       const all = act.all();
       const t = act.today();
-      let day = all[t] ? t : addDays(t, -1);
+      const y = addDays(t, -1);
+      const virt = !all[t] && act.canFreeze(); // бүгін шешсең, қалқан кешегі күнді сақтайды
+      let day = all[t] ? t : y;
       let n = 0;
-      while (all[day]) {
+      while (all[day] || (virt && day === y)) {
         n++;
         day = addDays(day, -1);
       }
@@ -301,6 +339,10 @@
       if (!s.doneToday && s.n > 0) mid.appendChild(h("small", null, KZ.t("Бүгін бір тапсырма шешсең, серия үзілмейді.")));
       mid.appendChild(A("btn primary small", "#/" + tg.course.id + "/play/" + tg.level.id, KZ.t("▶ Шешу")));
     }
+    if (s.n > 0 || act.shield().saving) {
+      const sh = act.shield();
+      mid.appendChild(h("small", "shield-note" + (sh.saving ? " saving" : ""), sh.saving ? KZ.t("🛡️ Қалқан серияңды сақтап тұр: бүгін бір тапсырма шеш!") : sh.has ? KZ.t("🛡️ Серия қалқаны бар: бір күн жіберсең де серия үзілмейді") : KZ.t("🛡️ Қалқан осы аптада қолданылды, дүйсенбіде жаңарады")));
+    }
     const right = A("btn small", "#/achievements", KZ.t("🏆 Жетістіктер"));
     card.appendChild(left);
     card.appendChild(mid);
@@ -321,9 +363,9 @@
     for (let i = 0; i < 35; i++) {
       const d = addDays(start, i);
       const v = all[d] || 0;
-      const c = el("span", "cal-d" + (v ? " on" : "") + (v & 2 ? " daily" : "") + (d === t ? " today" : "") + (d > t ? " future" : ""));
+      const c = el("span", "cal-d" + (v ? " on" : "") + (v & 4 ? " shield" : "") + (v & 2 ? " daily" : "") + (d === t ? " today" : "") + (d > t ? " future" : ""));
       c.title = d + (v & 2 ? KZ.t(" · күннің тапсырмасы орындалды") : v ? KZ.t(" · белсенді") : "");
-      c.textContent = v & 2 ? "⭐" : "";
+      c.textContent = v & 4 ? "🛡️" : v & 2 ? "⭐" : "";
       wrap.appendChild(c);
     }
     return wrap;

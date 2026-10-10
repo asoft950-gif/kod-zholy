@@ -103,7 +103,7 @@
       return show("cab", KZ.t("Алгоритм көрінісі"));
     }
     if (parts[0] === "review") {
-      KZ.reviewPage(views.cab);
+      KZ.reviewPage(views.cab, parts[1] && parts[2] ? { c: parts[1], t: parts[2] } : null);
       return show("cab", KZ.t("Қайталау"));
     }
     if (parts[0] === "hero") {

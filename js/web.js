@@ -323,6 +323,7 @@
     box.textContent = "";
     box.className = "card result " + (ok ? "ok" : "bad");
     if (KZ.hero && KZ.hero.react) KZ.hero.react(ok ? "ok" : "bad");
+    if (KZ.mistakes && level && !level.sandbox) ok ? KZ.mistakes.ok(course.id, KZ.topicOf(level)) : KZ.mistakes.add(course.id, KZ.topicOf(level));
     box.appendChild(el("h2", null, ok ? KZ.t("🎉 Тамаша!") : KZ.t("🤔 Әлі толық емес")));
     if (ok) {
       const cap = level.sandbox ? 3 : KZ.penalty.cap(course.id, level.id);

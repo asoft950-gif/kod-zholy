@@ -16,6 +16,47 @@
     return (course.levels || []).some((l) => KZ.topicOf(l) === topic && KZ.progress.stars(course.id, l.id) > 0);
   }
 
+  /* Қателер дәптері: қай тақырыптан жиі қателесетінін санайды */
+  const MK = "kodzholy.mistakes.v1";
+  const mst = () => KZ.store.get(MK, {});
+  KZ.mistakes = {
+    add(c, t) {
+      if (!c || !t) return;
+      const m = mst();
+      const k = c + "|" + t;
+      const x = m[k] || { n: 0 };
+      x.n++;
+      x.d = today();
+      m[k] = x;
+      KZ.store.set(MK, m);
+    },
+    /* дұрыс шешсе, санауыш кемиді */
+    ok(c, t) {
+      const m = mst();
+      const k = c + "|" + t;
+      if (!m[k]) return;
+      m[k].n--;
+      if (m[k].n <= 0) delete m[k];
+      KZ.store.set(MK, m);
+    },
+    score: (c, t) => (mst()[c + "|" + t] || {}).n || 0,
+    /* ең қиын тақырыптар: ең кемі 2 қате */
+    top(k) {
+      return Object.entries(mst())
+        .filter(([, v]) => v.n >= 2)
+        .sort((a, b) => b[1].n - a[1].n)
+        .slice(0, k || 3)
+        .map(([key, v]) => {
+          const [c, t] = key.split("|");
+          const course = KZ.getCourse(c);
+          if (!course) return null;
+          const topic = (course.topics || []).find((x) => x.id === t);
+          return { c, t, n: v.n, course, title: topic ? topic.title : t, qn: bank.filter((b) => b.c === c && b.t === t).length };
+        })
+        .filter(Boolean);
+    },
+  };
+
   const R = (KZ.review = {
     bank,
     add(c, t, qs) {
@@ -50,6 +91,9 @@
       let seed = 0;
       (t + "x").split("").forEach((ch) => (seed = (seed * 31 + ch.charCodeAt(0)) % 100003));
       fresh.sort((a, b) => ((a.id.length * 7919 + seed * a.id.charCodeAt(a.id.length - 1)) % 1009) - ((b.id.length * 7919 + seed * b.id.charCodeAt(b.id.length - 1)) % 1009));
+      // қиын тақырыптар алдымен (қате көп жасалған)
+      fresh.sort((a, b) => KZ.mistakes.score(b.c, b.t) - KZ.mistakes.score(a.c, a.t));
+      due.sort((a, b) => KZ.mistakes.score(b.c, b.t) - KZ.mistakes.score(a.c, a.t) || (st[a.id].d < st[b.id].d ? -1 : 1));
       return due.concat(fresh).slice(0, n || PER_DAY);
     },
     counts() {
@@ -70,11 +114,11 @@
     markDone() {
       KZ.store.set(KEY + ".done", today());
     },
-    answer(id, ok) {
+    answer(id, ok, practice) {
       const st = state();
       const cur = st[id] || { b: 0 };
       const b = ok ? Math.min(cur.b + 1, GAPS.length - 1) : 0;
-      st[id] = { b, d: addDays(today(), ok ? GAPS[b] : 1), a: today() };
+      st[id] = { b, d: addDays(today(), ok ? GAPS[b] : 1), a: practice ? cur.a : today() }; // жаттығу күнделікті 5-ке есептелмейді
       KZ.store.set(KEY, st);
     },
   });
@@ -114,7 +158,7 @@
     return r;
   };
 
-  KZ.reviewPage = function (root) {
+  KZ.reviewPage = function (root, focus) {
     root.textContent = "";
     const page = el("div", "page narrow");
     const back = h("a", "back", KZ.t("← Басты бет"));
@@ -125,7 +169,12 @@
     page.appendChild(box);
     root.appendChild(page);
 
-    const qs = R.doneToday() ? [] : R.session(PER_DAY - R.answeredToday()); // бет жаңартқанда 5-тен асып кетпейді
+    let qs;
+    if (focus) {
+      // таңдалған тақырып бойынша жаттығу (күнделікті 5-ке есептелмейді)
+      back.href = "#/";
+      qs = shuffle(bank.filter((b) => b.c === focus.c && b.t === focus.t)).slice(0, PER_DAY);
+    } else qs = R.doneToday() ? [] : R.session(PER_DAY - R.answeredToday()); // бет жаңартқанда 5-тен асып кетпейді
     if (!qs.length) {
       const c = R.counts();
       box.appendChild(h("h2", null, c.pool ? KZ.t("✅ Бүгінгі қайталау бітті") : KZ.t("Әзірге қайталайтын тақырып жоқ")));
@@ -149,7 +198,9 @@
         b.appendChild(rich(o));
         b.addEventListener("click", () => {
           const ok = o === correct;
-          R.answer(x.id, ok);
+          R.answer(x.id, ok, !!focus);
+          if (ok) KZ.mistakes.ok(x.c, x.t);
+          else KZ.mistakes.add(x.c, x.t);
           if (ok) right++;
           if (window.KZS) window.KZS.beep(ok ? "star" : "error");
           list.querySelectorAll("button").forEach((bb) => {
@@ -173,7 +224,7 @@
     }
     function finish() {
       box.textContent = "";
-      R.markDone();
+      if (!focus) R.markDone();
       const r = KZ.activity.mark(false);
       if (r.first) {
         const s = KZ.activity.streak().n;
@@ -202,6 +253,32 @@
       body.appendChild(a);
     } else body.appendChild(h("p", null, KZ.t("✅ Бүгінгі қайталау бітті. Ертең жаңа сұрақтар шығады.")));
     card.appendChild(body);
+    return card;
+  };
+
+  /* Басты беттегі «Қателер дәптері» картасы */
+  KZ.mistakesCard = function () {
+    const top = KZ.mistakes.top(3);
+    if (!top.length) return null;
+    const card = el("section", "card mistakes-card");
+    card.appendChild(h("b", null, KZ.t("📓 Қателер дәптері")));
+    card.appendChild(h("p", null, KZ.t("Мына тақырыптардан жиі қателесіп жүрсің. Қысқа жаттығу жасап көр:")));
+    const list = el("div", "mk-list");
+    top.forEach((x) => {
+      const row = el("div", "mk-row");
+      row.appendChild(h("span", null, x.course.emoji + " " + x.title + " · ", h("small", null, x.n + KZ.nt(x.n, " қате"))));
+      if (x.qn) {
+        const a = h("a", "btn small", KZ.t("▶ Жаттығу"));
+        a.href = "#/review/" + x.c + "/" + x.t;
+        row.appendChild(a);
+      } else {
+        const a = h("a", "btn small", KZ.t("📖 Лекция"));
+        a.href = "#/" + x.c;
+        row.appendChild(a);
+      }
+      list.appendChild(row);
+    });
+    card.appendChild(list);
     return card;
   };
 })();

@@ -1333,3 +1333,11 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 @media (prefers-reduced-motion: reduce) { .chest-box { animation: none !important; } }
 
 .rv-code { display: block; white-space: pre; overflow-x: auto; margin: 8px 0; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--sun); font-size: 16px; line-height: 1.5; font-weight: 700; }
+
+.cal-d.shield { background: #a5d8ff; }
+.shield-note { display: block; margin-top: 4px; color: var(--muted); font-weight: 700; }
+.shield-note.saving { color: #1971c2; font-weight: 800; }
+.mistakes-card p { margin: 6px 0 10px; font-weight: 700; color: var(--muted); }
+.mk-list { display: grid; gap: 8px; }
+.mk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
+.mk-row small { color: var(--muted); }

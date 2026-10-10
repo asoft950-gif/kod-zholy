@@ -93,6 +93,8 @@
     page.appendChild(KZ.dailyCard());
     const rc = KZ.reviewCard && KZ.reviewCard();
     if (rc) page.appendChild(rc);
+    const mk = KZ.mistakesCard && KZ.mistakesCard();
+    if (mk) page.appendChild(mk);
     if (KZ.assignNotice) {
       const slot = el("div", "slot"); // мұғалім тапсырмалары кейін жүктелгенде осы жерге түседі
       page.appendChild(slot);
