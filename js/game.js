@@ -34,7 +34,7 @@
   KZ.game = {
     stat() {
       const d = D();
-      return { z1: d.levels.every((l) => stars(l.id) > 0), farm: d.farm.every((l) => stars(l.id) > 0) };
+      return { z1: d.levels.every((l) => stars(l.id) > 0), z2: d.zone2.levels.every((l) => stars(l.id) > 0), farm: d.farm.every((l) => stars(l.id) > 0) };
     },
     gems: gem,
   };
@@ -98,6 +98,12 @@
       grid.appendChild(tile(l, i + 1, open, l.enemies ? (l.enemies.B ? "👾" : "⚔️") : ""));
     });
     w.appendChild(grid);
+    const z2open = stars("g9") > 0;
+    w.appendChild(h("h2", "section-title", d.zone2.name));
+    w.appendChild(h("p", "hint", z2open ? d.zone2.intro : t("🔒 2-аймақ «Матрица қарауылы» бастығын жеңгенде ашылады.")));
+    const grid2 = el("div", "gm-grid");
+    d.zone2.levels.forEach((l, i) => grid2.appendChild(tile(l, i + 1, z2open && (i === 0 || stars(d.zone2.levels[i - 1].id) > 0), l.enemies ? (l.enemies.B ? "👾" : "⚔️") : "🧩")));
+    w.appendChild(grid2);
     w.appendChild(h("h2", "section-title", "🌾 " + t("Кристалл фермасы")));
     w.appendChild(h("p", "hint", t("Код жазып егін ек, пісіп жатқанын жина. Кристалл — ойын валютасы.")));
     const fg = el("div", "gm-grid");
@@ -120,12 +126,13 @@
   let cleanup = null;
   function level(box, id) {
     const d = D();
-    const all = d.levels.concat(d.farm);
+    const all = d.levels.concat(d.zone2.levels, d.farm);
     const L = all.find((x) => x.id === id);
     if (!L) return hub(box);
     const isFarm = L.mode === "farm";
     const idx = all.indexOf(L);
-    const next = all[idx + 1] && (isFarm || all[idx + 1].mode === "walk" || stars(L.id)) ? all[idx + 1] : null;
+    const chain = isFarm ? d.farm : d.levels.concat(d.zone2.levels);
+    const next = chain[chain.indexOf(L) + 1] || null;
     box.textContent = "";
     const w = el("div", "gm");
     box.appendChild(w);
@@ -1019,7 +1026,7 @@
           case "fightstart": {
             S.fight = { x: e.x, y: e.y, name: e.name, ehp: e.ehp, emax: e.ehp, kind: enemySpec(e.c, e.x, e.y).kind };
             S.hp = e.mhp;
-            S.hpmax = e.mhp;
+            S.hpmax = e.mmax || e.mhp;
             S.banner = { s: (e.boss ? "👾 " : "⚔️ ") + e.name + "!", c: e.boss ? "#ff6b6b" : "#ffd23f" };
             paintHud();
             if (!(await wait(800, my))) return false;

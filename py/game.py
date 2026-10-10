@@ -79,6 +79,7 @@ class World:
         self.cur_line = 0
         self.fought = 0
         self.ns = {}
+        self.heals_left = self.hero["heals"]
 
     # ---------- көмекші ----------
     def emit(self, t, **kw):
@@ -145,12 +146,13 @@ class World:
         g = self.ns
         fn = g.get("shaiqas") or g.get("fight") or g.get("soqqy")
         if fn is None:
-            self.emit("fightstart", x=x, y=y, c=c, name=spec["name"], ehp=spec["hp"], mhp=self.hp, boss=c == "B")
+            self.emit("fightstart", x=x, y=y, c=c, name=spec["name"], ehp=spec["hp"], mhp=self.hp, mmax=self.hero["hp"], boss=c == "B")
             raise GameError(T("Жау шықты! Шайқас үшін def shaiqas(men, zhau): функциясын жаз."))
-        me = Fighter("Бит", self.hp, self.hero["atk"], heals=self.hero["heals"])
+        me = Fighter("Бит", self.hp, self.hero["atk"], heals=self.heals_left)
+        me.max = self.hero["hp"]
         en = Fighter(spec["name"], spec["hp"], spec["atk"], tur=spec.get("tur", ""))
         heavy = spec.get("heavy", 0)
-        self.emit("fightstart", x=x, y=y, c=c, name=en.at, ehp=en.max, mhp=me.max, boss=c == "B", heals=me.heals)
+        self.emit("fightstart", x=x, y=y, c=c, name=en.at, ehp=en.max, mhp=me.hp, mmax=me.max, boss=c == "B", heals=me.heals)
         rnd = 0
         while me.hp > 0 and en.hp > 0:
             rnd += 1
@@ -192,6 +194,7 @@ class World:
                 me.hp = max(0, me.hp - dmg_m)
             self.emit("round", n=rnd, act=act, de=dmg_e, dm=dmg_m, heal=heal, mhp=me.hp, ehp=en.hp, heavy=en.auyr, heals=me.heals)
         self.hp = me.hp if me.hp > 0 else 0
+        self.heals_left = me.heals
         if me.hp <= 0:
             self.emit("fightend", win=False)
             raise GameError(T("Бит шайқаста жеңілді. Стратегияны өзгертіп көр!"))

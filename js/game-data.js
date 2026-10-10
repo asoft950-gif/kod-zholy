@@ -4,6 +4,7 @@
   "use strict";
   const t = KZ.t;
   const HERO = { hp: 14, atk: 4, heals: 2 };
+  const HERO2 = { hp: 20, atk: 5, heals: 3 };
 
   KZ.gameData = () => ({
     zone: { id: "z1", name: t("1-аймақ: Бастау даласы"), intro: t("Бит Матрицаның ішінде ұйықтап қалды. Сен кодпен оны жол бойымен жүргізіп, шығатын порталға жеткізуің керек!") },
@@ -84,6 +85,64 @@
         start: "def shaiqas(men, zhau):\n    if zhau.auyr:\n        return \"qorgan\"\n    return \"ur\"\n\nalga(8)\n",
       },
     ],
+    zone2: {
+      id: "z2",
+      name: t("2-аймақ: Функциялар қаласы"),
+      intro: t("Матрицаның ішкі қаласы. Мұндағы жолдар күрделірек: қайталанатын қадамдарды функцияға жина, жауларды ақылмен жең."),
+      levels: [
+        {
+          id: "h1", mode: "walk", dir: 1, par: 8, title: t("Баспалдақ"),
+          story: t("Баспалдақтың әр сатысы бірдей: алға жүр, төмен бұрыл, алға жүр, қайта оңға бұрыл. Қайталанатын бөлікті def арқылы функцияға жина да, оны шақыр."),
+          goal: t("Баспалдақпен порталға жет"),
+          map: ["########", "#S.#####", "##..####", "###..###", "####..##", "#####.E#", "########"],
+          learn: ["def kadam():", "kadam()"],
+          start: "def kadam():\n    alga()\n    onga()\n    alga()\n    solga()\n\n",
+        },
+        {
+          id: "h2", mode: "walk", dir: 1, par: 6, title: t("Параметрлі функция"),
+          story: t("Функцияға сан беруге болады: def jur(n): — n қадам жүріп, бұрыл. Жолдың әр бөлігі әртүрлі ұзындықта."),
+          goal: t("Тиындарды жинап, порталға жет"),
+          map: ["########", "#S.c.c.#", "######.#", "#E.c.c.#", "########"],
+          learn: ["def jur(n):", "jur(5)"],
+          start: "def jur(n):\n    alga(n)\n    onga()\n\n",
+        },
+        {
+          id: "h3", mode: "walk", dir: 1, par: 12, title: t("Лабиринт"),
+          story: t("Жолдың ұзындығы белгісіз. Функцияға while zhol_bos(): alga() жаз да, әр бұрыштан кейін қайта шақыр."),
+          goal: t("Порталға жет"),
+          map: ["#########", "#S.....##", "######.##", "#......##", "#.#######", "#.......E", "#########"],
+          learn: ["def zhur():", "while zhol_bos():"],
+          start: "def zhur():\n    while zhol_bos():\n        alga()\n\nzhur()\n",
+        },
+        {
+          id: "h4", mode: "walk", dir: 1, par: 7, hero: HERO2, title: t("Жұп пен тақ"),
+          story: t("Glitch әр екінші раундта ауыр соққы береді. zhau.kezek — раунд нөмірі. kezek % 2 == 0 болса — жұп раунд: қорған!"),
+          goal: t("Glitch-ті жең де, порталға жет"),
+          map: ["#########", "#S..M..E#", "#########"],
+          enemies: { M: { name: "Glitch", hp: 20, atk: 5, heavy: 2, kind: "bug" } },
+          learn: ["zhau.kezek % 2 == 0"],
+          start: "def shaiqas(men, zhau):\n    return \"ur\"\n\nalga(6)\n",
+        },
+        {
+          id: "h5", mode: "walk", dir: 1, par: 10, hero: HERO2, title: t("Екі жау"),
+          story: t("Жолда екі жау бар, денсаулық пен емделу саның олардың арасында сақталады. Бірінші жаудан кейін күшіңді үнемде!"),
+          goal: t("Екі жауды да жең де, порталға жет"),
+          map: ["############", "#S..M..M..E#", "############"],
+          enemies: { "4,1": { name: "Slime", hp: 10, atk: 4, kind: "slime" }, "7,1": { name: "Bug", hp: 22, atk: 4, heavy: 3, kind: "bug" } },
+          learn: ["men.hp", "men.heals"],
+          start: "def shaiqas(men, zhau):\n    return \"ur\"\n\nalga(8)\n",
+        },
+        {
+          id: "h6", mode: "walk", dir: 1, par: 12, hero: HERO2, title: t("Агент Матрица"),
+          story: t("Екінші аймақтың бастығы: Агент ауыр соққыны әр 3-раундта береді және қатты соғады. Қорған, емделіп ал, соқ — үшеуін де қолдан."),
+          goal: t("Агентті жең де, порталға жет"),
+          map: ["###########", "#S...B...E#", "###########"],
+          enemies: { B: { name: t("Агент"), hp: 30, atk: 4, heavy: 3, kind: "boss" } },
+          learn: ["if / elif / else", "men.heals"],
+          start: "def shaiqas(men, zhau):\n    if zhau.auyr:\n        return \"qorgan\"\n    return \"ur\"\n\nalga(8)\n",
+        },
+      ],
+    },
     farm: [
       {
         id: "f1", mode: "farm", dir: 1, par: 9, goal: 5, ripe: 3, title: t("Алғашқы егін"),
