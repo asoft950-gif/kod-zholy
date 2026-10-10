@@ -322,7 +322,7 @@
       if (!s.still) P.push(`<g class="hf-e2"><path d="M69 130C73 118 87 118 91 130M109 130C113 118 127 118 131 130" fill="none" stroke="#1c1240" stroke-width="6" stroke-linecap="round"/></g>`);
       P.push(`<path class="hf-m1" d="M92 150C96 156 104 156 108 150" fill="none" ${S}/>`);
       if (!s.still) P.push(`<g class="hf-m2"><path d="M87 145C87 163 113 163 113 145Z" fill="#5a1e52" ${S}/><ellipse cx="100" cy="156" rx="7" ry="3.5" fill="#ff7eb6"/></g>`);
-      P.push(`<path class="hf-m3" d="M91 156C95 148 105 148 109 156" fill="none" ${S}/><path class="hf-sweat" d="M152 96C147 105 147 111 152 111C157 111 157 105 152 96Z" fill="#9fe3ff" stroke="${INK}" stroke-width="2.5"/>`);
+      if (!s.still) P.push(`<path class="hf-m3" d="M91 156C95 148 105 148 109 156" fill="none" ${S}/><path class="hf-sweat" d="M152 96C147 105 147 111 152 111C157 111 157 105 152 96Z" fill="#9fe3ff" stroke="${INK}" stroke-width="2.5"/>`);
       const neck = get("neck");
       if (neck) P.push(draw(neck));
       const face = get("face");
@@ -353,6 +353,54 @@
     },
   });
 
+
+
+  /* ---------- Жаңа зат ашылғанда: анимациялы терезе ---------- */
+  const popQ = [];
+  let popOpen = false;
+  function nextPop() {
+    if (popOpen || !popQ.length) return;
+    const it = popQ.shift();
+    popOpen = true;
+    const ov = el("div", "unl-ov");
+    ov.setAttribute("role", "dialog");
+    ov.setAttribute("aria-modal", "true");
+    const box = el("div", "unl-box" + (it.legend ? " legend" : ""));
+    for (let i = 0; i < 22; i++) {
+      const c = el("i", "unl-c");
+      c.style.cssText = `--x:${Math.round(Math.random() * 100)}%;--d:${(Math.random() * 1.2).toFixed(2)}s;--h:${Math.round(Math.random() * 360)};--r:${Math.round(Math.random() * 360)}deg`;
+      box.appendChild(c);
+    }
+    const fig = el("div", "unl-fig");
+    fig.innerHTML = hero.svg({ color: ensure().color, eq: { [it.slot]: it.id }, preview: true });
+    const x = h("button", "btn", KZ.t("Жабу"));
+    x.type = "button";
+    const w = h("button", "btn primary", KZ.t("👕 Киіп көр"));
+    w.type = "button";
+    const close = () => {
+      ov.classList.add("out");
+      setTimeout(() => {
+        ov.remove();
+        popOpen = false;
+        nextPop();
+      }, 250);
+    };
+    x.addEventListener("click", close);
+    w.addEventListener("click", () => {
+      hero.equip(it.slot, it.id);
+      hero.refresh();
+      close();
+    });
+    ov.addEventListener("click", (e) => e.target === ov && close());
+    box.append(h("div", "unl-tag", it.legend ? KZ.t("✨ АҢЫЗ ЗАТ ✨") : KZ.t("🎁 Жаңа зат!")), fig, h("b", "unl-name", it.n), h("small", null, need(it)), h("div", "unl-btns", w, x));
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    w.focus();
+  }
+  hero.unlockPopup = (items) => {
+    items.forEach((i) => popQ.push(i));
+    setTimeout(nextPop, 700);
+  };
 
   /* ---------- Сабақтағы көмекші: Бит тапсырма мен лекцияда сөйлейді ---------- */
   const SAY = {
@@ -442,6 +490,65 @@
     },
   });
 
+
+  /* Бөлісу картасын PNG етіп сызу (сервер керек емес) */
+  function shareCard(leg, legN, ach, achN) {
+    const s = ensure();
+    const svg = hero.svg({ color: s.color, eq: s.eq, still: true });
+    const img = new Image();
+    img.onload = () => {
+      const W = 720;
+      const H = 900;
+      const cv = document.createElement("canvas");
+      cv.width = W;
+      cv.height = H;
+      const g = cv.getContext("2d");
+      const bgr = g.createLinearGradient(0, 0, 0, H);
+      bgr.addColorStop(0, "#fff4c9");
+      bgr.addColorStop(1, "#d0bfff");
+      g.fillStyle = bgr;
+      g.fillRect(0, 0, W, H);
+      g.fillStyle = "#ffffff";
+      g.strokeStyle = INK;
+      g.lineWidth = 6;
+      g.beginPath();
+      g.roundRect(60, 60, W - 120, H - 120, 40);
+      g.fill();
+      g.stroke();
+      g.drawImage(img, 160, 120, 400, 430);
+      g.fillStyle = INK;
+      g.textAlign = "center";
+      const nm = (KZ.auth && KZ.auth.profile && KZ.auth.profile.full_name) || "Bitlings";
+      g.font = "800 44px system-ui, sans-serif";
+      g.fillText(nm.slice(0, 22), W / 2, 610);
+      g.font = "700 30px system-ui, sans-serif";
+      g.fillText("✨ " + leg + "/" + legN + "   🏆 " + ach + "/" + achN + "   🔥 " + KZ.activity.best(), W / 2, 670);
+      g.font = "700 23px system-ui, sans-serif";
+      g.fillStyle = "#6c5ce7";
+      g.fillText(KZ.t("Python, HTML, CSS, JS, Kotlin, SQL үйреніп жатыр"), W / 2, 740);
+      g.font = "800 30px system-ui, sans-serif";
+      g.fillText("bitlings-kz.vercel.app", W / 2, 800);
+      cv.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], "bitlings.png", { type: "image/png" });
+        try {
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: "Bitlings" });
+            return;
+          }
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "bitlings.png";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }, "image/png");
+    };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
   /* ---------- Гардероб беті ---------- */
   KZ.heroPage = function (root) {
     root.textContent = "";
@@ -484,7 +591,38 @@
     const sa = KZ.activity.streak().n;
     wrap.appendChild(h("small", null, KZ.t("🔥 Қазіргі серия: ") + sa + KZ.t(" күн · ең ұзағы: ") + KZ.activity.best()));
     const lists = el("div", "hero-lists");
+    const have0 = () => ITEMS.filter((i) => hero.owned(i, s)).length;
     const have = ITEMS.filter((i) => hero.owned(i, s)).length;
+    /* ---------- Витрина: аңыз заттар, көрсеткіштер, бөлісу ---------- */
+    const vit = el("section", "card hero-vit");
+    const legAll = ITEMS.filter((i) => i.legend);
+    const legHave = legAll.filter((i) => hero.owned(i, s));
+    const achAll = KZ.ach.defs();
+    const achHave = achAll.filter((a) => KZ.ach.unlocked()[a.id]).length;
+    vit.appendChild(h("h2", "section-title", KZ.t("🏅 Витрина")));
+    const st = el("div", "vit-stats");
+    [
+      ["✨", legHave.length + " / " + legAll.length, KZ.t("аңыз зат")],
+      ["🎽", have0() + " / " + ITEMS.length, KZ.t("барлық зат")],
+      ["🏆", achHave + " / " + achAll.length, KZ.t("жетістік")],
+      ["🔥", String(KZ.activity.best()), KZ.t("ең ұзақ серия")],
+    ].forEach(([e, v, t]) => st.appendChild(h("div", "vit-stat", h("span", null, e), h("b", null, v), h("small", null, t))));
+    vit.appendChild(st);
+    const shelf = el("div", "vit-shelf");
+    legAll.forEach((i) => {
+      const ok = legHave.includes(i);
+      const c = el("div", "vit-slot" + (ok ? " on" : ""));
+      const f = el("span", "hi-fig");
+      f.innerHTML = ok ? hero.svg({ color: s.color, eq: { [i.slot]: i.id }, preview: true }) : "🔒";
+      c.append(f, h("small", null, i.n));
+      shelf.appendChild(c);
+    });
+    vit.appendChild(shelf);
+    const share = h("button", "btn primary", KZ.t("📤 Бөлісу (сурет)"));
+    share.type = "button";
+    share.addEventListener("click", () => shareCard(legHave.length, legAll.length, achHave, achAll.length));
+    vit.appendChild(share);
+    page.appendChild(vit);
     page.appendChild(h("h2", "section-title", KZ.t("Гардероб · ") + have + " / " + ITEMS.length));
     SLOTS.forEach((sl) => {
       const sec = el("section", "card hero-slot");
@@ -550,7 +688,7 @@
       if (!silent && fresh && fresh.length) {
         const items = hero.newFor(fresh.map((a) => a.id));
         hero.cheer();
-        if (items.length) setTimeout(() => KZ.toast("🎁", KZ.t("Жаңа зат: ") + items.map((i) => i.n).join(", "), KZ.t("Кейіпкер бетінде киіп көр")), 900);
+        if (items.length) hero.unlockPopup(items);
       }
       return fresh;
     };
