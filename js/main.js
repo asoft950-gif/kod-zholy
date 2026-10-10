@@ -187,6 +187,13 @@
   }
 
   window.addEventListener("hashchange", route);
+  /* Басқа құрылғыдан келген деректер түскенде басты бет/кабинет жаңарады (жазып отырған болсаң тиіспейді) */
+  window.addEventListener("kz-synced", () => {
+    const a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+    const p = location.hash.replace(/^#\/?/, "").split("/")[0];
+    if (p === "" || p === "account") route();
+  });
   route();
 
   /* Офлайн жұмыс және «Телефонға орнату» */

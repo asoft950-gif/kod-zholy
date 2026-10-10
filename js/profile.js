@@ -35,6 +35,27 @@
       return;
     }
     const p = r.profile;
+    const again = () => page(box, id);
+    if (r.locked) {
+      /* жабық профиль: тек аты мен достық түймесі */
+      const lk = el("section", "card prof-head");
+      lk.appendChild(el("div", "prof-fig", "🔒"));
+      const li = el("div", "prof-info");
+      li.appendChild(h("h1", null, p.full_name));
+      li.appendChild(h("div", "prof-meta", h("span", "chip", A.roleLabel(p.role))));
+      li.appendChild(h("p", "hint", KZ.t("Бұл профиль жабық. Дос болсаң, көре аласың.")));
+      lk.appendChild(li);
+      wrap.appendChild(lk);
+      const la = el("div", "prof-acts");
+      if (KZ.social) la.appendChild(KZ.social.relButtons(r.rel, id, again));
+      if (r.can_msg) {
+        const m = h("a", "btn primary", KZ.t("💬 Хат жазу"));
+        m.href = "#/account/msg/" + id;
+        la.appendChild(m);
+      }
+      wrap.appendChild(la);
+      return;
+    }
     const isStudent = p.role === "student";
     const ev = isStudent && KZ.ach && KZ.ach.evalFor ? KZ.ach.evalFor(r) : null;
 
@@ -65,11 +86,14 @@
       const hbtn = h("a", "btn", KZ.t("🧥 Гардероб"));
       hbtn.href = "#/account/hero";
       acts.append(e, hbtn);
-      acts.appendChild(h("small", "hint", KZ.t("Басқалар сені осылай көреді.")));
+      acts.appendChild(h("small", "hint", (p.visibility === "public" ? KZ.t("🌍 Профильің ашық: барлығы көреді.") : KZ.t("🔒 Профильің жабық: сыныптастар мен достар көреді.")) + " " + KZ.t("Өзгерту: кабинет → Профиль → Құпиялылық.")));
     } else {
-      const m = h("a", "btn primary", KZ.t("💬 Хат жазу"));
-      m.href = "#/account/msg/" + id;
-      acts.appendChild(m);
+      if (r.can_msg !== false) {
+        const m = h("a", "btn primary", KZ.t("💬 Хат жазу"));
+        m.href = "#/account/msg/" + id;
+        acts.appendChild(m);
+      } else acts.appendChild(h("small", "hint", KZ.t("Бұл адам тек достарынан хат қабылдайды.")));
+      if (KZ.social) acts.appendChild(KZ.social.relButtons(r.rel, id, again));
     }
     wrap.appendChild(acts);
 

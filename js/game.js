@@ -21,12 +21,9 @@
     return st;
   };
   const save = () => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(st));
-    } catch (e) {
-      /* үнсіз */
-    }
+    KZ.store.set(KEY, st); // KZ.store арқылы: бұлтпен синхрондалады
   };
+  window.addEventListener("kz-synced", () => (st = null)); // басқа құрылғыдан келген деректі қайта оқу
   const stars = (id) => load().s[id] || 0;
   const D = () => KZ.gameData();
   const gem = () => Object.values(load().b).reduce((a, b) => a + b, 0);

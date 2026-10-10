@@ -503,5 +503,56 @@
     return true;
   }
 
-  KZ.views = { home, course, lecture };
+  /* Тапсырма бетінен лекцияны терезеде ашу (код жоғалмайды, бет ауыспайды) */
+  function lectureModal(c, l) {
+    const old = document.querySelector(".lec-modal");
+    if (old) old.remove();
+    const back = el("div", "lec-modal");
+    const box = el("div", "lec-box");
+    box.style.setProperty("--c", c.color);
+    const head = el("div", "lec-head");
+    const topic = (c.topics || []).find((t) => t.id === l.topic);
+    head.appendChild(h("div", "lecture-meta", (topic ? topic.emoji + " " + topic.title + " · " : "") + l.minutes + KZ.t(" мин")));
+    const x = h("button", "btn small", KZ.t("✕ Жабу"));
+    x.type = "button";
+    head.appendChild(x);
+    box.appendChild(head);
+    box.appendChild(h("h2", "lecture-title", l.title));
+    const prose = el("article", "prose");
+    renderBlocks(c, l.blocks, prose);
+    box.appendChild(prose);
+    const foot = el("div", "lecture-foot");
+    const readBtn = el("button", "btn");
+    readBtn.type = "button";
+    const paint = () => {
+      const r = KZ.read.has(c.id, l.id);
+      readBtn.textContent = r ? KZ.t("✅ Оқылды") : KZ.t("☑ Оқыдым деп белгіле");
+      readBtn.classList.toggle("primary", !r);
+    };
+    paint();
+    readBtn.addEventListener("click", () => {
+      KZ.read.toggle(c.id, l.id);
+      paint();
+    });
+    const back2 = h("button", "btn primary", KZ.t("← Тапсырмаға қайту"));
+    back2.type = "button";
+    foot.append(readBtn, back2);
+    box.appendChild(foot);
+    back.appendChild(box);
+    const close = () => {
+      back.remove();
+      document.body.classList.remove("lec-open");
+      document.removeEventListener("keydown", onKey);
+    };
+    const onKey = (e) => e.key === "Escape" && close();
+    x.addEventListener("click", close);
+    back2.addEventListener("click", close);
+    back.addEventListener("click", (e) => e.target === back && close());
+    document.addEventListener("keydown", onKey);
+    document.body.classList.add("lec-open");
+    document.body.appendChild(back);
+    box.scrollTop = 0;
+  }
+
+  KZ.views = { home, course, lecture, lectureModal };
 })();

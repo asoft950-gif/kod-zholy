@@ -650,6 +650,11 @@
     $("#solutionText").hidden = true;
     $("#solutionText").textContent = level.solution;
     $("#solutionBtn").hidden = true;
+    /* Осы тапсырма тақырыбының лекциясы бар болса — батырма көрінеді */
+    const lecBtn = $("#lecBtn");
+    const lec = !level.sandbox && !level.assign ? (course.lectures || []).find((l) => String(l.topic) === KZ.topicOf(level)) : null;
+    lecBtn.hidden = !lec;
+    lecBtn.onclick = lec ? () => KZ.views.lectureModal(course, lec) : null;
     const back = $("#backLink");
     if (level.assign) {
       back.href = level.assign.manager ? "#/teacher" : "#/account";

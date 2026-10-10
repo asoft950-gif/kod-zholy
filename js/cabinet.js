@@ -420,7 +420,7 @@
       /* Қойындылар: профиль, жетістіктер, кейіпкер, хабарламалар */
       const tabs = el("nav", "cab-tabs");
       tabs.setAttribute("aria-label", KZ.t("Кабинет бөлімдері"));
-      [["", KZ.t("👤 Профиль")], ["ach", KZ.t("🏆 Жетістіктер")], ["hero", KZ.t("🎽 Кейіпкерім")], ["msg", KZ.t("💬 Хабарламалар")]].forEach(([id, label]) => {
+      [["", KZ.t("👤 Профиль")], ["ach", KZ.t("🏆 Жетістіктер")], ["hero", KZ.t("🎽 Кейіпкерім")], ["msg", KZ.t("💬 Хабарламалар")], ["friends", KZ.t("👥 Достар")]].forEach(([id, label]) => {
         const a = h("a", "cab-tab" + ((tab || "") === id ? " on" : ""), label);
         a.href = "#/account" + (id ? "/" + id : "");
         if ((tab || "") === id) a.setAttribute("aria-current", "page");
@@ -435,16 +435,21 @@
         tabs.appendChild(a);
       });
       page.appendChild(tabs);
-      if (tab === "ach" || tab === "hero" || tab === "msg") {
+      if (tab === "ach" || tab === "hero" || tab === "msg" || tab === "friends") {
         const box = el("div", "cab-embed cab-" + tab);
         page.appendChild(box);
         if (tab === "ach") KZ.achievementsPage(box);
         else if (tab === "hero") KZ.heroPage(box);
+        else if (tab === "friends") KZ.social && KZ.social.friendsView(box);
         else if (KZ.msg) KZ.msg.view(box, arg);
         return;
       }
       page.appendChild(mySummary());
       page.appendChild(aboutCard(p, root));
+      if (KZ.social) {
+        page.appendChild(KZ.social.privacyCard(p, root));
+        page.appendChild(KZ.social.syncCard());
+      }
     }
 
     if (A.isActive()) {

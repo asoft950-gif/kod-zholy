@@ -164,6 +164,11 @@
 
     async signOut() {
       try {
+        if (KZ.sync) await Promise.race([KZ.sync.flush(), new Promise((r) => setTimeout(r, 4000))]); // шығар алдында соңғы өзгерісті жіберу
+      } catch (e) {
+        /* маңызды емес */
+      }
+      try {
         await client.auth.signOut();
       } catch (e) {
         /* маңызды емес */
