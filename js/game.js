@@ -31,7 +31,7 @@
   KZ.game = {
     stat() {
       const d = D();
-      return { z1: d.levels.every((l) => stars(l.id) > 0), z2: d.zone2.levels.every((l) => stars(l.id) > 0), farm: d.farm.every((l) => stars(l.id) > 0) };
+      return { z1: d.levels.every((l) => stars(l.id) > 0), z2: d.zone2.levels.every((l) => stars(l.id) > 0), z3: d.zone3.levels.every((l) => stars(l.id) > 0), farm: d.farm.every((l) => stars(l.id) > 0) };
     },
     gems: gem,
     stars,
@@ -121,6 +121,12 @@
     const grid2 = el("div", "gm-grid");
     d.zone2.levels.forEach((l, i) => grid2.appendChild(tile(l, i + 1, z2open && (i === 0 || stars(d.zone2.levels[i - 1].id) > 0), l.enemies ? (l.enemies.B ? "👾" : "⚔️") : "🧩")));
     w.appendChild(grid2);
+    const z3open = stars("h6") > 0;
+    w.appendChild(h("h2", "section-title", d.zone3.name));
+    w.appendChild(h("p", "hint", z3open ? d.zone3.intro : t("🔒 3-аймақ «Агент Матрица» бастығын жеңгенде ашылады.")));
+    const grid3 = el("div", "gm-grid");
+    d.zone3.levels.forEach((l, i) => grid3.appendChild(tile(l, i + 1, z3open && (i === 0 || stars(d.zone3.levels[i - 1].id) > 0), l.enemies ? (l.enemies.B ? "👾" : "⚔️") : "📦")));
+    w.appendChild(grid3);
     w.appendChild(h("h2", "section-title", "🌾 " + t("Кристалл фермасы")));
     w.appendChild(h("p", "hint", t("Код жазып егін ек, пісіп жатқанын жина. Кристалл — ойын валютасы.")));
     const fg = el("div", "gm-grid");
@@ -143,12 +149,12 @@
   let cleanup = null;
   function level(box, id) {
     const d = D();
-    const all = d.levels.concat(d.zone2.levels, d.farm);
+    const all = d.levels.concat(d.zone2.levels, d.zone3.levels, d.farm);
     const L = all.find((x) => x.id === id);
     if (!L) return hub(box);
     const isFarm = L.mode === "farm";
     const idx = all.indexOf(L);
-    const chain = isFarm ? d.farm : d.levels.concat(d.zone2.levels);
+    const chain = isFarm ? d.farm : d.levels.concat(d.zone2.levels, d.zone3.levels);
     const next = chain[chain.indexOf(L) + 1] || null;
     box.textContent = "";
     const w = el("div", "gm");
@@ -245,10 +251,13 @@
       ["def", "def jur(n):\n    ", t("өз функцияңды жаса"), true],
     ];
     if (isFarm) api.push(["ek()", "ek()", t("тұқым ек"), true], ["zhi()", "zhi()", t("пісіп тұрғанды жина"), true], ["pisti()", "pisti()", t("осы жердегі егін піскен бе?"), false]);
+    if (L.lists) {
+      api.push(["list", "qadam = [3, 2, 3]\n", t("тізім (list): бірнеше мәнді бірге сақтайды"), true], ["for in list", "for n in qadam:\n    ", t("тізімнің әр элементі үшін"), true], ["qadam[0]", "qadam[0]", t("тізімнің бірінші элементі (индекс 0)"), false], ["len(qadam)", "len(qadam)", t("тізім ұзындығы"), false], ["dict", "kom = {\"A\": alga}\n", t("сөздік (dict): кілт → мән"), true], ["kom[h]()", "kom[h]()", t("сөздіктен кілт бойынша команданы алып орында"), true]);
+    }
     if (L.enemies) {
       api.push(["def shaiqas", "def shaiqas(men, zhau):\n    return \"ur\"\n", t("әр раундта шақырылады; 'ur', 'qorgan' не 'emde' қайтар"), true]);
       api.push(["return ur", "return \"ur\"", t("жауды ұр"), true], ["return qorgan", "return \"qorgan\"", t("қорған"), true], ["return emde", "return \"emde\"", t("емделу"), true]);
-      api.push(["men.hp", "men.hp", t("денсаулығың"), false], ["men.heals", "men.heals", t("емделу саны"), false], ["zhau.hp", "zhau.hp", t("жау денсаулығы"), false], ["zhau.auyr", "zhau.auyr", t("ауыр соққы келе ме"), false], ["zhau.kezek", "zhau.kezek", t("раунд нөмірі"), false]);
+      api.push(["men.hp", "men.hp", t("денсаулығың"), false], ["men.heals", "men.heals", t("емделу саны"), false], ["zhau.hp", "zhau.hp", t("жау денсаулығы"), false], ["zhau.auyr", "zhau.auyr", t("ауыр соққы келе ме"), false], ["zhau.kezek", "zhau.kezek", t("раунд нөмірі"), false], ["zhau.tur", "zhau.tur", t("жау түрі: \"slime\", \"bug\", \"boss\""), false]);
     }
     api.forEach(([lab, code, desc, stmt]) => {
       const b = el("button", "gm-chipbtn", lab);

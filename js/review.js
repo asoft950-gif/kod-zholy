@@ -40,6 +40,7 @@
       KZ.store.set(MK, m);
     },
     score: (c, t) => (mst()[c + "|" + t] || {}).n || 0,
+    count: () => Object.keys(mst()).length,
     /* ең қиын тақырыптар: ең кемі 2 қате */
     top(k) {
       return Object.entries(mst())
@@ -170,11 +171,32 @@
     root.appendChild(page);
 
     let qs;
-    if (focus) {
+    if (focus && focus.all) {
+      // барлық қате тақырыптардан аралас жаттығу: қатесі көп тақырып жиірек түседі (күнделікті 5-ке есептелмейді)
+      const weak = shuffle(bank.filter((b) => KZ.mistakes.score(b.c, b.t) > 0));
+      weak.sort((a, b) => KZ.mistakes.score(b.c, b.t) - KZ.mistakes.score(a.c, a.t));
+      const seen = {};
+      qs = [];
+      // әр тақырыптан кезекпен алу, ең қиыны алдымен
+      for (let round = 0; round < 3 && qs.length < 8; round++)
+        weak.forEach((b) => {
+          const k = b.c + "|" + b.t;
+          if (qs.length < 8 && (seen[k] || 0) === round && !qs.includes(b)) {
+            seen[k] = round + 1;
+            qs.push(b);
+          }
+        });
+      qs = shuffle(qs);
+    } else if (focus) {
       // таңдалған тақырып бойынша жаттығу (күнделікті 5-ке есептелмейді)
       back.href = "#/";
       qs = shuffle(bank.filter((b) => b.c === focus.c && b.t === focus.t)).slice(0, PER_DAY);
     } else qs = R.doneToday() ? [] : R.session(PER_DAY - R.answeredToday()); // бет жаңартқанда 5-тен асып кетпейді
+    if (!qs.length && focus && focus.all) {
+      box.appendChild(h("h2", null, KZ.t("🎉 Қате тақырып қалмады")));
+      box.appendChild(h("p", null, KZ.t("Қазір қателер дәптерің таза. Жаңа қате шықса, осында жаттығу табылады.")));
+      return;
+    }
     if (!qs.length) {
       const c = R.counts();
       box.appendChild(h("h2", null, c.pool ? KZ.t("✅ Бүгінгі қайталау бітті") : KZ.t("Әзірге қайталайтын тақырып жоқ")));
@@ -209,6 +231,16 @@
           });
           if (!ok) b.classList.add("bad");
           box.appendChild(h("div", "rv-why " + (ok ? "good" : "bad"), h("b", null, ok ? KZ.t("✅ Дұрыс!") : KZ.t("❌ Дұрыс жауап: ")), ok ? "" : rich(correct), x.why ? h("p", null, rich(x.why)) : null));
+          if (!ok) {
+            // қателессең, сол тақырыптың лекциясына сілтеме
+            const lec = (course.lectures || []).find((l) => String(l.topic) === x.t);
+            if (lec) {
+              const la = h("a", "btn small", KZ.t("📖 Лекцияны қайта оқу"));
+              la.href = "#/" + course.id + "/lecture/" + lec.id;
+              la.target = "_blank";
+              box.appendChild(la);
+            }
+          }
           const next = el("button", "btn primary", i + 1 < qs.length ? KZ.t("Келесі →") : KZ.t("Аяқтау"));
           next.type = "button";
           next.addEventListener("click", () => {
@@ -232,6 +264,10 @@
       }
       box.appendChild(h("h2", null, right === qs.length ? KZ.t("🏆 Тамаша! Бәрі дұрыс") : "👍 " + right + " / " + qs.length));
       box.appendChild(h("p", null, KZ.t("Қателескен сұрақтар ертең қайта шығады, дұрыс жауаптар сирек қайталанады.")));
+      if (focus && focus.all) {
+        const left = KZ.mistakes.count();
+        box.appendChild(h("p", null, left ? KZ.t("Әлі қате тақырып: ") + left + ". " + KZ.t("Қайта жаттықсаң, азаяды.") : KZ.t("🎉 Қателер дәптерің таза!")));
+      }
       const home = h("a", "btn primary", KZ.t("Басты бетке"));
       home.href = "#/";
       box.appendChild(home);
@@ -279,6 +315,9 @@
       list.appendChild(row);
     });
     card.appendChild(list);
+    const all = h("a", "btn primary small", KZ.t("🎯 Барлық қателерді жаттықтыру"));
+    all.href = "#/review/mistakes";
+    card.appendChild(all);
     return card;
   };
 })();

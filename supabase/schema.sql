@@ -1319,7 +1319,7 @@ end $$;
 
 -- 1. Ойын деңгейлері каталогқа қосылады (жұлдыз қорғанысы тек каталогтағы деңгейлерді қабылдайды)
 insert into public.level_catalog (course_id, level_id)
-select 'game', x from unnest(array['g1','g2','g3','g4','g5','g6','g7','g8','g9','h1','h2','h3','h4','h5','h6','f1','f2','f3']) as x
+select 'game', x from unnest(array['g1','g2','g3','g4','g5','g6','g7','g8','g9','h1','h2','h3','h4','h5','h6','i1','i2','i3','i4','i5','i6','f1','f2','f3']) as x
 on conflict do nothing;
 
 -- 2. Мұғалім ойын деңгейін де бере алады

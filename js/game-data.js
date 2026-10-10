@@ -5,6 +5,7 @@
   const t = KZ.t;
   const HERO = { hp: 14, atk: 4, heals: 2 };
   const HERO2 = { hp: 20, atk: 5, heals: 3 };
+  const HERO3 = { hp: 16, atk: 5, heals: 3 };
 
   KZ.gameData = () => ({
     zone: { id: "z1", name: t("1-аймақ: Бастау даласы"), intro: t("Бит Матрицаның ішінде ұйықтап қалды. Сен кодпен оны жол бойымен жүргізіп, шығатын порталға жеткізуің керек!") },
@@ -140,6 +141,65 @@
           enemies: { B: { name: t("Агент"), hp: 30, atk: 4, heavy: 3, kind: "boss" } },
           learn: ["if / elif / else", "men.heals"],
           start: "def shaiqas(men, zhau):\n    if zhau.auyr:\n        return \"qorgan\"\n    return \"ur\"\n\nalga(8)\n",
+        },
+      ],
+    },
+
+    zone3: {
+      id: "z3",
+      name: t("3-аймақ: Деректер қоймасы"),
+      intro: t("Матрицаның терең қоймасы. Мұнда команданың бәрі тізімдер мен сөздіктерде сақталған: оларды оқып, жолды да, жауды да жең."),
+      levels: [
+        {
+          id: "i1", mode: "walk", dir: 1, par: 7, lists: true, title: t("Қадамдар тізімі"),
+          story: t("Жолдың әр бөлігінің ұзындығы тізімде (list) тұр. for n in qadam: — тізімнің әр элементін алады. Әр бөлікте соншама жүр де, оңға бұрыл."),
+          goal: t("Тиындарды жинап, порталға жет"),
+          map: ["######", "#S.c.#", "####.#", "#E.c.#", "######"],
+          learn: ["qadam = [3, 2, 3]", "for n in qadam:"],
+          start: "qadam = [3, 2, 3]\n# тізімнің әр элементі үшін: жүр да бұрыл\n",
+        },
+        {
+          id: "i2", mode: "walk", dir: 1, par: 11, lists: true, title: t("Индекс"),
+          story: t("Тізімнің әр элементінің нөмірі (индекс) бар: qadam[0] — бірінші, qadam[1] — екінші. len(qadam) — тізім ұзындығы. Жол сатылап жүреді: жұп индексте оңға, тақ индексте солға бұрыл."),
+          goal: t("Тиындарды жинап, порталға жет"),
+          map: ["#############", "#S.c..#######", "#####c#######", "#####...c####", "########...E#", "#############"],
+          learn: ["range(len(qadam))", "qadam[i]", "i % 2 == 0"],
+          start: "qadam = [4, 2, 3, 1, 3]\n# for i in range(len(qadam)):\n#     alga(qadam[i])\n",
+        },
+        {
+          id: "i3", mode: "walk", dir: 1, par: 7, lists: true, title: t("Сөздік"),
+          story: t("Бағдарлама әріппен жазылған: A — алға, O — оңға, S — солға. Сөздік (dict) әріпті командаға байлайды: kom = {\"A\": alga}. Сосын kom[h]() — әріпке сәйкес команданы орындайды."),
+          goal: t("Тиындарды жинап, порталға жет"),
+          map: ["##########", "#S..######", "###c######", "###...c###", "######.###", "######.cE#", "##########"],
+          learn: ["kom = {\"A\": alga}", "kom[h]()"],
+          start: "jol = \"AAOAASAAAOAASAA\"\nkom = {}  # әріп: команда\n# for h in jol:\n#     kom[h]()\n",
+        },
+        {
+          id: "i4", mode: "walk", dir: 1, par: 9, hero: HERO3, lists: true, title: t("Шайқас жоспары"),
+          story: t("Bug әр 3-раундта ауыр соққы береді. Жоспарды тізімге жаз: plan = [\"qorgan\", \"ur\", \"ur\"]. Раунд нөмірін тізім ұзындығына бөлгендегі қалдық индекс болады: plan[zhau.kezek % len(plan)]. Ауыр соққы 3-раундта: 3 % 3 = 0."),
+          goal: t("Bug-ты жең де, порталға жет"),
+          map: ["#########", "#S..M..E#", "#########"],
+          enemies: { M: { name: "Bug", hp: 20, atk: 4, heavy: 3, kind: "bug", tur: "bug" } },
+          learn: ["plan[zhau.kezek % len(plan)]"],
+          start: "plan = [\"ur\", \"ur\", \"ur\"]\n\ndef shaiqas(men, zhau):\n    return plan[zhau.kezek % len(plan)]\n\nalga(6)\n",
+        },
+        {
+          id: "i5", mode: "walk", dir: 1, par: 13, hero: HERO3, lists: true, title: t("Жау сөздігі"),
+          story: t("Екі жау: Slime мен Bug. zhau.tur — жау түрі (\"slime\" не \"bug\"). Сөздікте әр түр үшін қай денсаулықта емделуді жаз: emdeu = {\"slime\": 6, \"bug\": 8}. emdeu[zhau.tur] — осы жауға лайық шек."),
+          goal: t("Екі жауды да жең де, порталға жет"),
+          map: ["############", "#S..M..M..E#", "############"],
+          enemies: { "4,1": { name: "Slime", hp: 10, atk: 3, kind: "slime", tur: "slime" }, "7,1": { name: "Bug", hp: 18, atk: 4, heavy: 3, kind: "bug", tur: "bug" } },
+          learn: ["emdeu = {\"slime\": 6, \"bug\": 8}", "emdeu[zhau.tur]", "zhau.tur"],
+          start: "emdeu = {}  # түр: емделу шегі\n\ndef shaiqas(men, zhau):\n    return \"ur\"\n\nalga(9)\n",
+        },
+        {
+          id: "i6", mode: "walk", dir: 1, par: 13, hero: HERO3, lists: true, title: t("Деректер қожасы"),
+          story: t("Үшінші аймақтың бастығы: ауыр соққы әр 4-раундта. Жоспар тізімін жаз да (4-раундта қорған), денсаулығың 8-ге түскенде емделіп ал. Тізім мен шартты біріктір!"),
+          goal: t("Қожаны жең де, порталға жет"),
+          map: ["###########", "#S...B...E#", "###########"],
+          enemies: { B: { name: t("Қожа"), hp: 24, atk: 4, heavy: 4, kind: "boss", tur: "boss" } },
+          learn: ["plan[zhau.kezek % len(plan)]", "men.heals"],
+          start: "plan = [\"ur\", \"ur\", \"ur\", \"ur\"]\n\ndef shaiqas(men, zhau):\n    return plan[zhau.kezek % len(plan)]\n\nalga(8)\n",
         },
       ],
     },

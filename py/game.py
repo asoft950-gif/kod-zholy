@@ -44,6 +44,7 @@ class Fighter:
         self.kezek = 1
         self.auyr = False
         self.tur = kw.get("tur", "")
+        self.name = name
 
     def __repr__(self):
         return "<%s hp=%d>" % (self.at, self.hp)
