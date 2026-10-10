@@ -193,12 +193,16 @@
         const read = [];
         const rd = KZ.read._all();
         Object.keys(rd).forEach((c) => rd[c].forEach((l) => read.push({ c, l })));
+        if (KZ.game && KZ.game.cloudItems) KZ.game.cloudItems().forEach((x) => items.push(x));
         const res = await A.rpc("sync_progress", { items, read, days: KZ.activity.toCloud() });
         const merged = {};
+        const gameStars = {};
         res.progress.forEach((p) => {
+          if (p.c === "game") return (gameStars[p.l] = p.s); // ойын жұлдыздары — өз қоймасында
           merged[p.c] = merged[p.c] || {};
           merged[p.c][p.l] = p.s;
         });
+        if (KZ.game && KZ.game.fromCloud) KZ.game.fromCloud(gameStars);
         const mread = {};
         res.read.forEach((p) => {
           mread[p.c] = mread[p.c] || [];

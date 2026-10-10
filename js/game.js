@@ -34,6 +34,26 @@
       return { z1: d.levels.every((l) => stars(l.id) > 0), z2: d.zone2.levels.every((l) => stars(l.id) > 0), farm: d.farm.every((l) => stars(l.id) > 0) };
     },
     gems: gem,
+    stars,
+    /* бұлтқа: барлық жұлдыз ('game' курсы ретінде) */
+    cloudItems() {
+      const s = load().s;
+      return Object.keys(s)
+        .filter((id) => s[id] > 0)
+        .map((id) => ({ c: "game", l: id, s: Math.min(3, s[id]) }));
+    },
+    /* бұлттан келген жұлдыздармен біріктіру (үлкені жеңеді) */
+    fromCloud(map) {
+      const st2 = load();
+      let ch = false;
+      Object.keys(map || {}).forEach((id) => {
+        if ((map[id] || 0) > (st2.s[id] || 0)) {
+          st2.s[id] = map[id];
+          ch = true;
+        }
+      });
+      if (ch) save();
+    },
   };
 
   /* ---------- Python жүктеу ---------- */

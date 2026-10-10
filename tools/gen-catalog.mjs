@@ -16,6 +16,7 @@ for (const c of KZ.courses) {
   const ids = KZ.allLevels(c).map((l) => l.id);
   if (ids.length) cat[c.id] = ids;
 }
+cat.game = ["g1","g2","g3","g4","g5","g6","g7","g8","g9","h1","h2","h3","h4","h5","h6","f1","f2","f3"]; // ойын деңгейлері (js/game-data.js)
 const sql =
   "-- Автоматты жасалған (node tools/gen-catalog.mjs). Қолмен өзгертпе.\n" +
   "delete from public.level_catalog;\n" +

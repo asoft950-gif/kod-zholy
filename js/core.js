@@ -36,6 +36,9 @@ KZ.findLevel = function (course, id) {
   if (l) return { level: l, kind: "bonus" };
   return null;
 };
+/* Мұғалім берген дайын деңгейге сілтеме (ойын деңгейі — ойын бетінде) */
+KZ.levelHref = (course, id) => (course === "game" ? "#/game/" + id : "#/" + course + "/play/" + id + "/open");
+KZ.levelStars = (course, id) => (course === "game" ? (KZ.game ? KZ.game.stars(id) : 0) : KZ.progress.stars(course, id));
 KZ.topicOf = (level) => String(level.id).split(".")[0];
 /* Тақырып аяқталып, келесі тақырыптың лекциясы бар болса, соның сілтемесі (тапсырмаға тікелей өтпей, алдымен лекция оқу үшін) */
 KZ.nextLectureHref = (course, level, list, listKind) => {

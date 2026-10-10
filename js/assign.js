@@ -63,7 +63,7 @@
       await A.ready;
       if (!A.isActive() || A.profile.role !== "student") return;
       const [list, lv] = await Promise.all([A.rpc("my_assignments"), A.rpc("my_levels")]);
-      const openLv = lv.filter((x) => !Math.max(x.stars || 0, KZ.progress.stars(x.course, x.level_id)));
+      const openLv = lv.filter((x) => !Math.max(x.stars || 0, KZ.levelStars(x.course, x.level_id)));
       const open = list.filter((a) => !a.stars).concat(openLv);
       if (!open.length) return;
       const late = open.filter((a) => KZ.assign.overdue(a.due)).length;
@@ -71,7 +71,7 @@
       card.appendChild(h("div", "an-e", "📝"));
       card.appendChild(h("div", "an-t", h("b", null, KZ.t("Мұғалім ") + open.length + KZ.t(" тапсырма берді")), h("small", null, late ? late + KZ.t(" тапсырманың мерзімі өтіп кеткен") : KZ.t("Орындап, жұлдыз жина"))));
       const a = h("a", "btn primary small", KZ.t("Ашу"));
-      a.href = open.length === 1 ? (open[0].level_id ? "#/" + open[0].course + "/play/" + open[0].level_id + "/open" : "#/task/" + open[0].id) : "#/account";
+      a.href = open.length === 1 ? (open[0].level_id ? KZ.levelHref(open[0].course, open[0].level_id) : "#/task/" + open[0].id) : "#/account";
       card.appendChild(a);
       host.appendChild(card);
     };

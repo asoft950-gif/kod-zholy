@@ -537,12 +537,12 @@
     const card = el("section", "card");
     card.appendChild(h("div", "card-title", KZ.t("📝 Мұғалім тапсырмалары")));
     levels.forEach((x) => {
-      const stars = Math.max(x.stars || 0, KZ.progress.stars(x.course, x.level_id));
+      const stars = Math.max(x.stars || 0, KZ.levelStars(x.course, x.level_id));
       const late = !stars && KZ.assign.overdue(x.due);
       card.appendChild(
         link(
           "row-link" + (stars ? " done" : ""),
-          "#/" + x.course + "/play/" + x.level_id + "/open",
+          KZ.levelHref(x.course, x.level_id),
           h("span", "rl-title", levelTitle(x.course, x.level_id)),
           h("span", "rl-meta", x.class + (x.due ? " · " + x.due : "") + (late ? KZ.t(" · мерзімі өтті") : "")),
           h("span", "rl-check", stars ? "⭐".repeat(stars) : "›")
@@ -584,7 +584,7 @@
           bit,
           h("span", "rating-name", r.name + (r.me ? KZ.t(" (сен)") : "") + (lgm ? " " + lgm : "")),
           h("span", "rating-streak", r.streak > 0 ? "🔥 " + r.streak : ""),
-          h("span", "rating-stars", "⭐ " + r.stars));
+          h("span", "rating-stars", "⭐ " + r.stars + (r.game ? " · 🎮 " + r.game : "")));
       if (r.id) rowEl.href = "#/u/" + r.id;
       wrap.appendChild(rowEl);
     });
@@ -920,6 +920,11 @@
 
   /* Дайын тапсырма: курс пен деңгейді таңдау жеткілікті, ештеңе жазудың қажеті жоқ */
   function levelTitle(course, id) {
+    if (course === "game") {
+      const d = KZ.gameData();
+      const g = d.levels.concat(d.zone2.levels, d.farm).find((x) => x.id === id);
+      return g ? "🎮 " + g.title : id;
+    }
     const c = KZ.getCourse(course);
     const f = c && KZ.findLevel(c, id);
     return f ? id + " · " + f.level.title : id;
@@ -935,9 +940,26 @@
         o.value = x.id;
         course.appendChild(o);
       });
+    const og = el("option", null, "🎮 " + KZ.t("Ойын: Бит Матрицадан шығу"));
+    og.value = "game";
+    course.appendChild(og);
     const level = el("select");
     const fill = () => {
       level.textContent = "";
+      if (course.value === "game") {
+        const d = KZ.gameData();
+        [["🌍 " + d.zone.name, d.levels], ["🏙️ " + d.zone2.name, d.zone2.levels], ["🌾 " + KZ.t("Кристалл фермасы"), d.farm]].forEach(([label, list]) => {
+          const g = el("optgroup");
+          g.label = label;
+          list.forEach((l) => {
+            const o = el("option", null, l.title);
+            o.value = l.id;
+            g.appendChild(o);
+          });
+          level.appendChild(g);
+        });
+        return;
+      }
       const cr = KZ.getCourse(course.value);
       const add = (label, list) => {
         if (!list.length) return;
@@ -994,7 +1016,7 @@
       "div",
       "asg-info",
       h("b", null, levelTitle(x.course, x.level_id)),
-      h("small", null, (cr ? cr.name : x.course) + KZ.t(" · дайын тапсырма") + (x.due ? KZ.t(" · мерзімі ") + x.due + (late ? KZ.t(" (өтті)") : "") : "") + " · ✅ " + x.done + "/" + x.total)
+      h("small", null, (x.course === "game" ? KZ.t("Ойын") : cr ? cr.name : x.course) + KZ.t(" · дайын тапсырма") + (x.due ? KZ.t(" · мерзімі ") + x.due + (late ? KZ.t(" (өтті)") : "") : "") + " · ✅ " + x.done + "/" + x.total)
     );
     const detail = el("div", "asg-detail");
     detail.hidden = true;
@@ -1018,7 +1040,7 @@
     });
     const actions = el("div", "u-actions");
     actions.append(
-      link("btn small ghost", "#/" + x.course + "/play/" + x.level_id + "/open", KZ.t("👁 Көру")),
+      link("btn small ghost", KZ.levelHref(x.course, x.level_id), KZ.t("👁 Көру")),
       res,
       confirmBtn("btn small ghost", "🗑", KZ.t("Өшіру?"), async () => {
         await A.rpc("remove_level", { lid: x.id });

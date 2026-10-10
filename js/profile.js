@@ -109,6 +109,7 @@
       ["💎", ev.stats.perfect, KZ.t("3 жұлдызбен")],
       ["🔥", ev.runs.cur + " / " + ev.runs.best, KZ.t("серия: қазір / ең ұзақ")],
       ["📖", ev.stats.read, KZ.t("лекция оқыды")],
+      ["🎮", r.game || 0, KZ.t("ойын жұлдызы")],
       ["🏆", got + " / " + ev.list.length, KZ.t("жетістік")],
     ].forEach(([e, v, t]) => chips.appendChild(h("div", "det-chip", h("span", null, e), h("b", null, String(v)), h("small", null, t))));
     const stat = el("section", "card");
