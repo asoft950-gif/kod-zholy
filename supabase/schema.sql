@@ -749,6 +749,24 @@ begin
   update public.profiles set hero = clean where id = auth.uid();
 end $$;
 
+-- ---------- Апталық сандық: аптасына бір рет (құрылғыдан тәуелсіз) ----------
+alter table public.profiles add column if not exists chest_week date;
+
+create or replace function public.claim_chest(wk date) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare cur date;
+begin
+  if public.active_role() is null then raise exception 'not_active'; end if;
+  -- апта басы (дүйсенбі) және қазіргі уақытқа жақын болуы керек
+  if wk is null or extract(isodow from wk) <> 1 or wk > current_date + 1 or wk < current_date - 8 then raise exception 'bad_week'; end if;
+  select chest_week into cur from public.profiles where id = auth.uid() for update;
+  if cur is not null and cur >= wk then return false; end if;
+  update public.profiles set chest_week = wk where id = auth.uid();
+  return true;
+end $$;
+revoke all on function public.claim_chest(date) from public, anon;
+grant execute on function public.claim_chest(date) to authenticated;
+
 -- ---------- Құпиясөзді қалпына келтіру (пошта керек емес) ----------
 -- Оқушының мұғалімі не админ уақытша құпиясөз қояды. Мұғалім тек өз сыныбындағы оқушыға, админ оқушы мен мұғалімге, құрушы кез келгенге (өзінен басқа құрушыдан).
 create or replace function public.reset_password(sid uuid, new_pw text) returns void
@@ -781,7 +799,7 @@ begin
              'admin_stats','admin_users','admin_set_status','admin_set_role','admin_delete_user',
              'create_assignment','delete_assignment','class_assignments','assignment_results','my_assignments',
              'get_assignment','submit_assignment',
-             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password','set_class_rating','class_rating','my_league','save_hero')
+             'assign_level','remove_level','class_levels_list','level_results','my_levels','class_stats','reset_password','set_class_rating','class_rating','my_league','save_hero','claim_chest')
   loop
     execute format('revoke all on function %s from public, anon', f.sig);
     execute format('grant execute on function %s to authenticated', f.sig);

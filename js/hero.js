@@ -671,8 +671,23 @@
     ob.addEventListener("click", () => {
       ob.disabled = true;
       cbox.classList.add("shake");
-      setTimeout(() => {
+      setTimeout(async () => {
         cbox.classList.remove("shake");
+        /* аккаунт бар болса, аптасына бір рет серверде тексеріледі (басқа құрылғыда ашылса, қайта ашылмайды) */
+        const A = KZ.auth;
+        if (A && A.isActive && A.isActive()) {
+          try {
+            const okc = await A.rpc("claim_chest", { wk: localMonday() });
+            if (okc === false) {
+              KZ.store.set(CKEY, { week: localMonday() });
+              KZ.toast("🎁", KZ.t("Осы аптадағы сандық басқа құрылғыда ашылған"), KZ.t("Келесісі дүйсенбіде."));
+              KZ.heroPage(root);
+              return;
+            }
+          } catch (e) {
+            /* офлайн: жергілікті шектеу ғана */
+          }
+        }
         const it = hero.openChest();
         if (it) {
           cbox.textContent = "✨";
