@@ -1062,8 +1062,8 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 @keyframes hfJump { 0% { transform: translateY(0) scale(1.08, .9); } 40% { transform: translateY(-16px) scale(.95, 1.06); } 75% { transform: translateY(0) scale(1.06, .94); } 100% { transform: translateY(0) scale(1, 1); } }
 @keyframes hfAura { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.05); opacity: 1; } }
 .hero-bot { animation: none; }
-.hi-fig .hero-fig *, .hi-fig svg * { animation: none !important; }
-@media (prefers-reduced-motion: reduce) { .hero-fig svg * { animation: none !important; } }
+.hi-fig .hero-fig *, .hi-fig svg *:not(.fx) { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .hero-fig svg *, .hi-fig svg * { animation: none !important; } }
 
 /* Бит: курсор жыпылықтайды, < > құлақтар серпіледі, қуанғанда көзі күледі */
 .hero-fig svg .hf-cur { animation: hfCur 1.1s steps(1) infinite; }
@@ -1252,3 +1252,32 @@ li.CodeMirror-hint-active {
 .CodeMirror-hints { z-index: 1000; font-family: "JetBrains Mono", monospace; font-size: 14px; border: 3px solid var(--line, #1f1d36); border-radius: 12px; padding: 4px; background: var(--paper, #fff); box-shadow: 0 6px 0 rgba(31,29,54,.2); max-height: 14em; }
 .CodeMirror-hint { color: #1f1d36; border-radius: 8px; padding: 4px 8px; white-space: pre; }
 li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
+
+/* Аңыз заттары: анимация (SVG ішіндегі .fx элементтері) */
+.fx { transform-box: fill-box; transform-origin: 50% 50%; }
+.fx.d2 { animation-delay: -.6s !important; } .fx.d3 { animation-delay: -1.2s !important; } .fx.d4 { animation-delay: -1.8s !important; }
+.fx-pulse { animation: fxPulse 1.8s ease-in-out infinite; }
+.fx-twinkle { animation: fxTwinkle 2s ease-in-out infinite; }
+.fx-bit { animation: fxBit 2.4s steps(1) infinite; }
+.fx-flapL { animation: fxFlapL 1.4s ease-in-out infinite; transform-origin: 100% 60%; }
+.fx-flapR { animation: fxFlapR 1.4s ease-in-out infinite; transform-origin: 0% 60%; }
+.fx-spark { animation: fxSpark 1.8s ease-in infinite; }
+.fx-hue { animation: fxHue 6s linear infinite; }
+.fx-flutter { animation: fxFlutter 1.2s ease-in-out infinite; transform-origin: 10% 0%; }
+.fx-strum { animation: fxStrum 1.1s ease-in-out infinite; transform-origin: 50% 80%; }
+.fx-note { animation: fxNote 2.4s ease-out infinite; }
+.fx-fall { animation: fxFall 2.6s linear infinite; }
+@keyframes fxPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.25); filter: brightness(1.4); } }
+@keyframes fxTwinkle { 0%, 100% { transform: scale(.4); opacity: .2; } 50% { transform: scale(1.15); opacity: 1; } }
+@keyframes fxBit { 0% { opacity: 1; } 25% { opacity: .35; } 50% { opacity: .8; } 75% { opacity: .15; } 100% { opacity: 1; } }
+@keyframes fxFlapL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-22deg) scaleY(.92); } }
+@keyframes fxFlapR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(22deg) scaleY(.92); } }
+@keyframes fxSpark { 0% { transform: translateY(14px) scale(1); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-34px) scale(.2); opacity: 0; } }
+@keyframes fxHue { to { filter: hue-rotate(360deg); } }
+@keyframes fxFlutter { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(14deg) skewX(-6deg); } }
+@keyframes fxStrum { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes fxNote { 0% { transform: translate(0, 12px) scale(.6); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(-14px, -42px) scale(1.1); opacity: 0; } }
+@keyframes fxFall { 0% { transform: translateY(-26px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
+.rating-bit svg .fx, .hero-fig[data-still] svg .fx { animation: none !important; }
+.hero-item.legend { border-color: #fab005; background: linear-gradient(180deg, var(--paper), rgba(255, 210, 63, .22)); }
+.hero-item .hi-legend { color: #e67700; font-weight: 900; font-size: 11px; }
