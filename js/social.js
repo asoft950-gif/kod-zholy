@@ -234,5 +234,104 @@
     return card;
   }
 
-  KZ.social = { friendsView, privacyCard, syncCard, relButtons, person };
+
+  /* ---------- Push-ескертулер ---------- */
+  const VAPID = "BL_ZJCWmWaEGfefj85QA6tC4nKKndqvbEKb6orW77INel9kgxj1Iem6IrsxPChoPbPMQk1LIkBYD16puVaFY1Y0";
+  const b64 = (s) => {
+    const pad = "=".repeat((4 - (s.length % 4)) % 4);
+    const raw = atob((s + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  };
+  const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+
+  async function currentSub() {
+    const reg = await navigator.serviceWorker.ready;
+    return reg.pushManager.getSubscription();
+  }
+  async function enablePush() {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") throw new Error(t("Рұқсат берілмеді. Браузер баптауларынан хабарламаға рұқсат бер."));
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(VAPID) });
+    await A.rpc("push_subscribe", { sub: sub.toJSON() });
+  }
+  async function disablePush() {
+    const sub = await currentSub();
+    if (sub) {
+      try {
+        await A.rpc("push_unsubscribe", { ep: sub.endpoint });
+      } catch (e) {
+        /* үнсіз */
+      }
+      await sub.unsubscribe();
+    }
+  }
+  /* Рұқсат бұрыннан берілген болса, жазылымды серверге жаңартып қойып отырамыз */
+  async function refreshPush() {
+    try {
+      if (!pushSupported() || Notification.permission !== "granted" || !A.isActive()) return;
+      const sub = await currentSub();
+      if (sub) await A.rpc("push_subscribe", { sub: sub.toJSON() });
+    } catch (e) {
+      /* үнсіз */
+    }
+  }
+  A.onChange(() => refreshPush());
+
+  function pushCard() {
+    const card = el("section", "card push-card");
+    card.appendChild(h("div", "card-title", t("🔔 Ескертулер")));
+    const line = el("p", "push-line");
+    const msg = el("small", "form-msg");
+    msg.hidden = true;
+    const btn = h("button", "btn small primary");
+    btn.type = "button";
+    card.append(line, btn, msg);
+    card.appendChild(h("small", "hint", t("Жаңа хат не достық сұрауы келгенде телефонға хабарлама шығады. Хаттың мәтіні көрсетілмейді.")));
+    const paint = async () => {
+      btn.hidden = false;
+      btn.disabled = false;
+      if (!pushSupported()) {
+        btn.hidden = true;
+        line.textContent = isIos && !standalone()
+          ? t("iPhone-да ескертулер тек басты экранға қосылған қолданбада жұмыс істейді: Safari → «Бөлісу» → «Басты экранға қосу», сосын қолданбаны сол белгіден ашып, осы жерден қос.")
+          : t("Бұл браузер ескертуді қолдамайды.");
+        return;
+      }
+      if (Notification.permission === "denied") {
+        btn.hidden = true;
+        line.textContent = t("Ескертуге рұқсат жабылған. Телефон/браузер баптауларынан Bitlings үшін хабарламаны қос.");
+        return;
+      }
+      let on = false;
+      try {
+        on = Notification.permission === "granted" && !!(await currentSub());
+      } catch (e) {
+        on = false;
+      }
+      line.textContent = on ? t("✅ Ескертулер қосулы") : t("Ескертулер өшірулі");
+      btn.textContent = on ? t("🔕 Өшіру") : t("🔔 Қосу");
+      btn.classList.toggle("primary", !on);
+      btn.onclick = async () => {
+        btn.disabled = true;
+        msg.hidden = true;
+        try {
+          if (on) await disablePush();
+          else await enablePush();
+        } catch (e) {
+          msg.hidden = false;
+          msg.className = "form-msg bad";
+          msg.textContent = missing(e) || /push_subscribe/.test(e.message) ? t("Бұл мүмкіндік әлі қосылмаған (patch-push.sql іске қосылмаған).") : e.message;
+        }
+        paint();
+      };
+    };
+    paint();
+    return card;
+  }
+
+  KZ.social = { friendsView, privacyCard, syncCard, pushCard, relButtons, person };
 })();

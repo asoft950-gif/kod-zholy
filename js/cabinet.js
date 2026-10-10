@@ -448,6 +448,7 @@
       page.appendChild(aboutCard(p, root));
       if (KZ.social) {
         page.appendChild(KZ.social.privacyCard(p, root));
+        if (KZ.social.pushCard) page.appendChild(KZ.social.pushCard());
         page.appendChild(KZ.social.syncCard());
       }
     }

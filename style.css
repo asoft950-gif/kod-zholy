@@ -1536,3 +1536,5 @@ small.hint { display: block; }
 .page > *, .cab-embed, .cab-embed > .page > * { min-width: 0; }
 html, body { max-width: 100%; overflow-x: clip; }
 img, svg, canvas, video { max-width: 100%; }
+.push-card { display: grid; gap: 8px; justify-items: start; grid-template-columns: minmax(0, 1fr); }
+.push-line { margin: 0; font-weight: 700; line-height: 1.45; }

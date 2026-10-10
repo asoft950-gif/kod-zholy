@@ -1,0 +1,10 @@
+{
+  "name": "bitlings",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Bitlings: статикалық сайт + push-ескерту функциясы (api/push.js)",
+  "dependencies": {
+    "web-push": "3.6.7"
+  },
+  "engines": { "node": ">=18" }
+}

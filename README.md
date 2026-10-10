@@ -237,3 +237,8 @@ Python (12), JavaScript (8), HTML (3) және CSS (4) курстарының «
 - Профиль бетінде: «➕ Досқа қосу», жабық профильде тек аты көрінеді.
 - Тапсырма бетінде «📖 Лекция» батырмасы лекцияны терезеде ашады (код жоғалмайды).
 - SQL: `supabase/patch-sync-social.sql` (schema.sql-ге де қосылған) — Supabase SQL Editor-де бір рет іске қос.
+
+## Ойын + сынып, push-ескертулер
+
+- Ойын жұлдыздары `progress` кестесіне `game` курсы ретінде түседі (`supabase/patch-game.sql`): мұғалім «Ойын» курсынан деңгей тапсырады, рейтингте ⭐ оқу жұлдыздары мен 🎮 ойын жұлдыздары бөлек көрсетіледі.
+- Push: `sw.js` (push/notificationclick), `js/social.js` (🔔 карта), `api/push.js` (Vercel функциясы, `web-push`), `supabase/patch-push.sql` (pg_net триггері). Vercel-де `VAPID_PRIVATE` және `PUSH_SECRET` орта айнымалылары керек, `PUSH_SECRET` SQL-дегі `__PUSH_SECRET__`-пен бірдей. Хат мәтіні push-қа жіберілмейді. iPhone-да тек «Басты экранға қосылған» қолданбада жұмыс істейді.

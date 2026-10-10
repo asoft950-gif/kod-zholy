@@ -2,7 +2,7 @@
    - Сайттың өз файлдары: алдымен желіден (жаңа нұсқа), желі жоқ болса, кэштен.
    - CDN файлдары (Pyodide, CodeMirror, қаріптер): кэштен, жоқ болса, желіден алып сақтайды.
    - Supabase сұраулары (аккаунт, прогресс) ешқашан кэштелмейді. */
-const VERSION = "bitlings-5c930d7ab8";
+const VERSION = "bitlings-706e3eab58";
 const SHELL = [
   "./", "index.html", "style.css", "manifest.webmanifest", "py/runner.py",
   "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
@@ -57,11 +57,49 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (/\.supabase\.(co|in)$/.test(url.hostname)) return;
+  if (/\.supabase\.(co|in)$/.test(url.hostname) || url.pathname.startsWith("/api/")) return;
   if (url.origin === self.location.origin) {
     if (url.search.includes("code=")) return; // кіру сілтемесі (PKCE) кэштелмейді
     e.respondWith(networkFirst(req));
   } else if (CDN.test(req.url)) {
     e.respondWith(cacheFirst(req));
   }
+});
+
+/* ---------- Push-ескертулер ---------- */
+self.addEventListener("push", (e) => {
+  let d = {};
+  try {
+    d = e.data ? e.data.json() : {};
+  } catch (err) {
+    d = {};
+  }
+  e.waitUntil(
+    self.registration.showNotification(d.title || "Bitlings", {
+      body: d.body || "",
+      icon: "assets/icon-192.png",
+      badge: "assets/icon-192.png",
+      tag: d.tag || "bitlings",
+      renotify: true,
+      data: { url: d.url || "#/account/msg" },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const hash = (e.notification.data && e.notification.data.url) || "#/account/msg";
+  const target = new URL("./", self.registration.scope).href + hash;
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (list) => {
+      for (const c of list) {
+        if (c.url.startsWith(self.registration.scope)) {
+          await c.focus();
+          if ("navigate" in c) return c.navigate(target).catch(() => {});
+          return;
+        }
+      }
+      return self.clients.openWindow(target);
+    })
+  );
 });
