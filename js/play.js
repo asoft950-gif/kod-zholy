@@ -650,6 +650,7 @@
     $("#solutionText").hidden = true;
     $("#solutionText").textContent = level.solution;
     $("#solutionBtn").hidden = true;
+    shareBtn.hidden = !level.sandbox;
     /* Осы тапсырма тақырыбының лекциясы бар болса — батырма көрінеді */
     const lecBtn = $("#lecBtn");
     const lec = !level.sandbox && !level.assign ? (course.lectures || []).find((l) => String(l.topic) === KZ.topicOf(level)) : null;
@@ -740,6 +741,26 @@
   stepBtn.addEventListener("click", stepForward);
   backBtn.addEventListener("click", stepBack);
   resetBtn.addEventListener("click", invalidate);
+
+  /* Кодты сілтеме етіп бөлісу: код сілтеменің өзінде (сервер керек емес), ашқан адам Еркін алаңда көреді */
+  const shareBtn = $("#shareBtn");
+  const enc = (s) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  shareBtn.addEventListener("click", async () => {
+    const code = editor.getValue();
+    if (!code.trim()) return KZ.toast("🔗", KZ.t("Код бос"), KZ.t("Алдымен код жаз."));
+    if (code.length > 3000) return KZ.toast("🔗", KZ.t("Код тым ұзын"), KZ.t("Бөлісу үшін 3000 таңбадан аспауы керек."));
+    const url = location.origin + location.pathname + "#/" + course.id + "/play/free/s/" + enc(code);
+    try {
+      if (navigator.share) await navigator.share({ title: "Bitlings", url });
+      else {
+        await navigator.clipboard.writeText(url);
+        KZ.toast("🔗", KZ.t("Сілтеме көшірілді"), KZ.t("Досыңа жібер: ол кодыңды Еркін алаңда ашады."));
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      window.prompt(KZ.t("Сілтемені көшір:"), url);
+    }
+  });
   scrub.addEventListener("input", () => {
     if (!run) return;
     stop();

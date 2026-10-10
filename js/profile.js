@@ -138,6 +138,42 @@
     if (bars.children.length) stat.appendChild(bars);
     wrap.appendChild(stat);
 
+    /* ---------- Белсенділік күнтізбесі (соңғы 15 апта) ---------- */
+    {
+      const act = {};
+      (r.days || []).forEach((x) => (act[x.d] = x.y ? 2 : 1));
+      const WEEKS = 15;
+      const today = new Date();
+      today.setHours(12, 0, 0, 0);
+      const start = new Date(today);
+      start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - (WEEKS - 1) * 7); // дүйсенбіден басталады
+      const pad = (n) => String(n).padStart(2, "0");
+      const key = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+      const grid = el("div", "hm-grid");
+      grid.style.gridTemplateColumns = "repeat(" + WEEKS + ", 1fr)";
+      let total = 0;
+      for (let row = 0; row < 7; row++) {
+        for (let w = 0; w < WEEKS; w++) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + w * 7 + row);
+          const cell = el("i", "hm-c");
+          if (d > today) cell.className = "hm-c fut";
+          else {
+            const v = act[key(d)] || 0;
+            if (v) total++;
+            cell.className = "hm-c l" + v;
+            cell.title = key(d) + (v === 2 ? " · ✅ " + KZ.t("күннің тапсырмасы") : v ? " · ✅" : "");
+          }
+          grid.appendChild(cell);
+        }
+      }
+      const hm = el("section", "card");
+      hm.appendChild(h("div", "card-title", KZ.t("📅 Белсенділік: соңғы 15 апта")));
+      hm.appendChild(grid);
+      hm.appendChild(h("small", "hint", KZ.t("Белсенді күн: ") + total + " · " + KZ.t("қою түс — күннің тапсырмасы да орындалған")));
+      wrap.appendChild(hm);
+    }
+
     /* ---------- Жетістіктер ---------- */
     const ach = el("section", "card");
     ach.appendChild(h("div", "card-title", KZ.t("🏆 Жетістіктер")));

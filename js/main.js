@@ -138,6 +138,15 @@
       const f = parts[2] !== "free" && parts[3] !== "open" && KZ.findLevel(course, levelId); // /open: мұғалім берген тапсырма құлыпсыз ашылады
       return !f || f.kind === "bonus" || KZ.progress.tasksUnlocked(course, KZ.topicOf(f.level));
     };
+    if (parts[1] === "play" && parts[2] === "free" && parts[3] === "s" && parts[4]) {
+      /* бөлісілген код: Еркін алаңға өз кодымен ашылады */
+      try {
+        const code = decodeURIComponent(escape(atob(parts[4].replace(/-/g, "+").replace(/_/g, "/"))));
+        if (code.length <= 3000) KZ.store.setSession("kodzholy.sandbox", { code });
+      } catch (e) {
+        /* бүлінген сілтеме: бос алаң ашылады */
+      }
+    }
     if (parts[1] === "play" && parts[2]) {
       if (!guard(parts[2])) {
         location.hash = "#/" + course.id + "/tasks";
