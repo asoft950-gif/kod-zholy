@@ -1415,7 +1415,7 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 /* ================= Ойын «Бит: Матрицадан шығу» ================= */
 .game-tile { background: linear-gradient(135deg, #062a1f, #0b4a38); color: #eafff6; border-color: #1c8f6c; }
 .game-tile small { color: #9be8cc; }
-.gm { max-width: 760px; margin: 0 auto; padding: 4px 0 40px; }
+.gm { max-width: 760px; margin: 0 auto; padding: 12px 14px 40px; }
 .gm-title { margin: 10px 0 6px; }
 .gm-story { margin: 6px 0; line-height: 1.5; }
 .gm-goal { font-weight: 800; color: var(--accent, #6c5ce7); margin: 6px 0 10px; }
@@ -1530,3 +1530,9 @@ small.hint { display: block; }
 .privacy-card { grid-template-columns: minmax(0, 1fr); }
 .pv-field select { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; text-overflow: ellipsis; }
 .sync-card { grid-template-columns: minmax(0, 1fr); }
+
+/* Кез келген телефон енінде бет бүйірге созылмасын */
+.page { grid-template-columns: minmax(0, 1fr); }
+.page > *, .cab-embed, .cab-embed > .page > * { min-width: 0; }
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, canvas, video { max-width: 100%; }
