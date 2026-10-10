@@ -111,6 +111,11 @@
     tile.appendChild(h("div", null, h("b", null, KZ.t("Алгоритм көрінісі")), h("small", null, KZ.t("Сұрыптау, іздеу және рекурсияны қадам-қадамымен көр"))));
     page.appendChild(tile);
 
+    const gt = A("card algo-tile game-tile", "#/game");
+    gt.appendChild(h("div", "e", "🎮"));
+    gt.appendChild(h("div", null, h("b", null, KZ.t("Ойын: Бит Матрицадан шығады")), h("small", null, KZ.t("Python кодымен кейіпкерді жүргіз, жауларды жең, ферма өсір"))));
+    page.appendChild(gt);
+
     page.appendChild(
       h(
         "section",

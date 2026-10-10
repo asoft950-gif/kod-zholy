@@ -93,6 +93,8 @@
     ].map(([c, e, n]) => ({ id: "pin_" + c, slot: "pin", n: n + KZ.t(" белгісі"), unlock: "done_" + c, svg: () => pinBadge(e) })),
     { id: "star_pin", slot: "pin", n: KZ.t("Алтын жұлдыз"), unlock: "first", svg: () => `<path d="${star(138, 176, 12)}" fill="#ffd23f" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` },
     { id: "bug_pin", slot: "pin", n: KZ.t("Қате аулаушы"), unlock: "bug1", svg: () => pinBadge("🐞") },
+    { id: "matrix_pin", slot: "pin", n: KZ.t("Матрицадан шыққан"), unlock: "game_z1", svg: () => pinBadge("💊") },
+    { id: "farm_pin", slot: "pin", n: KZ.t("Кристалл фермері"), unlock: "game_farm", svg: () => pinBadge("🌾") },
     { id: "oyu_pin", slot: "pin", n: KZ.t("Ою белгісі"), unlock: "reader", svg: () => `<circle cx="138" cy="176" r="12" fill="#c92a2a" ${S3}/><path d="M138 168Q131 172 135 176Q131 180 138 184M138 168Q145 172 141 176Q145 180 138 184" fill="none" stroke="#ffd23f" stroke-width="2.5"/>` },
     /* ---- арқа ---- */
     { id: "pack", slot: "back", n: KZ.t("Рюкзак"), unlock: "start", back: true, svg: () => `<rect x="22" y="112" width="156" height="78" rx="26" fill="#ff922b" ${S}/><path d="M60 92Q52 130 60 168M140 92Q148 130 140 168" fill="none" stroke="${INK}" stroke-width="5"/>` },

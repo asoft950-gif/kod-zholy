@@ -79,9 +79,20 @@
     });
   }
 
+  /* Pyodide бір рет жүктеледі: тапсырмалар да, ойын да осыны қолданады */
+  let pyoPromise = null;
+  KZ.pyodide = () =>
+    pyoPromise ||
+    (pyoPromise = (async () => {
+      await loadScript(PY_BASE + "pyodide.js");
+      return loadPyodide({ indexURL: PY_BASE });
+    })().catch((e) => {
+      pyoPromise = null;
+      throw e;
+    }));
+
   async function defaultLoader() {
-    await loadScript(PY_BASE + "pyodide.js");
-    const py = await loadPyodide({ indexURL: PY_BASE });
+    const py = await KZ.pyodide();
     const src = await (await fetch("py/runner.py")).text();
     py.runPython(src);
     if (KZ.lang === "ru") py.globals.set("_TR", py.toPy(KZ.ru)); // қате хабарларының орысша сөздігі

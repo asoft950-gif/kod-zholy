@@ -57,6 +57,7 @@
     if (KZ.play) KZ.play.leave();
     if (KZ.web) KZ.web.leave();
     if (KZ.sql) KZ.sql.leave();
+    if (KZ.gameLeave) KZ.gameLeave();
     const parts = decodeURIComponent(location.hash.replace(/^#\/?/, ""))
       .split("/")
       .filter(Boolean);
@@ -82,7 +83,7 @@
       return;
     }
     /* Курстар, лекциялар, тапсырмалар және жетістіктер тек тіркелген/кірген пайдаланушыға (аккаунттар қосулы болса) */
-    const needLogin = parts[0] === "achievements" || parts[0] === "hero" || parts[0] === "review" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
+    const needLogin = parts[0] === "achievements" || parts[0] === "hero" || parts[0] === "review" || parts[0] === "game" || parts[0] === "certificate" || !!KZ.getCourse(parts[0]);
     if (needLogin && KZ.auth && KZ.auth.enabled && !KZ.auth.profile) {
       if (!KZ.auth.settled) {
         views.cab.textContent = KZ.t("Жүктелуде…");
@@ -105,6 +106,10 @@
     if (parts[0] === "review") {
       KZ.reviewPage(views.cab, parts[1] && parts[2] ? { c: parts[1], t: parts[2] } : null);
       return show("cab", KZ.t("Қайталау"));
+    }
+    if (parts[0] === "game") {
+      KZ.gamePage(views.cab, parts[1]);
+      return show("cab", KZ.t("Ойын"));
     }
     if (parts[0] === "hero") {
       KZ.heroPage(views.cab);
