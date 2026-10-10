@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = fs.readFileSync(ROOT + "/index.html", "utf8");
-const scripts = [...html.matchAll(/<script src="(js\/core\.js|js\/courses\/[^"]+)"/g)].map((m) => m[1]);
+const scripts = [...html.matchAll(/<script src="(js\/core\.js|js\/courses\/[^"'+ ]+\.js)"/g)].map((m) => m[1]).filter((f) => !f.includes("/ru/"));
 globalThis.window = globalThis;
 for (const f of scripts) vm.runInThisContext(fs.readFileSync(ROOT + "/" + f, "utf8"), { filename: f });
 
