@@ -215,6 +215,16 @@
   };
   const hero = (KZ.hero = {
     items: ITEMS,
+    /* Мульт 3D стилінде қайта салынған заттар: { id: (c, u) => "<svg бөлігі>" } */
+    skin3d(map) {
+      ITEMS.forEach((it) => {
+        const f = map[it.id];
+        if (f) {
+          it.svg = f;
+          it.rich = true;
+        }
+      });
+    },
     slots: SLOTS,
     colors: COLORS,
     state: ensure,

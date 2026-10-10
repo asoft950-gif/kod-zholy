@@ -450,6 +450,7 @@
     if (A.isActive()) {
       const links = el("div", "cab-links");
       if (A.canTeach()) links.appendChild(link("btn primary big", "#/teacher", KZ.t("👩‍🏫 Сыныптар мен оқушылар")));
+      links.appendChild(link("btn big", "#/u/me", KZ.t("👤 Менің профилім")));
       if (A.isStaff()) links.appendChild(link("btn big", "#/admin", KZ.t("🛠️ Басқару панелі")));
       if (links.children.length) page.appendChild(links);
 
@@ -573,14 +574,14 @@
         bit.innerHTML = KZ.hero.svg({ color: hs.color, eq: hs.eq, still: true, lite: true, lg: r.lg || 0, streak: r.streak || 0 });
       } else bit.textContent = "🙂";
       const lgm = r.lg ? ["🥇", "🥈", "🥉"][r.lg - 1] : "";
-      wrap.appendChild(
-        h("div", "rating-row" + (r.me ? " me" : ""),
+      const rowEl = h(r.id ? "a" : "div", "rating-row" + (r.me ? " me" : "") + (r.id ? " clickable" : ""),
           h("span", "rating-pos", medal[i] || String(i + 1)),
           bit,
           h("span", "rating-name", r.name + (r.me ? KZ.t(" (сен)") : "") + (lgm ? " " + lgm : "")),
           h("span", "rating-streak", r.streak > 0 ? "🔥 " + r.streak : ""),
-          h("span", "rating-stars", "⭐ " + r.stars))
-      );
+          h("span", "rating-stars", "⭐ " + r.stars));
+      if (r.id) rowEl.href = "#/u/" + r.id;
+      wrap.appendChild(rowEl);
     });
     return wrap;
   }

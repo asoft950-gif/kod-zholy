@@ -17,7 +17,7 @@
   /* кішкентай аватар: кейіпкер (бар болса) не рөл белгісі */
   function avatar(p, cls) {
     const a = el("span", "msg-av" + (cls ? " " + cls : ""));
-    if (KZ.hero && p.hero && p.hero.eq) a.innerHTML = KZ.hero.svg({ color: p.hero.color || "#6c5ce7", eq: p.hero.eq, still: true, lite: true, lg: 0, streak: 0 });
+    if (KZ.hero && p.hero && p.hero.eq) a.innerHTML = KZ.hero.svg({ color: p.hero.color || "#6c5ce7", eq: p.hero.eq, preview: true, still: true, lite: true, lg: 0, streak: 0 });
     else a.textContent = ROLE[p.role] || "🙂";
     if (p.last_seen !== undefined) {
       const on = !!p.last_seen && Date.now() - new Date(p.last_seen).getTime() < 180000;
@@ -84,7 +84,7 @@
     }
     box.textContent = "";
     const head = el("div", "msg-head");
-    head.appendChild(h("p", "hint", KZ.t("Сыныптастарыңа, мұғаліміңе және әкімшілікке жаза аласың. Әдепті бол: мұғалім сыныптағы хаттарды көре алады.")));
+    head.appendChild(h("p", "hint", KZ.t("Сыныптастарыңа, мұғаліміңе және әкімшілікке жаза аласың. Әдепті бол: мұғалім сыныптағы хаттарды көре алады.") + " " + KZ.t("Аватарды бассаң — профилі ашылады.")));
     box.appendChild(head);
     if (!list.length) {
       box.appendChild(h("p", "empty-note", KZ.t("Әзірге жазатын адам жоқ. Сыныпқа қосылсаң, сыныптастарың осында шығады.")));
@@ -106,7 +106,14 @@
           const a = h("a", "msg-row" + (p.unread ? " unread" : ""));
           a.href = "#/account/msg/" + p.id;
           const mid = h("div", "msg-mid", h("b", null, p.full_name + " ", h("small", null, A.roleLabel(p.role))), h("small", "msg-pres", KZ.presence(p.last_seen)), h("small", "msg-last", p.last || KZ.t("Хат жоқ — бірінші болып жаз!")));
-          a.append(avatar(p), mid);
+          const av = avatar(p);
+          av.title = KZ.t("Профилі");
+          av.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            location.hash = "#/u/" + p.id;
+          });
+          a.append(av, mid);
           const right = el("div", "msg-right");
           if (p.last_at) right.appendChild(h("small", null, fmtTime(p.last_at)));
           if (p.unread) right.appendChild(h("span", "msg-dot", String(p.unread)));
@@ -152,9 +159,12 @@
     back.href = "#/account/msg";
     back.setAttribute("aria-label", KZ.t("Барлық хаттар"));
     let pres = KZ.presence(o.last_seen);
-    const who = h("div", "msg-who", h("b", null, o.full_name), h("small", null, (ROLE[o.role] || "") + " " + A.roleLabel(o.role) + (o.grade ? " · " + o.grade + KZ.t("-сынып") : "")), pres);
+    const who = h("div", "msg-who", KZ.profileLink(o.id, o.full_name, "prof-link b"), h("small", null, (ROLE[o.role] || "") + " " + A.roleLabel(o.role) + (o.grade ? " · " + o.grade + KZ.t("-сынып") : "")), pres);
     if (o.bio) who.appendChild(h("small", "msg-bio", "“" + o.bio + "”"));
-    top.append(back, avatar(o, "big"), who);
+    const bigAv = avatar(o, "big");
+    bigAv.style.cursor = "pointer";
+    bigAv.addEventListener("click", () => (location.hash = "#/u/" + o.id));
+    top.append(back, bigAv, who);
     box.appendChild(top);
     const feed = el("div", "msg-feed");
     feed.setAttribute("aria-live", "polite");

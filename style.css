@@ -1465,3 +1465,27 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .tick.seen { color: #1c7ed6; }
 #bcText { display: block; width: 100%; box-sizing: border-box; margin: 8px 0; padding: 10px; border-radius: 12px; border: 2px solid var(--line); font: inherit; }
 .card select:has(+ #bcText) { display: block; width: 100%; padding: 10px; border-radius: 12px; }
+
+/* ================= Профиль беті ================= */
+.prof-head { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.prof-fig { width: 150px; flex: none; }
+.prof-fig svg { width: 100%; height: auto; display: block; }
+.prof-info { flex: 1; min-width: 180px; display: grid; gap: 6px; }
+.prof-info h1 { margin: 0; font-size: 26px; }
+.prof-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.prof-acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.prof-link { color: inherit; text-decoration: none; border-bottom: 2px dotted var(--line); }
+.prof-link:hover { border-bottom-style: solid; }
+.prof-bars { display: grid; gap: 8px; margin-top: 12px; }
+.prof-bar { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 8px; align-items: center; font-weight: 700; font-size: 14px; }
+.pb-track { height: 10px; background: var(--line, #e9ecef); border-radius: 999px; overflow: hidden; }
+.pb-fill { display: block; height: 100%; background: linear-gradient(90deg, #51cf66, #2f9e44); border-radius: 999px; }
+.prof-ach { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.pa { display: grid; justify-items: center; gap: 2px; text-align: center; padding: 8px 4px; border-radius: 12px; background: rgba(0, 0, 0, .05); opacity: .55; }
+.pa.on { background: rgba(255, 212, 59, .25); opacity: 1; border: 2px solid #fcc419; }
+.pa-e { font-size: 24px; }
+.pa small { font-size: 11px; font-weight: 700; line-height: 1.2; }
+.prof-worn { display: flex; flex-wrap: wrap; gap: 6px; }
+.rating-row.clickable { text-decoration: none; color: inherit; cursor: pointer; }
+.rating-row.clickable:hover { filter: brightness(.97); }
+.prof-locked { margin-top: 10px; } .prof-locked summary { cursor: pointer; font-weight: 800; padding: 6px 0; } .prof-locked .prof-ach { margin-top: 8px; }
