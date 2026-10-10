@@ -223,7 +223,8 @@
         })
       );
       const hp = L.hero ? L.hero.hp : 0;
-      S = { grid, hx: sx, hy: sy, hd: L.dir, hp, hpmax: hp, coins: 0, keys: 0, gems: 0, crops: {}, fight: null, floats: [], parts: [], shake: 0, flash: 0, lunge: 0, elunge: 0, ehit: 0, shield: 0, banner: null, moving: 0, done: false, tk: 0 };
+      S = { grid, hx: sx, hy: sy, hd: L.dir, hp, hpmax: hp, coins: 0, keys: 0, gems: 0, crops: {}, fight: null, floats: [], parts: [], shake: 0, flash: 0, lunge: 0, elunge: 0, ehit: 0, shield: 0, banner: null, moving: 0, done: false, tk: 0, walkP: 0, turn: 0, slash: 0, vis: {}, tr: [], lastTr: 0, step: 0 };
+      S.vis[sx + "," + sy] = performance.now();
       paintHud();
     }
 
@@ -256,14 +257,28 @@
       const X = px(x);
       const Y = py2(y);
       const plot = c === "f";
-      ctx.fillStyle = plot ? ((x + y) % 2 ? "#5a3b22" : "#4f321d") : (x + y) % 2 ? C.fa : C.fb;
-      ctx.fillRect(X, Y, T, T);
-      ctx.fillStyle = "rgba(0,0,0,.25)";
-      ctx.fillRect(X, Y + T - 2, T, 2);
-      ctx.fillStyle = plot ? "rgba(255,255,255,.05)" : "rgba(61,255,176,.05)";
-      ctx.fillRect(X, Y, T, 2);
+      const chk = (x + y) % 2;
       if (plot) {
-        ctx.strokeStyle = "rgba(0,0,0,.28)";
+        const g = ctx.createLinearGradient(X, Y, X, Y + T);
+        g.addColorStop(0, chk ? "#6b4529" : "#5f3d24");
+        g.addColorStop(1, chk ? "#4a2f1a" : "#42291a");
+        ctx.fillStyle = g;
+      } else {
+        const g = ctx.createLinearGradient(X, Y, X + T, Y + T);
+        g.addColorStop(0, chk ? "#0c3326" : "#0a2d22");
+        g.addColorStop(1, chk ? "#071f17" : "#061b14");
+        ctx.fillStyle = g;
+      }
+      ctx.fillRect(X, Y, T, T);
+      /* қыры: жарық жоғарыдан-солдан, көлеңке төменнен-оңнан */
+      ctx.fillStyle = plot ? "rgba(255,230,200,.10)" : "rgba(120,255,200,.10)";
+      ctx.fillRect(X, Y, T, 2);
+      ctx.fillRect(X, Y, 2, T);
+      ctx.fillStyle = "rgba(0,0,0,.35)";
+      ctx.fillRect(X, Y + T - 2, T, 2);
+      ctx.fillRect(X + T - 2, Y, 2, T);
+      if (plot) {
+        ctx.strokeStyle = "rgba(0,0,0,.3)";
         ctx.lineWidth = 2;
         for (let k = 1; k <= 3; k++) {
           ctx.beginPath();
@@ -271,47 +286,118 @@
           ctx.lineTo(X + T - 5, Y + (T * k) / 4);
           ctx.stroke();
         }
-      } else if (c !== "~") {
-        ctx.fillStyle = "rgba(61,255,176,.12)";
-        ctx.font = "bold " + Math.round(T * 0.22) + "px ui-monospace,monospace";
-        ctx.fillText(((x * 7 + y * 13) % 3 ? "0" : "1"), X + 4, Y + T - 5);
-      }
-      if (c === "~") {
+      } else if (c === "~") {
         ctx.fillStyle = "#0a3b56";
         ctx.fillRect(X, Y, T, T);
-        ctx.strokeStyle = "rgba(120,220,255,.5)";
+        ctx.strokeStyle = "rgba(120,220,255,.55)";
         ctx.lineWidth = 2;
+        for (let k = 0; k < 2; k++) {
+          ctx.beginPath();
+          const o = Math.sin(now / 400 + x + k) * 3;
+          ctx.moveTo(X + 4, Y + T * (0.35 + k * 0.3) + o);
+          ctx.quadraticCurveTo(X + T / 2, Y + T * (0.35 + k * 0.3) - 6 + o, X + T - 4, Y + T * (0.35 + k * 0.3) + o);
+          ctx.stroke();
+        }
+      } else {
+        /* схема сызықтары */
+        const h2 = (x * 31 + y * 17) % 4;
+        ctx.strokeStyle = "rgba(61,255,176,.16)";
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        const o = Math.sin(now / 400 + x) * 3;
-        ctx.moveTo(X + 4, Y + T / 2 + o);
-        ctx.quadraticCurveTo(X + T / 2, Y + T / 2 - 5 + o, X + T - 4, Y + T / 2 + o);
+        if (h2 === 0) {
+          ctx.moveTo(X + 6, Y + T * 0.5);
+          ctx.lineTo(X + T * 0.45, Y + T * 0.5);
+          ctx.lineTo(X + T * 0.6, Y + T * 0.3);
+          ctx.lineTo(X + T - 6, Y + T * 0.3);
+        } else if (h2 === 1) {
+          ctx.moveTo(X + T * 0.3, Y + 6);
+          ctx.lineTo(X + T * 0.3, Y + T * 0.55);
+          ctx.lineTo(X + T * 0.7, Y + T * 0.7);
+          ctx.lineTo(X + T * 0.7, Y + T - 6);
+        } else if (h2 === 2) {
+          ctx.rect(X + T * 0.28, Y + T * 0.28, T * 0.44, T * 0.44);
+        }
         ctx.stroke();
+        if (h2 !== 3) {
+          ctx.fillStyle = "rgba(61,255,176,.35)";
+          ctx.beginPath();
+          ctx.arc(X + T * 0.5, Y + T * 0.5, 1.8, 0, 7);
+          ctx.fill();
+        }
+        ctx.fillStyle = "rgba(61,255,176,.14)";
+        ctx.font = "bold " + Math.round(T * 0.2) + "px ui-monospace,monospace";
+        ctx.fillText((x * 7 + y * 13) % 3 ? "0" : "1", X + 4, Y + T - 5);
+      }
+      /* Бит өткен із: жасыл жарқыл баяу сөнеді */
+      const vt = S.vis && S.vis[x + "," + y];
+      if (vt) {
+        const a = Math.max(0, 1 - (now - vt) / 2600);
+        if (a > 0) {
+          ctx.fillStyle = "rgba(61,255,176," + (0.28 * a).toFixed(3) + ")";
+          ctx.fillRect(X, Y, T, T);
+          ctx.strokeStyle = "rgba(180,255,226," + (0.5 * a).toFixed(3) + ")";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(X + 2, Y + 2, T - 4, T - 4);
+        }
       }
     }
 
-    function drawWall(x, y) {
+    function drawWall(x, y, now) {
       const X = px(x);
       const Y = py2(y);
       const below = y + 1 < rows && S.grid[y + 1][x] === "#";
-      const sideH = T;
-      ctx.fillStyle = "rgba(0,0,0,.35)";
-      ctx.fillRect(X + 3, Y - WH + T - 2, T, 7);
-      ctx.fillStyle = C.wallSide;
-      ctx.fillRect(X, Y - WH + T, T, below ? 0 : WH);
+      /* жерге түсетін көлеңке */
+      ctx.fillStyle = "rgba(0,0,0,.4)";
+      ctx.fillRect(X + 2, Y - WH + T - 1, T, 9);
+      /* алдыңғы қыры (қабырғаның беті) */
       if (!below) {
-        ctx.fillStyle = C.wallDark;
-        ctx.fillRect(X, Y - WH + T + WH * 0.6, T, WH * 0.4);
+        const g2 = ctx.createLinearGradient(0, Y - WH + T, 0, Y + T);
+        g2.addColorStop(0, "#176650");
+        g2.addColorStop(1, "#082a21");
+        ctx.fillStyle = g2;
+        ctx.fillRect(X, Y - WH + T, T, WH);
+        ctx.fillStyle = "rgba(61,255,176,.55)";
+        ctx.fillRect(X, Y - WH + T, T, 1.5);
+        ctx.fillStyle = "rgba(0,0,0,.35)";
+        for (let k = 0; k < 2; k++) ctx.fillRect(X + (T / 2) * k + 1, Y - WH + T + 2, 1.5, WH - 2);
       }
-      const g = ctx.createLinearGradient(X, Y - WH, X, Y - WH + T);
-      g.addColorStop(0, "#35a883");
-      g.addColorStop(1, C.wallTop);
+      /* үсті */
+      const g = ctx.createLinearGradient(X, Y - WH, X + T, Y - WH + T);
+      g.addColorStop(0, "#3fbf96");
+      g.addColorStop(1, "#1f7c5c");
       ctx.fillStyle = g;
       ctx.fillRect(X, Y - WH, T, T);
-      ctx.fillStyle = "rgba(255,255,255,.18)";
+      /* кірпіш тігістері */
+      ctx.strokeStyle = "rgba(4,40,30,.45)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(X, Y - WH + T / 2);
+      ctx.lineTo(X + T, Y - WH + T / 2);
+      const off = (x + y) % 2 ? T * 0.3 : T * 0.7;
+      ctx.moveTo(X + off, Y - WH);
+      ctx.lineTo(X + off, Y - WH + T / 2);
+      ctx.moveTo(X + T - off, Y - WH + T / 2);
+      ctx.lineTo(X + T - off, Y - WH + T);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.22)";
       ctx.fillRect(X, Y - WH, T, 2);
-      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.fillRect(X, Y - WH, 2, T);
+      ctx.fillStyle = "rgba(0,0,0,.2)";
       ctx.fillRect(X + T - 2, Y - WH, 2, T);
-      void sideH;
+      /* жыпылықтайтын диод */
+      if ((x * 5 + y * 3) % 4 === 0) {
+        const on = Math.sin(now / 500 + x * 2 + y) > 0.2;
+        ctx.fillStyle = on ? "#b2ffe3" : "#1f7c5c";
+        ctx.beginPath();
+        ctx.arc(X + T * 0.5, Y - WH + T * 0.5, 2.2, 0, 7);
+        ctx.fill();
+        if (on) {
+          ctx.fillStyle = "rgba(61,255,176,.3)";
+          ctx.beginPath();
+          ctx.arc(X + T * 0.5, Y - WH + T * 0.5, 6, 0, 7);
+          ctx.fill();
+        }
+      }
     }
 
     function gemShape(cx, cy, r, col, now, spin) {
@@ -583,29 +669,60 @@
     }
 
     function drawHero(now) {
-      const cx = px(S.hx) + T / 2 + (S.shake ? (Math.random() - 0.5) * 5 : 0);
+      const hh = T * 1.32;
+      const ww = hh / hi.ar;
+      const shk = S.shake ? (Math.random() - 0.5) * 5 : 0;
+      const cx = px(S.hx) + T / 2 + shk;
       const feet = py2(S.hy) + T * 0.62;
       const dir = S.hd;
       const lunge = S.lunge * T * 0.35;
-      const bob = S.moving ? Math.abs(Math.sin(now / 70)) * 3 : Math.sin(now / 420) * 1.2;
-      const hh = T * 1.32;
-      const ww = hh / hi.ar;
-      ctx.fillStyle = "rgba(0,0,0,.4)";
-      ctx.beginPath();
-      ctx.ellipse(cx, feet + 1, T * 0.3, T * 0.1, 0, 0, 7);
-      ctx.fill();
-      ctx.save();
-      ctx.translate(cx + (S.fight ? lunge : 0), feet - bob);
-      if (dir === 3) ctx.scale(-1, 1);
-      if (S.flash > 0) ctx.globalAlpha = 0.55 + 0.45 * Math.sin(now / 30);
-      if (hi.ok) ctx.drawImage(hi.img, -ww / 2, -hh * 0.95, ww, hh);
-      else {
-        ctx.font = Math.round(T * 0.9) + "px serif";
-        ctx.textAlign = "center";
-        ctx.fillText("🙂", 0, -T * 0.2);
+      const mv = S.moving;
+      const ph = S.walkP || 0;
+      let hop = mv ? Math.abs(Math.sin(ph)) * T * 0.13 : 0;
+      let sy = mv ? 1 - 0.07 * Math.cos(ph * 2) : 1 + 0.025 * Math.sin(now / 380);
+      let tilt = mv ? Math.sin(ph) * 0.09 + (dir === 1 ? 0.05 : dir === 3 ? -0.05 : 0) : Math.sin(now / 900) * 0.025;
+      let sx = 1 / sy;
+      if (S.turn > 0) sx *= 1 - 0.45 * Math.sin(S.turn * Math.PI);
+      if (S.done) {
+        hop = Math.abs(Math.sin(now / 170)) * T * 0.38;
+        tilt = Math.sin(now / 170) * 0.18;
+        sy = 1 + 0.08 * Math.cos(now / 85);
+        sx = 1 / sy;
       }
+      if (S.fight && S.lunge > 0) tilt += 0.18 * S.lunge;
+      const hurtK = S.flash > 0 ? Math.sin(now / 25) * 0.05 : 0;
+      /* жарық дақ (қоршаған ортаны жарықтандырады) */
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      const lg = ctx.createRadialGradient(cx, feet, 2, cx, feet, T * 1.5);
+      lg.addColorStop(0, "rgba(61,255,176,.30)");
+      lg.addColorStop(1, "rgba(61,255,176,0)");
+      ctx.fillStyle = lg;
+      ctx.fillRect(cx - T * 1.6, feet - T * 1.6, T * 3.2, T * 3.2);
       ctx.restore();
-      ctx.globalAlpha = 1;
+      /* көлеңке: секіргенде кішірейеді */
+      const sc = 1 - Math.min(0.4, hop / (T * 0.5));
+      ctx.fillStyle = "rgba(0,0,0,.45)";
+      ctx.beginPath();
+      ctx.ellipse(cx, feet + 1, T * 0.3 * sc, T * 0.1 * sc, 0, 0, 7);
+      ctx.fill();
+      const drawImg = (ox, oy2, alpha) => {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(ox + (S.fight ? lunge : 0), oy2 - hop);
+        ctx.rotate(tilt + hurtK);
+        ctx.scale((dir === 3 ? -1 : 1) * sx, sy);
+        if (hi.ok) ctx.drawImage(hi.img, -ww / 2, -hh * 0.95, ww, hh);
+        else {
+          ctx.font = Math.round(T * 0.9) + "px serif";
+          ctx.textAlign = "center";
+          ctx.fillText("🙂", 0, -T * 0.2);
+        }
+        ctx.restore();
+      };
+      /* қозғалыс ізі */
+      if (mv && S.tr) S.tr.forEach((g, i) => drawImg(px(g.x) + T / 2, py2(g.y) + T * 0.62, 0.1 + 0.07 * i));
+      drawImg(cx, feet, S.flash > 0 ? 0.55 + 0.45 * Math.sin(now / 30) : 1);
       if (S.shield > 0) {
         ctx.strokeStyle = "rgba(77,171,247," + Math.min(1, S.shield).toFixed(2) + ")";
         ctx.fillStyle = "rgba(77,171,247," + (0.25 * Math.min(1, S.shield)).toFixed(2) + ")";
@@ -627,6 +744,19 @@
       bg.addColorStop(1, C.bg1);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
+      /* Матрица жаңбыры */
+      ctx.font = "bold " + Math.max(9, Math.round(T * 0.2)) + "px ui-monospace,monospace";
+      const colW = Math.max(12, Math.round(T * 0.3));
+      for (let i = 0; i * colW < W; i++) {
+        const sp = 40 + ((i * 37) % 50);
+        const yy = (((now / 1000) * sp + i * 97) % (H + 120)) - 60;
+        for (let k = 0; k < 6; k++) {
+          ctx.fillStyle = "rgba(61,255,176," + (0.5 - k * 0.08).toFixed(2) + ")";
+          ctx.fillText(((i * 3 + k + Math.floor(now / 220)) % 5 < 2 ? "1" : "0"), i * colW + 2, yy - k * 12);
+        }
+      }
+      ctx.fillStyle = "rgba(6,19,15,.55)";
+      ctx.fillRect(0, 0, W, H);
       const sx = S.shake ? (Math.random() - 0.5) * 6 : 0;
       ctx.save();
       ctx.translate(sx, 0);
@@ -635,13 +765,29 @@
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
           const c = S.grid[y][x];
-          if (c === "#") drawWall(x, y);
+          if (c === "#") drawWall(x, y, now);
           else if (c !== "." && c !== "f" && c !== "~") drawCell(x, y, c, now);
           else drawCell(x, y, c, now);
         }
         if (y === hrow) drawHero(now);
       }
       ctx.restore();
+      /* слэш (қылыш ізі) */
+      if (S.slash > 0 && S.fight) {
+        const ex = px(S.fight.x) + T / 2;
+        const ey = py2(S.fight.y) + T * 0.4;
+        ctx.strokeStyle = "rgba(255,255,255," + S.slash.toFixed(2) + ")";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.arc(ex, ey, T * 0.55, -2.2 + (1 - S.slash) * 1.5, -0.6 + (1 - S.slash) * 1.5);
+        ctx.stroke();
+      }
+      const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, "rgba(0,0,0,0)");
+      vg.addColorStop(1, "rgba(0,0,0,.5)");
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
       S.parts.forEach((p) => {
         ctx.globalAlpha = Math.max(0, p.life);
         ctx.fillStyle = p.c;
@@ -700,6 +846,25 @@
       S.ehit = Math.max(0, S.ehit - dt);
       S.red = Math.max(0, (S.red || 0) - dt * 2);
       S.shield = Math.max(0, S.shield - dt * 1.4);
+      S.turn = Math.max(0, S.turn - dt * 4.5);
+      S.slash = Math.max(0, S.slash - dt * 4);
+      if (S.moving) {
+        const spv = Number(spd.value) || 1;
+        S.walkP += dt * 15 * spv;
+        const stp = Math.floor(S.walkP / Math.PI);
+        if (stp !== S.step) {
+          S.step = stp;
+          const fxp = px(S.hx) + T / 2;
+          const fyp = py2(S.hy) + T * 0.62;
+          for (let i = 0; i < 3; i++) S.parts.push({ x: fxp + (Math.random() - 0.5) * 10, y: fyp, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 30, g: 60, s: 2 + Math.random() * 3, c: "rgba(150,255,210,.8)", life: 1, d: 0.5 });
+        }
+        if (now - S.lastTr > 50) {
+          S.lastTr = now;
+          S.tr.push({ x: S.hx, y: S.hy });
+          if (S.tr.length > 3) S.tr.shift();
+        }
+        S.vis[Math.round(S.hx) + "," + Math.round(S.hy)] = now;
+      } else S.tr = [];
       draw(now);
       rafId = requestAnimationFrame(loop);
     }
@@ -777,6 +942,7 @@
           }
           case "turn":
             S.hd = e.d;
+            S.turn = 1;
             if (!(await wait(170, my))) return false;
             break;
           case "coin":
@@ -856,6 +1022,7 @@
             if (e.act === "ur") {
               await tween(240, (p) => (S.lunge = Math.sin(p * Math.PI)), my);
               S.lunge = 0;
+              S.slash = 1;
               S.ehit = 0.3;
               ff.ehp = Math.max(0, ff.ehp - e.de);
               float(ff.x, ff.y - 0.2, "-" + e.de, "#ff8787");
