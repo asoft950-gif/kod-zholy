@@ -109,6 +109,13 @@
     { id: "magic_scarf", slot: "neck", legend: true, n: KZ.t("Сиқырлы шарф"), unlock: "streak14", svg: () => `<g class="fx fx-hue"><path d="M42 160Q100 182 158 160L160 174Q100 198 40 174Z" fill="#9775fa" ${S}/><g class="fx fx-flutter"><path d="M118 178L126 208L146 202L136 174Z" fill="#7048e8" ${S}/><path d="M124 190l14-3" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/></g><path class="fx fx-twinkle" d="M70 172l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffd23f"/><path class="fx fx-twinkle d2" d="M104 178l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffd23f"/></g>` },
     { id: "dombyra_play", slot: "back", legend: true, n: KZ.t("Шертетін домбыра"), unlock: "read30", back: true, svg: () => `<g class="fx fx-strum"><path d="M168 150L192 46" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M168 150L192 46" stroke="#a0522d" stroke-width="5" stroke-linecap="round"/><path d="M162 204C140 202 136 182 142 166C148 150 166 146 178 152C192 160 192 182 184 194C178 202 170 204 162 204Z" fill="#d9480f" ${S}/><circle cx="166" cy="178" r="5" fill="#5c2b0f"/><path d="M152 176L180 180" stroke="#ffe8cc" stroke-width="1.8"/></g><g font-size="16" font-weight="900" fill="rgb(31,29,54)"><text class="fx fx-note" x="132" y="150">♪</text><text class="fx fx-note d2" x="146" y="140">♫</text><text class="fx fx-note d3" x="124" y="136">♪</text></g>` },
     { id: "code_rain", slot: "aura", legend: true, n: KZ.t("Код жаңбыры"), unlock: "lv100", back: true, svg: () => `<g font-family="monospace" font-weight="800" font-size="13" fill="rgb(81,207,102)"><text class="fx fx-fall" x="8" y="60">1</text><text class="fx fx-fall d2" x="8" y="120">0</text><text class="fx fx-fall d3" x="22" y="90">1</text><text class="fx fx-fall d4" x="22" y="160">0</text><text class="fx fx-fall d3" x="176" y="70">0</text><text class="fx fx-fall" x="176" y="140">1</text><text class="fx fx-fall d2" x="190" y="100">1</text><text class="fx fx-fall d4" x="190" y="170">0</text></g>` },
+    /* ---- САНДЫҚ: апталық сандықтан кездейсоқ түседі (анимациялы) ---- */
+    { id: "star_rain", slot: "aura", chest: true, n: KZ.t("Жұлдыз жаңбыры"), unlock: "chest", back: true, svg: () => `<g fill="#ffd23f" stroke="${INK}" stroke-width="2" stroke-linejoin="round"><path class="fx fx-twinkle" d="${star(22, 70, 10)}"/><path class="fx fx-twinkle d2" d="${star(180, 60, 9)}"/><path class="fx fx-twinkle d3" d="${star(14, 150, 8)}"/><path class="fx fx-twinkle d4" d="${star(188, 150, 10)}"/><path class="fx fx-fall" d="${star(100, 18, 7)}"/><path class="fx fx-fall d3" d="${star(150, 26, 6)}"/></g>` },
+    { id: "butterfly", slot: "pin", chest: true, n: KZ.t("Көбелек"), unlock: "chest", svg: () => `<g class="fx fx-bfly"><path d="M138 174C124 158 120 176 130 184C122 192 132 202 138 186Z" fill="#4dabf7" ${S3}/><path d="M138 174C152 158 156 176 146 184C154 192 144 202 138 186Z" fill="#f783ac" ${S3}/></g><path d="M138 172V190" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` },
+    { id: "balloon", slot: "back", chest: true, n: KZ.t("Ұшатын шар"), unlock: "chest", back: true, svg: () => `<g class="fx fx-float"><path d="M168 96C168 134 168 134 168 140" fill="none" stroke="${INK}" stroke-width="3"/><ellipse cx="168" cy="70" rx="22" ry="28" fill="#ff6b6b" ${S}/><path d="M158 56Q160 46 170 44" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".7"/><path d="M164 98L168 104L172 98Z" fill="#e8504f" ${S3}/></g>` },
+    { id: "heart_glasses", slot: "face", chest: true, n: KZ.t("Жүрек көзілдірік"), unlock: "chest", svg: () => `<g class="fx fx-pulse"><path d="M79 142C62 130 58 118 66 112C72 108 79 112 79 118C79 112 86 108 92 112C100 118 96 130 79 142Z" fill="#ff6b6b" ${S3}/></g><g class="fx fx-pulse d2"><path d="M121 142C104 130 100 118 108 112C114 108 121 112 121 118C121 112 128 108 134 112C142 118 138 130 121 142Z" fill="#ff6b6b" ${S3}/></g><path d="M96 120h8" ${S3}/>` },
+    { id: "cat_ears", slot: "hat", chest: true, n: KZ.t("Мысық құлақ"), unlock: "chest", svg: () => `<g class="fx fx-ear"><path d="M54 88L52 40L88 66Z" fill="#ffa94d" ${S}/><path d="M60 78L60 54L78 68Z" fill="#f783ac"/></g><g class="fx fx-ear d3"><path d="M146 88L148 40L112 66Z" fill="#ffa94d" ${S}/><path d="M140 78L140 54L122 68Z" fill="#f783ac"/></g>` },
+    { id: "cosmo_tee", slot: "outfit", chest: true, n: KZ.t("Ғарыш футболка"), unlock: "chest", svg: () => `<path d="${OUT}" fill="#1b1b3a" ${S}/><g fill="#ffffff"><circle class="fx fx-twinkle" cx="70" cy="184" r="2.5"/><circle class="fx fx-twinkle d2" cx="94" cy="190" r="2"/><circle class="fx fx-twinkle d3" cx="118" cy="184" r="2.8"/><circle class="fx fx-twinkle d4" cx="136" cy="190" r="2"/></g><circle cx="100" cy="182" r="6" fill="#ffd23f" ${S3}/>` },
     /* ---- МАУСЫМДЫҚ: мереке кезінде ғана ашық, кейін жабылады ---- */
     { id: "nauryz_wreath", slot: "hat", legend: true, n: KZ.t("Наурыз гүл тәжі"), unlock: { season: "nauryz" }, svg: () => `<path d="M48 84Q50 52 100 46Q150 52 152 84" fill="none" stroke="#51cf66" stroke-width="9" stroke-linecap="round"/><g ${S3}><circle class="fx fx-pulse" cx="62" cy="64" r="9" fill="#f783ac"/><circle class="fx fx-pulse d2" cx="100" cy="48" r="10" fill="#ffd23f"/><circle class="fx fx-pulse d3" cx="138" cy="64" r="9" fill="#4dabf7"/><circle cx="80" cy="52" r="6" fill="#ffa94d"/><circle cx="120" cy="52" r="6" fill="#f783ac"/></g><g fill="#f783ac"><circle class="fx fx-fall" cx="40" cy="60" r="3"/><circle class="fx fx-fall d2" cx="160" cy="52" r="3"/><circle class="fx fx-fall d3" cx="30" cy="90" r="2.5"/><circle class="fx fx-fall d4" cx="172" cy="84" r="2.5"/></g>` },
     { id: "snow_hat", slot: "hat", legend: true, n: KZ.t("Жаңа жыл бөрігі"), unlock: { season: "newyear" }, svg: () => `<path d="M52 84C52 50 76 34 108 40C136 44 150 60 150 84Z" fill="#e03131" ${S}/><rect x="46" y="76" width="108" height="18" rx="9" fill="#ffffff" ${S}/><g class="fx fx-flutter" style="transform-origin:70% 20%"><path d="M108 40Q150 30 160 62" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M108 40Q150 30 160 62" fill="none" stroke="#e03131" stroke-width="8" stroke-linecap="round"/><circle cx="162" cy="66" r="10" fill="#ffffff" ${S3}/></g><g fill="#ffffff" stroke="#74c0fc" stroke-width="1.5"><circle class="fx fx-fall" cx="30" cy="40" r="3.5"/><circle class="fx fx-fall d2" cx="62" cy="20" r="3"/><circle class="fx fx-fall d3" cx="150" cy="24" r="3.5"/><circle class="fx fx-fall d4" cx="176" cy="48" r="3"/></g>` },
@@ -189,6 +196,7 @@
   const need = (i) => {
     const u = i.unlock;
     if (u === "start") return KZ.t("Бастапқы жиынтықта кездейсоқ беріледі");
+    if (u === "chest") return KZ.t("Апталық сандықтан кездейсоқ түседі");
     if (u.season) return KZ.t("Маусымдық зат: тек ") + SEASONS[u.season].t + KZ.t(" аралығында киіледі");
     if (u.league) return KZ.t("Апталық лига: өткен аптада сыныпта ") + u.league + KZ.t("-орын алсаң, осы аптада ғана киесің");
     if (typeof u === "object") return KZ.t("Серия ") + u.streak + KZ.t(" күнге жеткенде ғана көрінеді");
@@ -204,7 +212,7 @@
     owned(i, s) {
       s = s || ensure();
       const u = i.unlock;
-      if (u === "start") return s.starters.includes(i.id);
+      if (u === "start" || u === "chest") return s.starters.includes(i.id);
       if (u.season) return inSeason(u.season);
       if (u.league) return leagueRank() === u.league;
       if (typeof u === "object") return hero.bestStreak() >= u.streak;
@@ -354,6 +362,52 @@
   });
 
 
+
+
+  /* ---------- Апталық сандық: аптасына 3 күн белсенді болсаң, 1 кездейсоқ зат ---------- */
+  const CKEY = "kodzholy.chest.v1";
+  const CHEST_NEED = 3;
+  const dstr = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const localMonday = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return dstr(d);
+  };
+  const activeThisWeek = () => {
+    const all = KZ.activity.all();
+    const d = new Date();
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    let n = 0;
+    for (let i = 0; i < 7; i++) {
+      if (all[dstr(d)]) n++;
+      d.setDate(d.getDate() + 1);
+    }
+    return n;
+  };
+  Object.assign(hero, {
+    chestState() {
+      const c = KZ.store.get(CKEY, null);
+      const opened = !!(c && c.week === localMonday());
+      const n = activeThisWeek();
+      const left = ITEMS.filter((i) => i.chest && !hero.owned(i)).length;
+      return { n, need: CHEST_NEED, opened, left, ready: !opened && n >= CHEST_NEED && left > 0 };
+    },
+    chestReady() {
+      return hero.chestState().ready;
+    },
+    /* сандықты ашу: ашылған затты қайтарады */
+    openChest() {
+      const st = hero.chestState();
+      if (!st.ready) return null;
+      const s = ensure();
+      const pool = ITEMS.filter((i) => i.chest && !hero.owned(i, s));
+      const it = pool[Math.floor(Math.random() * pool.length)];
+      s.starters.push(it.id);
+      save(s);
+      KZ.store.set(CKEY, { week: localMonday(), id: it.id });
+      return it;
+    },
+  });
 
   /* ---------- Жаңа зат ашылғанда: анимациялы терезе ---------- */
   const popQ = [];
@@ -593,6 +647,44 @@
     const lists = el("div", "hero-lists");
     const have0 = () => ITEMS.filter((i) => hero.owned(i, s)).length;
     const have = ITEMS.filter((i) => hero.owned(i, s)).length;
+    /* ---------- Апталық сандық ---------- */
+    const cs = hero.chestState();
+    const cc = el("section", "card hero-chest" + (cs.ready ? " ready" : ""));
+    const cbox = el("div", "chest-box");
+    cbox.textContent = "🎁";
+    const cbody = el("div", "chest-body");
+    cbody.appendChild(h("b", null, KZ.t("🎁 Апталық сандық")));
+    let msg;
+    if (cs.left === 0) msg = KZ.t("Сандықтағы барлық заттарды жинадың! 🎉");
+    else if (cs.opened) msg = KZ.t("Осы аптадағы сандық ашылды. Келесісі дүйсенбіде.");
+    else if (cs.ready) msg = KZ.t("Сандық ашуға дайын! Ішінде кездейсоқ зат бар.");
+    else msg = KZ.t("Осы аптада ") + CHEST_NEED + KZ.t(" күн тапсырма шешсең, сандық ашылады: ") + Math.min(cs.n, CHEST_NEED) + " / " + CHEST_NEED;
+    cbody.appendChild(h("small", null, msg));
+    const bar = el("div", "chest-bar");
+    const fillb = el("i");
+    fillb.style.width = Math.min(100, Math.round((Math.min(cs.n, CHEST_NEED) / CHEST_NEED) * 100)) + "%";
+    bar.appendChild(fillb);
+    cbody.appendChild(bar);
+    const ob = h("button", "btn primary small", KZ.t("🎁 Ашу"));
+    ob.type = "button";
+    ob.disabled = !cs.ready;
+    ob.addEventListener("click", () => {
+      ob.disabled = true;
+      cbox.classList.add("shake");
+      setTimeout(() => {
+        cbox.classList.remove("shake");
+        const it = hero.openChest();
+        if (it) {
+          cbox.textContent = "✨";
+          hero.unlockPopup([it]);
+          setTimeout(() => KZ.heroPage(root), 2500);
+        }
+      }, 1100);
+    });
+    cbody.appendChild(ob);
+    cc.append(cbox, cbody);
+    page.appendChild(cc);
+
     /* ---------- Витрина: аңыз заттар, көрсеткіштер, бөлісу ---------- */
     const vit = el("section", "card hero-vit");
     const legAll = ITEMS.filter((i) => i.legend);
@@ -648,6 +740,7 @@
         // алдын ала көру: сол заттың өзі киілген кейіпкер
         f.innerHTML = ok ? hero.svg({ color: ensure().color, eq: { [sl.id]: i.id }, preview: true }) : "🔒";
         b.append(f, h("small", null, i.n));
+        if (i.chest) b.appendChild(h("small", "hi-legend", KZ.t("🎁 Сандықтан")));
         if (i.legend) b.appendChild(h("small", "hi-legend", i.unlock.season ? KZ.t("⏳ Маусымдық") : KZ.t("✨ Аңыз")));
         if (!ok) b.title = need(i);
         b.addEventListener("click", () => {

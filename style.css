@@ -1311,3 +1311,23 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .vit-slot .hi-fig { width: 64px; height: 70px; display: grid; place-items: center; font-size: 26px; }
 .vit-slot .hi-fig svg { width: 100%; height: 100%; }
 .vit-slot small { font-weight: 800; font-size: 11px; line-height: 1.2; }
+
+/* Апталық сандық */
+.hero-chest { display: flex; gap: 14px; align-items: center; }
+.hero-chest.ready { border-color: #fab005; background: linear-gradient(180deg, var(--paper), rgba(255, 210, 63, .3)); }
+.chest-box { font-size: 54px; line-height: 1; flex: none; }
+.hero-chest.ready .chest-box { animation: unlBounce 1.1s ease-in-out infinite; }
+.chest-box.shake { animation: chestShake .25s linear infinite !important; }
+.chest-body { display: grid; gap: 6px; flex: 1; min-width: 0; }
+.chest-body small { color: var(--muted); font-weight: 700; }
+.chest-bar { height: 12px; border: 2px solid var(--line); border-radius: 8px; background: var(--paper); overflow: hidden; }
+.chest-bar i { display: block; height: 100%; background: #51cf66; }
+.chest-body .btn { justify-self: start; }
+@keyframes chestShake { 0%, 100% { transform: rotate(-9deg) scale(1.1); } 50% { transform: rotate(9deg) scale(1.1); } }
+@keyframes fxBfly { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.35); } }
+@keyframes fxFloat { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-9px) rotate(3deg); } }
+@keyframes fxEar { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-9deg); } 90% { transform: rotate(5deg); } }
+.fx-bfly { animation: fxBfly .7s ease-in-out infinite; }
+.fx-float { animation: fxFloat 2.8s ease-in-out infinite; }
+.fx-ear { animation: fxEar 3s ease-in-out infinite; transform-origin: 50% 100%; }
+@media (prefers-reduced-motion: reduce) { .chest-box { animation: none !important; } }

@@ -335,7 +335,7 @@
     const page = el("div", "page");
     page.appendChild(A("back", "#/", KZ.t("← Басты бет")));
     const s = act.streak();
-    if (KZ.hero) page.appendChild(A("card hero-banner", "#/hero", KZ.hero.node("sm"), h("div", null, h("b", null, KZ.t("🎽 Менің кейіпкерім")), h("small", null, KZ.t("Жетістіктер мен серия арқылы ашылған киімдерді киіп көр")))));
+    if (KZ.hero) page.appendChild(A("card hero-banner", "#/hero", KZ.hero.node("sm"), h("div", null, h("b", null, KZ.t("🎽 Менің кейіпкерім")), h("small", null, KZ.hero.chestReady() ? KZ.t("🎁 Апталық сандық ашуға дайын!") : KZ.t("Жетістіктер мен серия арқылы ашылған киімдерді киіп көр")))));
 
     page.appendChild(
       h(
