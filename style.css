@@ -1331,3 +1331,5 @@ li.CodeMirror-hint-active { background: var(--teal, #2ec4b6); color: #1f1d36; }
 .fx-float { animation: fxFloat 2.8s ease-in-out infinite; }
 .fx-ear { animation: fxEar 3s ease-in-out infinite; transform-origin: 50% 100%; }
 @media (prefers-reduced-motion: reduce) { .chest-box { animation: none !important; } }
+
+.rv-code { display: block; white-space: pre; overflow-x: auto; margin: 8px 0; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--sun); font-size: 16px; line-height: 1.5; font-weight: 700; }

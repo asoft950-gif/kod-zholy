@@ -59,11 +59,22 @@
       const avail = pool.filter((x) => !st[x.id] || st[x.id].d <= t).length;
       return { pool: pool.length, avail, next: Math.min(avail, PER_DAY) };
     },
+    /* Бүгінгі қайталау бітті ме (кез келген жауап бүгін берілген сұрақтар саны) */
+    answeredToday() {
+      const t = today();
+      return Object.values(state()).filter((v) => v.a === t).length;
+    },
+    doneToday() {
+      return KZ.store.get(KEY + ".done", "") === today() || R.answeredToday() >= PER_DAY;
+    },
+    markDone() {
+      KZ.store.set(KEY + ".done", today());
+    },
     answer(id, ok) {
       const st = state();
       const cur = st[id] || { b: 0 };
       const b = ok ? Math.min(cur.b + 1, GAPS.length - 1) : 0;
-      st[id] = { b, d: addDays(today(), ok ? GAPS[b] : 1) };
+      st[id] = { b, d: addDays(today(), ok ? GAPS[b] : 1), a: today() };
       KZ.store.set(KEY, st);
     },
   });
@@ -72,6 +83,26 @@
   function rich(text) {
     const box = el("span");
     text.split("`").forEach((part, i) => box.appendChild(i % 2 ? h("code", null, part) : document.createTextNode(part)));
+    return box;
+  }
+  /* Сұрақ мәтіні: қатар тұрған `код`, `код` тізбегі және көп жолды код блок болып, астын-астын көрсетіледі */
+  function qrich(text) {
+    const box = el("span");
+    const tk = text.split("`").map((s, i) => ({ code: i % 2 === 1, s }));
+    for (let i = 0; i < tk.length; i++) {
+      const t = tk[i];
+      if (!t.code) {
+        if (t.s) box.appendChild(document.createTextNode(t.s));
+        continue;
+      }
+      const lines = [t.s];
+      while (i + 2 < tk.length && tk[i + 1].s === ", " && tk[i + 2].code) {
+        lines.push(tk[i + 2].s);
+        i += 2;
+      }
+      const code = lines.join("\n");
+      box.appendChild(h("code", lines.length > 1 || code.includes("\n") ? "rv-code" : null, code));
+    }
     return box;
   }
   const shuffle = (a) => {
@@ -94,7 +125,7 @@
     page.appendChild(box);
     root.appendChild(page);
 
-    const qs = R.session(PER_DAY);
+    const qs = R.doneToday() ? [] : R.session(PER_DAY - R.answeredToday()); // бет жаңартқанда 5-тен асып кетпейді
     if (!qs.length) {
       const c = R.counts();
       box.appendChild(h("h2", null, c.pool ? KZ.t("✅ Бүгінгі қайталау бітті") : KZ.t("Әзірге қайталайтын тақырып жоқ")));
@@ -109,7 +140,7 @@
       const course = KZ.getCourse(x.c);
       const topic = (course.topics || []).find((t) => t.id === x.t);
       box.appendChild(h("div", "rv-top", h("small", null, course.emoji + " " + course.name + (topic ? " · " + topic.title : "")), h("small", null, i + 1 + " / " + qs.length)));
-      box.appendChild(h("h2", "rv-q", rich(x.q)));
+      box.appendChild(h("h2", "rv-q", qrich(x.q)));
       const list = el("div", "rv-opts");
       const correct = x.opts[0];
       shuffle(x.opts).forEach((o) => {
@@ -142,6 +173,7 @@
     }
     function finish() {
       box.textContent = "";
+      R.markDone();
       const r = KZ.activity.mark(false);
       if (r.first) {
         const s = KZ.activity.streak().n;
@@ -159,7 +191,7 @@
   /* Басты беттегі карта */
   KZ.reviewCard = function () {
     const c = R.counts();
-    if (!c.pool) return null;
+    if (!c.pool || R.doneToday()) return null; // бүгін 5 сұрақ орындалса, басты бетте көрінбейді
     const card = el("section", "card review-card");
     const body = el("div");
     body.appendChild(h("b", null, KZ.t("🔁 Қайталау")));
