@@ -1346,6 +1346,45 @@
       );
       page.appendChild(stats);
 
+      if (isOwner) {
+        const bc = el("section", "card");
+        bc.appendChild(h("div", "card-title", KZ.t("📢 Рассылка")));
+        bc.appendChild(h("p", "hint", KZ.t("Хабарлама таңдалған адамдардың «Хабарламалар» бөліміне түседі, олар саған жауап жаза алады.")));
+        const bsel = el("select");
+        [["all", KZ.t("Барлығына")], ["student", KZ.t("Тек оқушыларға")], ["teacher", KZ.t("Тек мұғалімдерге")]].forEach(([v, l]) => {
+          const o = el("option", null, l);
+          o.value = v;
+          bsel.appendChild(o);
+        });
+        const bta = el("textarea");
+        bta.rows = 3;
+        bta.maxLength = 900;
+        bta.placeholder = KZ.t("Хабарлама мәтіні…");
+        bta.id = "bcText";
+        const bmsg = el("small", "form-msg");
+        const bsend = btn("btn primary", KZ.t("📢 Жіберу"), async () => {
+          const text = bta.value.trim();
+          if (!text) return;
+          const who = bsel.options[bsel.selectedIndex].textContent;
+          if (!confirm(KZ.t("Хабарламаны жібереміз бе? Кімге: ") + who)) return;
+          bsend.disabled = true;
+          bmsg.className = "form-msg";
+          try {
+            const n = await A.rpc("broadcast", { body_in: text, audience: bsel.value });
+            bta.value = "";
+            bmsg.className = "form-msg ok";
+            bmsg.textContent = "✅ " + KZ.t("Жіберілді: ") + n + KZ.t(" адамға");
+          } catch (e) {
+            bmsg.className = "form-msg bad";
+            bmsg.textContent = e.message;
+          } finally {
+            bsend.disabled = false;
+          }
+        });
+        bc.append(bsel, bta, bsend, bmsg);
+        page.appendChild(bc);
+      }
+
       const reload = () => admin(root);
       const act = (fn) => async () => {
         try {
