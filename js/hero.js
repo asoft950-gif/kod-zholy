@@ -109,6 +109,9 @@
     { id: "magic_scarf", slot: "neck", legend: true, n: KZ.t("Сиқырлы шарф"), unlock: "streak14", svg: () => `<g class="fx fx-hue"><path d="M42 160Q100 182 158 160L160 174Q100 198 40 174Z" fill="#9775fa" ${S}/><g class="fx fx-flutter"><path d="M118 178L126 208L146 202L136 174Z" fill="#7048e8" ${S}/><path d="M124 190l14-3" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/></g><path class="fx fx-twinkle" d="M70 172l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffd23f"/><path class="fx fx-twinkle d2" d="M104 178l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffd23f"/></g>` },
     { id: "dombyra_play", slot: "back", legend: true, n: KZ.t("Шертетін домбыра"), unlock: "read30", back: true, svg: () => `<g class="fx fx-strum"><path d="M168 150L192 46" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M168 150L192 46" stroke="#a0522d" stroke-width="5" stroke-linecap="round"/><path d="M162 204C140 202 136 182 142 166C148 150 166 146 178 152C192 160 192 182 184 194C178 202 170 204 162 204Z" fill="#d9480f" ${S}/><circle cx="166" cy="178" r="5" fill="#5c2b0f"/><path d="M152 176L180 180" stroke="#ffe8cc" stroke-width="1.8"/></g><g font-size="16" font-weight="900" fill="rgb(31,29,54)"><text class="fx fx-note" x="132" y="150">♪</text><text class="fx fx-note d2" x="146" y="140">♫</text><text class="fx fx-note d3" x="124" y="136">♪</text></g>` },
     { id: "code_rain", slot: "aura", legend: true, n: KZ.t("Код жаңбыры"), unlock: "lv100", back: true, svg: () => `<g font-family="monospace" font-weight="800" font-size="13" fill="rgb(81,207,102)"><text class="fx fx-fall" x="8" y="60">1</text><text class="fx fx-fall d2" x="8" y="120">0</text><text class="fx fx-fall d3" x="22" y="90">1</text><text class="fx fx-fall d4" x="22" y="160">0</text><text class="fx fx-fall d3" x="176" y="70">0</text><text class="fx fx-fall" x="176" y="140">1</text><text class="fx fx-fall d2" x="190" y="100">1</text><text class="fx fx-fall d4" x="190" y="170">0</text></g>` },
+    /* ---- МАУСЫМДЫҚ: мереке кезінде ғана ашық, кейін жабылады ---- */
+    { id: "nauryz_wreath", slot: "hat", legend: true, n: KZ.t("Наурыз гүл тәжі"), unlock: { season: "nauryz" }, svg: () => `<path d="M48 84Q50 52 100 46Q150 52 152 84" fill="none" stroke="#51cf66" stroke-width="9" stroke-linecap="round"/><g ${S3}><circle class="fx fx-pulse" cx="62" cy="64" r="9" fill="#f783ac"/><circle class="fx fx-pulse d2" cx="100" cy="48" r="10" fill="#ffd23f"/><circle class="fx fx-pulse d3" cx="138" cy="64" r="9" fill="#4dabf7"/><circle cx="80" cy="52" r="6" fill="#ffa94d"/><circle cx="120" cy="52" r="6" fill="#f783ac"/></g><g fill="#f783ac"><circle class="fx fx-fall" cx="40" cy="60" r="3"/><circle class="fx fx-fall d2" cx="160" cy="52" r="3"/><circle class="fx fx-fall d3" cx="30" cy="90" r="2.5"/><circle class="fx fx-fall d4" cx="172" cy="84" r="2.5"/></g>` },
+    { id: "snow_hat", slot: "hat", legend: true, n: KZ.t("Жаңа жыл бөрігі"), unlock: { season: "newyear" }, svg: () => `<path d="M52 84C52 50 76 34 108 40C136 44 150 60 150 84Z" fill="#e03131" ${S}/><rect x="46" y="76" width="108" height="18" rx="9" fill="#ffffff" ${S}/><g class="fx fx-flutter" style="transform-origin:70% 20%"><path d="M108 40Q150 30 160 62" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M108 40Q150 30 160 62" fill="none" stroke="#e03131" stroke-width="8" stroke-linecap="round"/><circle cx="162" cy="66" r="10" fill="#ffffff" ${S3}/></g><g fill="#ffffff" stroke="#74c0fc" stroke-width="1.5"><circle class="fx fx-fall" cx="30" cy="40" r="3.5"/><circle class="fx fx-fall d2" cx="62" cy="20" r="3"/><circle class="fx fx-fall d3" cx="150" cy="24" r="3.5"/><circle class="fx fx-fall d4" cx="176" cy="48" r="3"/></g>` },
     /* ---- апталық лига (өткен аптада сыныпта топ-3; тек осы апта ғана) ---- */
     { id: "lg1", slot: "hat", n: KZ.t("Алтын лавр (лига 🥇)"), unlock: { league: 1 }, svg: () => `<g ${S3} fill="#ffd23f"><ellipse cx="54" cy="84" rx="6" ry="11" transform="rotate(-28 54 84)"/><ellipse cx="47" cy="68" rx="6" ry="11" transform="rotate(-8 47 68)"/><ellipse cx="52" cy="52" rx="6" ry="11" transform="rotate(18 52 52)"/><ellipse cx="66" cy="40" rx="6" ry="11" transform="rotate(42 66 40)"/><ellipse cx="146" cy="84" rx="6" ry="11" transform="rotate(28 146 84)"/><ellipse cx="153" cy="68" rx="6" ry="11" transform="rotate(8 153 68)"/><ellipse cx="148" cy="52" rx="6" ry="11" transform="rotate(-18 148 52)"/><ellipse cx="134" cy="40" rx="6" ry="11" transform="rotate(-42 134 40)"/></g><path d="${star(100, 34, 13)}" fill="#ff6b6b" stroke="${INK}" stroke-width="3"/>` },
     { id: "lg2", slot: "pin", n: KZ.t("Күміс медаль (лига 🥈)"), unlock: { league: 2 }, svg: () => `<path d="M126 150l10 20M150 150l-10 20" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M126 150l10 20M150 150l-10 20" stroke="#4dabf7" stroke-width="5" stroke-linecap="round"/><circle cx="138" cy="182" r="14" fill="#ced4da" ${S3}/><text x="138" y="188" font-size="16" font-weight="900" text-anchor="middle" fill="#495057">2</text>` },
@@ -150,6 +153,20 @@
     d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
     return d.toISOString().slice(0, 10);
   };
+  /* маусым терезелері: [ай, күн] бастап — дейін (UTC емес, жергілікті уақыт) */
+  const SEASONS = {
+    nauryz: { a: [3, 14], b: [3, 25], t: KZ.t("14–25 наурыз") },
+    newyear: { a: [12, 20], b: [1, 7], t: KZ.t("20 желтоқсан – 7 қаңтар") },
+  };
+  const inSeason = (k, now) => {
+    const S = SEASONS[k];
+    if (!S) return false;
+    const d = now || new Date();
+    const v = (d.getMonth() + 1) * 100 + d.getDate();
+    const a = S.a[0] * 100 + S.a[1];
+    const b = S.b[0] * 100 + S.b[1];
+    return a <= b ? v >= a && v <= b : v >= a || v <= b;
+  };
   const leagueRank = () => {
     const L = KZ.store.get(LKEY, null);
     return L && L.week === weekKey() ? L.rank : null;
@@ -172,6 +189,7 @@
   const need = (i) => {
     const u = i.unlock;
     if (u === "start") return KZ.t("Бастапқы жиынтықта кездейсоқ беріледі");
+    if (u.season) return KZ.t("Маусымдық зат: тек ") + SEASONS[u.season].t + KZ.t(" аралығында киіледі");
     if (u.league) return KZ.t("Апталық лига: өткен аптада сыныпта ") + u.league + KZ.t("-орын алсаң, осы аптада ғана киесің");
     if (typeof u === "object") return KZ.t("Серия ") + u.streak + KZ.t(" күнге жеткенде ғана көрінеді");
     const a = KZ.ach.defs().find((x) => x.id === u);
@@ -187,6 +205,7 @@
       s = s || ensure();
       const u = i.unlock;
       if (u === "start") return s.starters.includes(i.id);
+      if (u.season) return inSeason(u.season);
       if (u.league) return leagueRank() === u.league;
       if (typeof u === "object") return hero.bestStreak() >= u.streak;
       return !!KZ.ach.unlocked()[u];
@@ -195,12 +214,14 @@
     /* серия ауасы тек қазіргі серия жеткілікті болғанда көрінеді */
     visible(i, ctx) {
       const u = i.unlock;
+      if (u && u.season) return inSeason(u.season);
       if (u && u.league) return ctx && ctx.lg !== undefined ? ctx.lg === u.league : leagueRank() === u.league;
       if (u && u.streak) return (ctx && ctx.streak !== undefined ? ctx.streak : KZ.activity.streak().n) >= u.streak;
       return true;
     },
     weekKey,
     leagueRank,
+    inSeason,
     /* серверден лига орнын алу (кіргенде және рейтинг ашқанда) */
     async loadLeague() {
       const A = KZ.auth;
@@ -489,7 +510,7 @@
         // алдын ала көру: сол заттың өзі киілген кейіпкер
         f.innerHTML = ok ? hero.svg({ color: ensure().color, eq: { [sl.id]: i.id }, preview: true }) : "🔒";
         b.append(f, h("small", null, i.n));
-        if (i.legend) b.appendChild(h("small", "hi-legend", KZ.t("✨ Аңыз")));
+        if (i.legend) b.appendChild(h("small", "hi-legend", i.unlock.season ? KZ.t("⏳ Маусымдық") : KZ.t("✨ Аңыз")));
         if (!ok) b.title = need(i);
         b.addEventListener("click", () => {
           if (!ok) {
