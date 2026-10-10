@@ -545,9 +545,11 @@
       ctx.ellipse(cx, fy, r * 1.05, r * 0.32, 0, 0, 7);
       ctx.fill();
       ctx.save();
-      ctx.translate(cx, fy - r * 0.2 + bob * 0.5);
+      ctx.translate(cx + (kind === "boss" && Math.floor(now / 140) % 9 === 0 ? 3 : 0), fy - r * 0.2 + bob * (kind === "boss" ? 2.2 : 0.5));
       if (S.ehit > 0) ctx.globalAlpha = 0.6 + 0.4 * Math.sin(now / 30);
       if (kind === "slime") {
+        const q = Math.sin(now / 240);
+        ctx.scale(1 + 0.08 * q, 1 - 0.08 * q);
         const g = ctx.createRadialGradient(-r * 0.3, -r * 0.9, 2, 0, -r * 0.5, r * 1.3);
         g.addColorStop(0, "#d3f9d8");
         g.addColorStop(0.45, "#40c057");
@@ -772,6 +774,19 @@
         if (y === hrow) drawHero(now);
       }
       ctx.restore();
+      S.ghosts = (S.ghosts || []).filter((g) => now - g.t0 < 600);
+      S.ghosts.forEach((g) => {
+        const p = (now - g.t0) / 600;
+        const gx = px(g.x) + T / 2;
+        const gy = py2(g.y) + T * 0.82;
+        ctx.save();
+        ctx.globalAlpha = 1 - p;
+        ctx.translate(gx, gy);
+        ctx.scale(1 + p * 0.3, 1 - p * 0.9);
+        ctx.translate(-gx, -gy);
+        drawEnemy(g.kind, gx, gy, g.kind === "boss" ? 1.45 : 1, now, null, false);
+        ctx.restore();
+      });
       /* слэш (қылыш ізі) */
       if (S.slash > 0 && S.fight) {
         const ex = px(S.fight.x) + T / 2;
@@ -1002,7 +1017,7 @@
             msg.textContent = "💬 " + e.s;
             break;
           case "fightstart": {
-            S.fight = { x: e.x, y: e.y, name: e.name, ehp: e.ehp, emax: e.ehp };
+            S.fight = { x: e.x, y: e.y, name: e.name, ehp: e.ehp, emax: e.ehp, kind: enemySpec(e.c, e.x, e.y).kind };
             S.hp = e.mhp;
             S.hpmax = e.mhp;
             S.banner = { s: (e.boss ? "👾 " : "⚔️ ") + e.name + "!", c: e.boss ? "#ff6b6b" : "#ffd23f" };
@@ -1060,6 +1075,7 @@
           case "fightend":
             if (e.win) {
               burst(e.x, e.y, "#3dffb0", 22, true);
+              (S.ghosts = S.ghosts || []).push({ x: e.x, y: e.y, kind: S.fight ? S.fight.kind : "slime", t0: performance.now() });
               S.grid[e.y][e.x] = ".";
               float(e.x, e.y, "✔", "#3dffb0");
               S.fight = null;
