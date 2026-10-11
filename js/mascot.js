@@ -90,7 +90,7 @@
     glasses: { side: [0.2, 0, 1] },
     backpack: { side: [-0.25, -0.05, 1.3] },
     wings: { side: [0.02, -0.05, 1.4] },
-    scarf: { front: [0, -0.12, 1.1], side: [0, -0.1, 1.05], back: [0, -0.1, 1.05] },
+    scarf: { front: [0, -0.01, 0.97], side: [0, -0.1, 1.05], back: [0, -0.1, 1.05] },
   };
 
   /* аксессуар қабаты: слот қайталанбайды, дулыға көз/құлақпен сыймайды */
@@ -247,5 +247,5 @@
     });
   }
 
-  KZ.mascot = { markup, ready, drawAt, snapshot, refresh };
+  KZ.mascot = { markup, ready, drawAt, snapshot, refresh, _adj: (id, v, a) => ((ADJ[id] = ADJ[id] || {})[v] = a) };
 })();
