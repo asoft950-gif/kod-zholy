@@ -131,7 +131,7 @@
       '<button type="button" data-v="0">A−</button><button type="button" data-v="1">A</button><button type="button" data-v="2">A+</button><button type="button" data-v="3">A++</button></div></div>' +
       KZ.t('<div class="set-row"><span>Дыбыс</span><div class="seg" data-k="sound">') +
       KZ.t('<button type="button" data-v="on">🔊 Қосулы</button><button type="button" data-v="off">🔇 Өшірулі</button></div></div>') +
-      KZ.t('<div class="set-row"><span>Бит көмекші</span><div class="seg" data-k="helper">') +
+      KZ.t('<div class="set-row"><span>Битлинг көмекші</span><div class="seg" data-k="helper">') +
       KZ.t('<button type="button" data-v="on">🙂 Қосулы</button><button type="button" data-v="off">🤐 Өшірулі</button></div></div>') +
       KZ.t('<div class="set-row off-row" hidden><span>Офлайн</span><div class="off-box"><button type="button" class="btn small" id="offBtn">⬇ Интернетсіз жұмысқа жүктеу</button><small id="offMsg"></small></div></div>') +
       "</div>";

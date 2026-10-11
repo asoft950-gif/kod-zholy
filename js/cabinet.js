@@ -941,7 +941,7 @@
         o.value = x.id;
         course.appendChild(o);
       });
-    const og = el("option", null, "🎮 " + KZ.t("Ойын: Бит Матрицадан шығу"));
+    const og = el("option", null, "🎮 " + KZ.t("Ойын: Битлинг Матрицадан шығу"));
     og.value = "game";
     course.appendChild(og);
     const level = el("select");

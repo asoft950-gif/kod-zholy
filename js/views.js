@@ -113,7 +113,7 @@
 
     const gt = A("card algo-tile game-tile", "#/game");
     gt.appendChild(h("div", "e", "🎮"));
-    gt.appendChild(h("div", null, h("b", null, KZ.t("Ойын: Бит Матрицадан шығады")), h("small", null, KZ.t("Python кодымен кейіпкерді жүргіз, жауларды жең, ферма өсір"))));
+    gt.appendChild(h("div", null, h("b", null, KZ.t("Ойын: Битлинг Матрицадан шығады")), h("small", null, KZ.t("Python кодымен кейіпкерді жүргіз, жауларды жең, ферма өсір"))));
     page.appendChild(gt);
 
     page.appendChild(

@@ -1,4 +1,4 @@
-/* Bitlings ойыны «Бит: Матрицадан шығу»: Python кодымен басқарылатын 2.5D (жоғарыдан қарау) ойын.
+/* Bitlings ойыны «Битлинг: Матрицадан шығу»: Python кодымен басқарылатын 2.5D (жоғарыдан қарау) ойын.
    Python (py/game.py) әлемді есептеп, оқиғалар тізімін қайтарады, ал мына файл оны канвасқа анимация етіп қайта ойнатады. */
 (() => {
   "use strict";
@@ -94,7 +94,7 @@
     box.textContent = "";
     const w = el("div", "gm");
     w.appendChild(h("a", "btn small ghost", t("← Басты бет"))).href = "#/";
-    w.appendChild(h("h1", "gm-title", "🎮 " + t("Бит: Матрицадан шығу")));
+    w.appendChild(h("h1", "gm-title", "🎮 " + t("Битлинг: Матрицадан шығу")));
     w.appendChild(h("p", "hint", d.zone.intro));
     w.appendChild(h("div", "gm-gems", "💎 " + gem() + " " + t("кристалл")));
     w.appendChild(h("h2", "section-title", d.zone.name));
@@ -403,7 +403,7 @@
         ctx.font = "bold " + Math.round(T * 0.2) + "px ui-monospace,monospace";
         ctx.fillText((x * 7 + y * 13) % 3 ? "0" : "1", X + 4, Y + T - 5);
       }
-      /* Бит өткен із: жасыл жарқыл баяу сөнеді */
+      /* Битлинг өткен із: жасыл жарқыл баяу сөнеді */
       const vt = S.vis && S.vis[x + "," + y];
       if (vt) {
         const a = Math.max(0, 1 - (now - vt) / 2600);
@@ -1284,7 +1284,7 @@
     rafId = requestAnimationFrame(loop);
     void setCode;
     /* кіріспе кеңес: бірінші ашқанда */
-    if (!L.hero && L.id === "g1" && !load().code.g1) msg.textContent = t("Кодты өзгертіп, ▶ басып көр: Бит қалай жүреді?");
+    if (!L.hero && L.id === "g1" && !load().code.g1) msg.textContent = t("Кодты өзгертіп, ▶ басып көр: Битлинг қалай жүреді?");
   }
 
   KZ.gamePage = (box, id) => {

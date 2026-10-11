@@ -35,13 +35,13 @@
     const txt = el("div", "lp-hero-text");
     txt.appendChild(h("span", "lp-pill", KZ.t("🇰🇿 Қазақ тілінде · браузерде · ештеңе орнатпай")));
     txt.appendChild(h("h1", null, KZ.t("Кодты "), h("mark", null, KZ.t("көзбен көріп")), KZ.t(" үйрен")));
-    txt.appendChild(h("p", null, KZ.t("Python, HTML, CSS, JavaScript, Kotlin және SQL: код жаз, ол қалай жұмыс істейтінін бірден көр. Тапсырма шешіп ⭐ жина, кейіпкерің Бит-ті киіндір.")));
+    txt.appendChild(h("p", null, KZ.t("Python, HTML, CSS, JavaScript, Kotlin және SQL: код жаз, ол қалай жұмыс істейтінін бірден көр. Тапсырма шешіп ⭐ жина, кейіпкерің Битлинг-ті киіндір.")));
     txt.appendChild(h("div", "lp-cta", A("btn primary big", "#/login/register", KZ.t("✨ Тегін бастау")), A("btn big", "#/login", KZ.t("🔑 Кіру"))));
     txt.appendChild(h("small", "lp-note", KZ.t("Тіркелу бір минут алады. Прогресің барлық құрылғыда сақталады.")));
     hero.appendChild(txt);
     const stage = el("div", "lp-stage");
     stage.appendChild(bit("#6c5ce7", { hat: "cap", face: "round" }, "lp-bit-main"));
-    stage.appendChild(h("div", "lp-bubble", KZ.t("Сәлем! Мен Бит. Бірге бастаймыз ба? 👋")));
+    stage.appendChild(h("div", "lp-bubble", KZ.t("Сәлем! Мен Битлинг. Бірге бастаймыз ба? 👋")));
     hero.appendChild(stage);
     page.appendChild(hero);
 
@@ -74,8 +74,8 @@
     cs.appendChild(grid);
     page.appendChild(cs);
 
-    /* --- Бит --- */
-    const b = sec("lp-bits", head(KZ.t("Кейіпкерің Бит"), KZ.t("Өзіңнің Битіңді жаса"), KZ.t("Түсін таңда, жетістік пен серия арқылы бас киім, көзілдірік, жапқыш пен аура аш. Апталық лигада топ-3 арнайы зат алады.")));
+    /* --- Битлинг --- */
+    const b = sec("lp-bits", head(KZ.t("Кейіпкерің Битлинг"), KZ.t("Өзіңнің Битлингіңді жаса"), KZ.t("Түсін таңда, жетістік пен серия арқылы бас киім, көзілдірік, жапқыш пен аура аш. Апталық лигада топ-3 арнайы зат алады.")));
     const row = el("div", "lp-bitrow");
     [["#ff6b6b", { hat: "wizard" }], ["#2ec4b6", { hat: "crown_gold", face: "round" }], ["#ffa94d", { hat: "party", back: "cape" }], ["#4dabf7", { hat: "helmet" }], ["#f783ac", { hat: "takiya", face: "round" }]].forEach(([c, eq]) => row.appendChild(bit(c, eq)));
     b.appendChild(row);

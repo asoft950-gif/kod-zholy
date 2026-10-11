@@ -106,7 +106,7 @@ class World:
         c = self.at(nx, ny)
         if c == "#" or c == "~":
             self.emit("bump", x=self.x, y=self.y, d=self.d)
-            raise GameError(T("Бит қабырғаға тіреліп қалды. Алдында жол жоқ!") if c == "#" else T("Бит суға түсіп кетпек болды! Су алдында."))
+            raise GameError(T("Битлинг қабырғаға тіреліп қалды. Алдында жол жоқ!") if c == "#" else T("Битлинг суға түсіп кетпек болды! Су алдында."))
         if c == "D":
             if self.keys <= 0:
                 self.emit("bump", x=self.x, y=self.y, d=self.d)
@@ -121,7 +121,7 @@ class World:
         self.emit("move", x=nx, y=ny, d=self.d)
         if c == "^":
             self.emit("hurt", x=nx, y=ny)
-            raise GameError(T("Бит тікенге түсіп қалды! Айналып өт."))
+            raise GameError(T("Битлинг тікенге түсіп қалды! Айналып өт."))
         if c == "c":
             self.coins += 1
             self.grid[ny][nx] = "."
@@ -149,7 +149,7 @@ class World:
         if fn is None:
             self.emit("fightstart", x=x, y=y, c=c, name=spec["name"], ehp=spec["hp"], mhp=self.hp, mmax=self.hero["hp"], boss=c == "B")
             raise GameError(T("Жау шықты! Шайқас үшін def shaiqas(men, zhau): функциясын жаз."))
-        me = Fighter("Бит", self.hp, self.hero["atk"], heals=self.heals_left)
+        me = Fighter("Битлинг", self.hp, self.hero["atk"], heals=self.heals_left)
         me.max = self.hero["hp"]
         en = Fighter(spec["name"], spec["hp"], spec["atk"], tur=spec.get("tur", ""))
         heavy = spec.get("heavy", 0)
@@ -198,7 +198,7 @@ class World:
         self.heals_left = me.heals
         if me.hp <= 0:
             self.emit("fightend", win=False)
-            raise GameError(T("Бит шайқаста жеңілді. Стратегияны өзгертіп көр!"))
+            raise GameError(T("Битлинг шайқаста жеңілді. Стратегияны өзгертіп көр!"))
         self.grid[y][x] = "."
         self.fought += 1
         self.emit("fightend", win=True, x=x, y=y, mhp=me.hp)
@@ -344,7 +344,7 @@ def run_game(code, cfg_json):
         else:
             err = T("Жиналған кристалл: ") + str(w.crystals) + " / " + str(goal) + T(". Тағы жина!")
     if err is None and not w.won:
-        err = T("Код бітті, бірақ Бит шығуға жетпеді. Тағы қадам керек!")
+        err = T("Код бітті, бірақ Битлинг шығуға жетпеді. Тағы қадам керек!")
     return json.dumps(
         {
             "ok": err is None,
