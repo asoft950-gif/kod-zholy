@@ -657,6 +657,7 @@
     });
     cbody.appendChild(ob);
     cc.append(cbox, cbody);
+    cc.hidden = true;
     page.appendChild(cc);
 
     /* ---------- Витрина: аңыз заттар, көрсеткіштер, бөлісу ---------- */
@@ -733,6 +734,7 @@
       sec.appendChild(grid);
       lists.appendChild(sec);
     });
+    lists.hidden = true; // v3 кейіпкерде киім кадрлары жоқ — гардероб уақытша жасырылған
     page.appendChild(lists);
     root.appendChild(page);
     redraw();

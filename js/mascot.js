@@ -1,47 +1,85 @@
-/* Bitlings: Битлинг (Loop Python) — модульді 2D кейіпкер. Суреттер img/wardrobe/*.webp, қозғалыс js/loopwardrobe.js (Canvas 2D).
+/* Bitlings: Битлинг (Loop Python v3) — тұтас кадрлы 2D кейіпкер. Суреттер img/bitling/<анимация>.webp (sprite-sheet, 4 баған, 512×512 кадр).
    Сурет <canvas class="mz"> ретінде орналасады; бір ортақ қозғалтқыш барлық көрінетін canvas-ты сызады. */
 (() => {
   "use strict";
-  const BASE = "img/wardrobe";
-  let LW = null;
+  const BASE = "img/bitling";
+  const ANIMS = {
+    "walk-right": { n: 8, d: 110, loop: true },
+    "walk-left": { n: 8, d: 110, loop: true },
+    "walk-down": { n: 8, d: 110, loop: true },
+    "walk-up": { n: 8, d: 110, loop: true },
+    idle: { n: 12, d: 200, loop: true },
+    wave: { n: 12, d: 140, loop: false },
+    blink: { n: 6, d: [1500, 70, 90, 90, 70, 800], loop: true },
+  };
+  const FW = 512,
+    COLS = 4,
+    AX = 256,
+    AY = 452;
+  const IMG = {};
   let readyP = null;
   function ready() {
     if (!readyP)
-      readyP = fetch(BASE + "/wardrobe.json")
-        .then((r) => r.json())
-        .then((m) => LoopWardrobe.load(BASE, m))
-        .then((l) => ((LW = l), l));
+      readyP = Promise.all(
+        Object.keys(ANIMS).map(
+          (k) =>
+            new Promise((res, rej) => {
+              const im = new Image();
+              im.onload = () => ((IMG[k] = im), res());
+              im.onerror = rej;
+              im.src = BASE + "/" + k + ".webp";
+            }),
+        ),
+      ).then(() => true);
     return readyP;
   }
   const reduce = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* sel: { слот: lw-id } -> LoopWardrobe параметрлері */
-  function opts(sel) {
-    const o = { outfit: sel.outfit || "base", accessories: [] };
-    Object.keys(sel).forEach((k) => {
-      if (k !== "outfit") o.accessories.push(sel[k]);
-    });
-    return o;
+  function frameAt(anim, t) {
+    const a = ANIMS[anim] || ANIMS.idle;
+    if (Array.isArray(a.d)) {
+      const tot = a.d.reduce((s, x) => s + x, 0);
+      let m = a.loop ? ((t % tot) + tot) % tot : Math.min(Math.max(t, 0), tot - 1);
+      for (let i = 0; i < a.n; i++) {
+        if (m < a.d[i]) return i;
+        m -= a.d[i];
+      }
+      return a.n - 1;
+    }
+    const i = Math.floor(Math.max(t, 0) / a.d);
+    return a.loop ? i % a.n : Math.min(i, a.n - 1);
+  }
+  /* o: {timeMs} | {phase 0..1} */
+  function frameOf(anim, o) {
+    const a = ANIMS[anim] || ANIMS.idle;
+    if (o && o.phase != null) return Math.min(a.n - 1, Math.floor((((o.phase % 1) + 1) % 1) * a.n));
+    return frameAt(anim, (o && o.timeMs) || 0);
+  }
+  /* кадрды (dx,dy) бұрышынан size×size өлшемде сызу */
+  function blit(g, anim, f, dx, dy, size) {
+    const im = IMG[ANIMS[anim] ? anim : "idle"];
+    if (!im) return false;
+    g.drawImage(im, (f % COLS) * FW, Math.floor(f / COLS) * FW, FW, FW, dx, dy, size, size);
+    return true;
   }
 
-  /* HTML белгілеу: <canvas> */
+  /* HTML белгілеу: <canvas>. sel — ескі гардероб үшін, қолданылмайды */
   function markup(sel, o) {
     const px = (o && o.px) || 300;
-    return `<canvas class="mz" width="${px}" height="${px}" data-s='${JSON.stringify(sel || {})}'${o && o.live ? ' data-live="1"' : ""}${o && o.crop ? ' data-crop="1"' : ""}></canvas>`;
+    return `<canvas class="mz" width="${px}" height="${px}"${o && o.live ? ' data-live="1"' : ""}${o && o.crop ? ' data-crop="1"' : ""}></canvas>`;
   }
 
   /* ---------- сызу ---------- */
-  const CROP = { x: 140, y: 40, w: 234 }; // бас аймағы 512 кадрда
+  const CROP = { x: 140, y: 80, w: 250 }; // бас аймағы 512 кадрда
   function paint(cv, anim, timeMs) {
     const g = cv.getContext("2d");
     const W = cv.width;
-    const base = opts(JSON.parse(cv.dataset.s || "{}"));
+    g.clearRect(0, 0, W, cv.height);
     if (cv.dataset.crop) {
       const k = W / CROP.w;
-      LW.draw(g, Object.assign(base, { animation: "idle", phase: 0, size: 512 * k, x: -CROP.x * k, y: -CROP.y * k }));
-    } else LW.draw(g, Object.assign(base, { animation: anim, timeMs, size: W, x: 0, y: 0 }));
+      blit(g, "idle", 0, -CROP.x * k, -CROP.y * k, 512 * k);
+    } else blit(g, anim, frameAt(anim, timeMs), 0, 0, W);
   }
-
   const ST = new WeakMap();
   const visible = (cv) => {
     const r = cv.getBoundingClientRect();
@@ -86,6 +124,7 @@
       let t = el;
       if (anim === "idle") t = now;
       else if (anim === "blink") t = 1500 + el; // тек жұму кадрлары (1500мс ұстап тұру жоқ)
+      else if (anim === "walk-down" || anim === "wave") t = el;
       else if (anim === "blinkloop") (anim = "blink"), (t = el);
       paint(cv, anim, t);
     });
@@ -94,29 +133,23 @@
   function start() {
     if (timer) return;
     timer = setInterval(() => {
-      if (LW && !document.hidden) tick(performance.now());
+      if (IMG.idle && !document.hidden) tick(performance.now());
     }, reduce() ? 250 : 33);
   }
   ready().then(start, () => {});
   start();
 
   /* ---------- ойын үшін: негізгі ctx-ке тікелей. Аяқ нүктесі (fx,fy), size — 512 кадрдың көрінетін өлшемі ---------- */
-  function drawAt(ctx, anim, o, fx, fy, size, sel) {
-    if (!LW) return false;
-    const k = size / 512;
-    try {
-      LW.draw(ctx, Object.assign(opts(sel || {}), o, { animation: anim, size, x: fx - 256 * k, y: fy - 460 * k, clear: false }));
-    } catch (e) {
-      return false;
-    }
-    return true;
+  function drawAt(ctx, anim, o, fx, fy, size) {
+    const k = size / FW;
+    return blit(ctx, anim, frameOf(anim, o), fx - AX * k, fy - AY * k, size);
   }
   /* куәлік/бөлісу картасы: жеке canvas */
   function snapshot(sel, px) {
     return ready().then(() => {
       const cv = document.createElement("canvas");
       cv.width = cv.height = px;
-      LW.draw(cv.getContext("2d"), Object.assign(opts(sel || {}), { animation: "idle", phase: 0, size: px, x: 0, y: 0 }));
+      blit(cv.getContext("2d"), "idle", 0, 0, 0, px);
       return cv;
     });
   }
