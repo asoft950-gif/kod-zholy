@@ -16,24 +16,48 @@
     COLS = 4,
     AX = 256,
     AY = 452;
-  const IMG = {};
-  let readyP = null;
-  function ready() {
-    if (!readyP)
-      readyP = Promise.all(
-        Object.keys(ANIMS).map(
-          (k) =>
-            new Promise((res, rej) => {
-              const im = new Image();
-              im.onload = () => ((IMG[k] = im), res());
-              im.onerror = rej;
-              im.src = BASE + "/" + k + ".webp";
-            }),
-        ),
-      ).then(() => true);
-    return readyP;
+  const IMG = {}; // "<outfit|base>-<anim>" -> sheet, "acc-<id>-<view>" -> аксессуар
+  const ATT = {}; // outfit -> { anim: [ {id: {x,y,w,h,ax,ay,r,b}} ] }
+  const P = {}; // жүктеу уәделері
+  let MAN = null;
+  const loadImg = (key, src) =>
+    (P[key] =
+      P[key] ||
+      new Promise((res) => {
+        const im = new Image();
+        im.onload = () => ((IMG[key] = im), res(true));
+        im.onerror = () => res(false);
+        im.src = src;
+      }));
+  const baseP = () => Promise.all(Object.keys(ANIMS).map((k) => loadImg("base-" + k, BASE + "/" + k + ".webp")));
+  const manP = () =>
+    (P.man =
+      P.man ||
+      fetch(BASE + "/wardrobe.json")
+        .then((r) => r.json())
+        .then((m) => (MAN = m))
+        .catch(() => null));
+  const outfitOf = (sel) => (sel && sel.outfit && (MAN ? MAN.outfits[sel.outfit] : true) ? sel.outfit : null);
+  const accsOf = (sel) => Object.keys(sel || {}).filter((k) => k !== "outfit").map((k) => sel[k]);
+  /* киім мен аксессуарларды жүктеу (қажеттісін ғана) */
+  function loadSel(sel) {
+    return manP().then(() => {
+      if (!MAN) return false;
+      const o = outfitOf(sel);
+      const jobs = [];
+      if (o) {
+        Object.keys(ANIMS).forEach((k) => jobs.push(loadImg(o + "-" + k, BASE + "/" + o + "-" + k + ".webp")));
+        jobs.push((P["att-" + o] = P["att-" + o] || fetch(BASE + "/att-" + o + ".json").then((r) => r.json()).then((j) => ((ATT[o] = j), true)).catch(() => false)));
+      } else if (!P["att-street"]) jobs.push((P["att-street"] = fetch(BASE + "/att-street.json").then((r) => r.json()).then((j) => ((ATT.street = j), true)).catch(() => false)));
+      accsOf(sel).forEach((id) => ["front", "side", "back"].forEach((v) => jobs.push(loadImg("acc-" + id + "-" + v, BASE + "/acc-" + id + "-" + v + ".webp"))));
+      return Promise.all(jobs).then(() => true);
+    });
+  }
+  function ready(sel) {
+    return Promise.all([baseP(), loadSel(sel)]).then(() => true);
   }
   const reduce = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const keyOf = (sel) => JSON.stringify(sel || {});
 
   function frameAt(anim, t) {
     const a = ANIMS[anim] || ANIMS.idle;
@@ -55,18 +79,60 @@
     if (o && o.phase != null) return Math.min(a.n - 1, Math.floor((((o.phase % 1) + 1) % 1) * a.n));
     return frameAt(anim, (o && o.timeMs) || 0);
   }
-  /* кадрды (dx,dy) бұрышынан size×size өлшемде сызу */
-  function blit(g, anim, f, dx, dy, size) {
-    const im = IMG[ANIMS[anim] ? anim : "idle"];
+  /* аксессуар қабаты: слот қайталанбайды, дулыға көз/құлақпен сыймайды */
+  function resolve(ids) {
+    const sel = [],
+      slots = new Set();
+    for (const id of ids) {
+      const a = MAN && MAN.accessories[id];
+      if (!a || slots.has(a.slot) || a.ex.some((x) => slots.has(x)) || sel.some((x) => MAN.accessories[x].ex.includes(a.slot))) continue;
+      sel.push(id);
+      slots.add(a.slot);
+    }
+    return sel;
+  }
+  /* кадр (dx,dy) бұрышынан size×size өлшемде: киім + аксессуарлар */
+  function blit(g, sel, anim, f, dx, dy, size) {
+    if (!ANIMS[anim]) anim = "idle";
+    const o = outfitOf(sel);
+    let im = o && IMG[o + "-" + anim];
+    const dressed = !!im;
+    if (!im) im = IMG["base-" + anim];
     if (!im) return false;
-    g.drawImage(im, (f % COLS) * FW, Math.floor(f / COLS) * FW, FW, FW, dx, dy, size, size);
+    const fw = im.naturalWidth / COLS,
+      k = size / FW;
+    const att = ATT[o || "street"];
+    const pl = dressed || (att && !o) ? att && att[anim] && att[anim][f] : null;
+    const accs = pl ? resolve(accsOf(sel)) : [];
+    const view = anim === "walk-up" ? "back" : anim === "walk-right" || anim === "walk-left" ? "side" : "front";
+    const paint = (id) => {
+      const fit = pl[id],
+        ai = IMG["acc-" + id + "-" + view];
+      if (!fit || !ai) return;
+      g.save();
+      if (anim === "walk-left") {
+        g.translate(512, 0);
+        g.scale(-1, 1);
+      }
+      g.translate(fit.x, fit.y);
+      g.rotate(fit.r || 0);
+      g.drawImage(ai, -fit.ax * fit.w, -fit.ay * fit.h, fit.w, fit.h);
+      g.restore();
+    };
+    g.save();
+    g.translate(dx, dy);
+    g.scale(k, k);
+    accs.forEach((id) => pl[id] && pl[id].b && paint(id));
+    g.drawImage(im, (f % COLS) * fw, Math.floor(f / COLS) * fw, fw, fw, 0, 0, 512, 512);
+    accs.forEach((id) => pl[id] && !pl[id].b && paint(id));
+    g.restore();
     return true;
   }
 
-  /* HTML белгілеу: <canvas>. sel — ескі гардероб үшін, қолданылмайды */
+  /* HTML белгілеу: <canvas>. sel — { слот: lw-id } */
   function markup(sel, o) {
     const px = (o && o.px) || 300;
-    return `<canvas class="mz" width="${px}" height="${px}"${o && o.live ? ' data-live="1"' : ""}${o && o.crop ? ' data-crop="1"' : ""}></canvas>`;
+    return `<canvas class="mz" width="${px}" height="${px}" data-s='${keyOf(sel)}'${o && o.live ? ' data-live="1"' : ""}${o && o.crop ? ' data-crop="1"' : ""}></canvas>`;
   }
 
   /* ---------- сызу ---------- */
@@ -74,12 +140,22 @@
   function paint(cv, anim, timeMs) {
     const g = cv.getContext("2d");
     const W = cv.width;
+    const sel = JSON.parse(cv.dataset.s || "{}");
+    const ks = keyOf(sel);
+    if (!P["ld" + ks]) {
+      P["ld" + ks] = true;
+      loadSel(sel).then(() => refresh());
+    }
     g.clearRect(0, 0, W, cv.height);
     if (cv.dataset.crop) {
       const k = W / CROP.w;
-      blit(g, "idle", 0, -CROP.x * k, -CROP.y * k, 512 * k);
-    } else blit(g, anim, frameAt(anim, timeMs), 0, 0, W);
+      blit(g, sel, "idle", 0, -CROP.x * k, -CROP.y * k, 512 * k);
+    } else blit(g, sel, anim, frameAt(anim, timeMs), 0, 0, W);
   }
+  function refresh() {
+    document.querySelectorAll("canvas.mz[data-d]").forEach((c) => delete c.dataset.d);
+  }
+
   const ST = new WeakMap();
   const visible = (cv) => {
     const r = cv.getBoundingClientRect();
@@ -133,26 +209,26 @@
   function start() {
     if (timer) return;
     timer = setInterval(() => {
-      if (IMG.idle && !document.hidden) tick(performance.now());
+      if (IMG["base-idle"] && !document.hidden) tick(performance.now());
     }, reduce() ? 250 : 33);
   }
   ready().then(start, () => {});
   start();
 
   /* ---------- ойын үшін: негізгі ctx-ке тікелей. Аяқ нүктесі (fx,fy), size — 512 кадрдың көрінетін өлшемі ---------- */
-  function drawAt(ctx, anim, o, fx, fy, size) {
+  function drawAt(ctx, anim, o, fx, fy, size, sel) {
     const k = size / FW;
-    return blit(ctx, anim, frameOf(anim, o), fx - AX * k, fy - AY * k, size);
+    return blit(ctx, sel || {}, anim, frameOf(anim, o), fx - AX * k, fy - AY * k, size);
   }
   /* куәлік/бөлісу картасы: жеке canvas */
   function snapshot(sel, px) {
-    return ready().then(() => {
+    return ready(sel).then(() => {
       const cv = document.createElement("canvas");
       cv.width = cv.height = px;
-      blit(cv.getContext("2d"), "idle", 0, 0, 0, px);
+      blit(cv.getContext("2d"), sel || {}, "idle", 0, 0, 0, px);
       return cv;
     });
   }
 
-  KZ.mascot = { markup, ready, drawAt, snapshot, refresh: () => document.querySelectorAll("canvas.mz[data-d]").forEach((c) => delete c.dataset.d) };
+  KZ.mascot = { markup, ready, drawAt, snapshot, refresh };
 })();

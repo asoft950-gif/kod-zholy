@@ -82,7 +82,7 @@
   function heroImage() {
     if (!heroImg) {
       heroImg = { ok: true, ar: 1, sel: KZ.hero.lwSel() };
-      KZ.mascot.ready();
+      KZ.mascot.ready(heroImg.sel);
     }
     return heroImg;
   }
