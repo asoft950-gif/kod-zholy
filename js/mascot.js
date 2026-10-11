@@ -79,6 +79,20 @@
     if (o && o.phase != null) return Math.min(a.n - 1, Math.floor((((o.phase % 1) + 1) % 1) * a.n));
     return frameAt(anim, (o && o.timeMs) || 0);
   }
+  /* қолмен түзету: { id: { front|side|back: [dx (ені үлесі), dy (биіктік үлесі), масштаб] } } */
+  const ADJ = {
+    cap: { front: [0, 0.2, 1], side: [0.04, 0.25, 1], back: [0, 0.2, 1] },
+    beanie: { front: [0, 0.12, 1], side: [0.03, 0.15, 1], back: [0, 0.12, 1] },
+    "wizard-hat": { front: [0, 0.12, 1], side: [0.03, 0.12, 1], back: [0, 0.12, 1] },
+    crown: { front: [0, 0.22, 1], side: [-0.1, 0.22, 1], back: [0, 0.28, 1] },
+    "space-helmet": { side: [-0.1, 0, 1.25] },
+    headphones: { front: [0, -0.03, 0.95], side: [0.02, 0.08, 1.1] },
+    glasses: { side: [0.2, 0, 1] },
+    backpack: { side: [-0.25, -0.05, 1.3] },
+    wings: { side: [0.02, -0.05, 1.4] },
+    scarf: { front: [0, -0.12, 1.1], side: [0, -0.1, 1.05], back: [0, -0.1, 1.05] },
+  };
+
   /* аксессуар қабаты: слот қайталанбайды, дулыға көз/құлақпен сыймайды */
   function resolve(ids) {
     const sel = [],
@@ -114,9 +128,12 @@
         g.translate(512, 0);
         g.scale(-1, 1);
       }
-      g.translate(fit.x, fit.y);
+      const ad = (ADJ[id] && ADJ[id][view]) || [0, 0, 1];
+      const w = fit.w * ad[2],
+        h = fit.h * ad[2];
+      g.translate(fit.x + ad[0] * fit.w, fit.y + ad[1] * fit.h);
       g.rotate(fit.r || 0);
-      g.drawImage(ai, -fit.ax * fit.w, -fit.ay * fit.h, fit.w, fit.h);
+      g.drawImage(ai, -fit.ax * w, -fit.ay * h, w, h);
       g.restore();
     };
     g.save();
