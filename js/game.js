@@ -77,35 +77,13 @@
   }
 
   /* ---------- Кейіпкер суреті (гардеробтағы скиндермен) ---------- */
+  /* Loop Python кадрлары (img/mascot): жүру төрт бағытта, тұрғанда idle, жеңгенде сәлем */
   let heroImg = null;
-  /* кадрлар: тұрған, екі қадам, сәлем (қолы екі жағдайда) */
   function heroImage() {
-    if (heroImg) return heroImg;
-    heroImg = { img: null, ok: false, ar: 1.2, f: {} };
-    const load = (pose) => {
-      const img = new Image();
-      const o = { img, ok: false };
-      try {
-        const svg = KZ.hero.svg({ still: true, lite: true, streak: 0, pose });
-        if (!pose) {
-          const m = /viewBox="([\d.\s-]+)"/.exec(svg);
-          if (m) {
-            const v = m[1].trim().split(/\s+/).map(Number);
-            heroImg.ar = v[3] / v[2];
-          }
-        }
-        const src = /xmlns=/.test(svg) ? svg : svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
-        img.onload = () => (o.ok = true);
-        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src);
-      } catch (e) {
-        /* эмоджи қолданылады */
-      }
-      return o;
-    };
-    const base = load();
-    heroImg.img = base.img;
-    Object.defineProperty(heroImg, "ok", { get: () => base.ok });
-    ["a", "b", "w1", "w2"].forEach((k) => (heroImg.f[k] = load(k)));
+    if (!heroImg) {
+      heroImg = { ok: true, ar: 1 };
+      KZ.mascot.preload();
+    }
     return heroImg;
   }
   KZ.game.resetHero = () => (heroImg = null);
@@ -768,8 +746,8 @@
     }
 
     function drawHero(now) {
-      const hh = T * 1.32;
-      const ww = hh / hi.ar;
+      const hh = T * 1.75;
+      const ww = hh;
       const shk = S.shake ? (Math.random() - 0.5) * 5 : 0;
       const cx = px(S.hx) + T / 2 + shk;
       const feet = py2(S.hy) + T * 0.62;
@@ -777,16 +755,14 @@
       const lunge = S.lunge * T * 0.35;
       const mv = S.moving;
       const ph = S.walkP || 0;
-      let hop = mv ? Math.abs(Math.sin(ph)) * T * 0.13 : 0;
-      let sy = mv ? 1 - 0.07 * Math.cos(ph * 2) : 1 + 0.025 * Math.sin(now / 380);
-      let tilt = mv ? Math.sin(ph) * 0.09 + (dir === 1 ? 0.05 : dir === 3 ? -0.05 : 0) : Math.sin(now / 900) * 0.025;
+      let hop = mv ? Math.abs(Math.sin(ph)) * T * 0.03 : 0;
+      let sy = 1;
+      let tilt = 0;
       let sx = 1 / sy;
       if (S.turn > 0) sx *= 1 - 0.45 * Math.sin(S.turn * Math.PI);
       if (S.done) {
-        hop = Math.abs(Math.sin(now / 170)) * T * 0.38;
-        tilt = Math.sin(now / 170) * 0.18;
-        sy = 1 + 0.08 * Math.cos(now / 85);
-        sx = 1 / sy;
+        hop = 0;
+        tilt = 0;
       }
       if (S.fight && S.lunge > 0) tilt += 0.18 * S.lunge;
       const hurtK = S.flash > 0 ? Math.sin(now / 25) * 0.05 : 0;
@@ -810,16 +786,14 @@
         ctx.globalAlpha = alpha;
         ctx.translate(ox + (S.fight ? lunge : 0), oy2 - hop);
         ctx.rotate(tilt + hurtK);
-        ctx.scale((dir === 3 ? -1 : 1) * sx, sy);
-        if (hi.ok) {
-          const fk = S.done ? (Math.sin(now / 150) > 0 ? "w1" : "w2") : mv ? (Math.sin(ph) > 0 ? "a" : "b") : null;
-          const fr = fk && hi.f[fk] && hi.f[fk].ok ? hi.f[fk].img : hi.img;
-          ctx.drawImage(fr, -ww / 2, -hh * 0.95, ww, hh);
-        }
-        else {
+        ctx.scale(sx, sy);
+        const M = KZ.mascot;
+        const k = S.done ? "wave" : mv ? ["walk-up", "walk-right", "walk-down", "walk-left"][dir] || "walk-down" : "idle";
+        const fi = S.done ? now / 120 : mv ? ph / (Math.PI / 3) : now / 180;
+        if (!M.draw(ctx, k, fi, 0, 0, hh)) {
           ctx.font = Math.round(T * 0.9) + "px serif";
           ctx.textAlign = "center";
-          ctx.fillText("🙂", 0, -T * 0.2);
+          ctx.fillText("🦎", 0, -T * 0.2);
         }
         ctx.restore();
       };

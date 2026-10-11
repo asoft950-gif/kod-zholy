@@ -27,12 +27,15 @@
 
   function robotImage() {
     return new Promise((resolve) => {
-      const src = KZ.hero ? KZ.hero.svg(Object.assign({}, KZ.hero.state(), { still: true })) : KZ.ROBOT_SVG;
-      const svg = src.indexOf("xmlns") > -1 ? src : src.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = () => resolve(null);
-      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      const go = (src) => {
+        const svg = src.indexOf("xmlns") > -1 ? src : src.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      };
+      if (KZ.hero && KZ.hero.svgAsync) KZ.hero.svgAsync(KZ.hero.state()).then(go, () => go(KZ.ROBOT_SVG));
+      else go(KZ.ROBOT_SVG);
     });
   }
 
