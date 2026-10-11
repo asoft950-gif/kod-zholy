@@ -9,7 +9,7 @@
   const S3 = `stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
 
   const COLORS = [
-    ["#7bd84a", KZ.t("Лайм (Loop)")],
+    ["#3fae3c", KZ.t("Лайм (Loop)")],
     ["#6c5ce7", KZ.t("Күлгін")],
     ["#2ec4b6", KZ.t("Жасыл-көгілдір")],
     ["#ff6b6b", KZ.t("Қызыл")],
@@ -31,7 +31,7 @@
   ];
 
   /* Биттің пішіні (координаттар 0..200 x 0..220) */
-  const BODY = "M100 70C150 70 162 86 162 130C162 178 150 198 100 198C50 198 38 178 38 130C38 86 50 70 100 70Z";
+  const BODY = "M100 62C142 62 160 88 160 122C160 150 140 170 100 170C60 170 40 150 40 122C40 88 58 62 100 62Z"; // бас (тұмсықты кесіртке)
   const OUT = "M40 162C42 186 58 198 100 198C142 198 158 186 160 162Q100 182 40 162Z"; // дененің төменгі жартысы (киім)
   const star = (cx, cy, r) => {
     const p = [];
@@ -153,9 +153,9 @@
   function ensure() {
     let s = load();
     if (s && Array.isArray(s.starters)) {
-      if (s.mv !== 2) {
+      if (s.mv !== 3) {
         /* кейіпкер Loop Python кесірткесіне ауысты: бір рет жасыл түске қайтарамыз */
-        s.mv = 2;
+        s.mv = 3;
         s.color = COLORS[0][0];
         save(s);
       }
@@ -163,7 +163,7 @@
     }
     const pool = ITEMS.filter((i) => i.unlock === "start");
     const pick = pool.slice().sort(() => Math.random() - 0.5).slice(0, STARTERS_N);
-    s = { mv: 2, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
+    s = { mv: 3, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
     // әр слотқа басында бір затты кигіземіз
     pick.forEach((i) => {
       if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
@@ -365,12 +365,12 @@
         <filter id="${u}glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="${u}sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#120d2a" flood-opacity=".28"/></filter>
         <clipPath id="${u}cb"><path d="${BODY}"/></clipPath>
-        <clipPath id="${u}mo"><path d="M88 148Q100 165 112 148Q100 153 88 148Z"/></clipPath>
-        <clipPath id="${u}mo2"><path d="M86 145C86 167 114 167 114 145Z"/></clipPath>
+        <clipPath id="${u}mo"><path d="M74 147Q100 178 126 147Q100 155 74 147Z"/></clipPath>
+        <clipPath id="${u}mo2"><path d="M68 144C68 180 132 180 132 144Z"/></clipPath>
         <radialGradient id="${u}body" cx=".34" cy=".24" r="1"><stop offset="0" stop-color="${L(c, 0.6)}"/><stop offset=".28" stop-color="${L(c, 0.25)}"/><stop offset=".62" stop-color="${c}"/><stop offset="1" stop-color="${Dk(c, 0.42)}"/></radialGradient>
         <linearGradient id="${u}ao" x1="0" y1="0" x2="0" y2="1"><stop offset=".5" stop-color="${Dk(c, 0.7)}" stop-opacity="0"/><stop offset="1" stop-color="${Dk(c, 0.7)}" stop-opacity=".5"/></linearGradient>
         <linearGradient id="${u}side" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${Dk(c, 0.6)}" stop-opacity=".35"/><stop offset=".25" stop-color="${Dk(c, 0.6)}" stop-opacity="0"/><stop offset=".8" stop-color="${Dk(c, 0.6)}" stop-opacity="0"/><stop offset="1" stop-color="${Dk(c, 0.6)}" stop-opacity=".3"/></linearGradient>
-        <radialGradient id="${u}iris" cx=".45" cy=".65" r=".7"><stop offset="0" stop-color="#9ff3ff"/><stop offset=".45" stop-color="#22b8cf"/><stop offset="1" stop-color="#0b5d7a"/></radialGradient>
+        <radialGradient id="${u}iris" cx=".45" cy=".6" r=".75"><stop offset="0" stop-color="#8be26a"/><stop offset=".5" stop-color="#2f9e44"/><stop offset="1" stop-color="#0b3d1e"/></radialGradient>
         <linearGradient id="${u}ear" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffd43b"/><stop offset="1" stop-color="#f08c00"/></linearGradient>
         <radialGradient id="${u}foot" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="${L(c, 0.25)}"/><stop offset="1" stop-color="${Dk(c, 0.5)}"/></radialGradient>
         <linearGradient id="${u}cur" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b2f2ea"/><stop offset=".45" stop-color="#2ec4b6"/><stop offset="1" stop-color="#0b7f74"/></linearGradient>`;
@@ -389,54 +389,56 @@
       const PZ = (pose && POSES[pose]) || {};
       const ORG = { fl: "50% 100%", fr: "50% 100%", al: "50% 6%", ar: "50% 6%", tl: "0% 90%" };
       const ps = (k) => (PZ[k] ? ` style="transform-box:fill-box;transform-origin:${ORG[k]};transform:${PZ[k]}"` : "");
-      const bodyC = L(c, 0.08);
-      const belly = "#ffe98a";
-      // құйрық: артта оралған, сары дақты
-      const tailD = "M146 188C176 200 202 192 198 168C195 150 172 152 176 168";
-      P.push(`<g class="hf-tail"${ps("tl")}><path d="${tailD}" fill="none" stroke="${oc}" stroke-width="19" stroke-linecap="round"/><path d="${tailD}" fill="none" stroke="${bodyC}" stroke-width="14.5" stroke-linecap="round"/><path d="${tailD}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".4" transform="translate(-1 -3)"/><g fill="${belly}" stroke="${oc}" stroke-width="1.2"><circle cx="164" cy="193" r="3.6"/><circle cx="184" cy="195" r="3.4"/><circle cx="198" cy="180" r="3.2"/><circle cx="187" cy="159" r="3"/></g></g>`);
-      // аяқ: ақ кроссовка, өкшесінде тәж белгісі
+      const bodyC = L(c, 0.05);
+      const cream = "#fff1a6";
+      const camo = Dk(c, 0.22);
+      const yel = "#d8e04a";
+      // жотадағы камуфляж дақтары
+      const blobs = (pts) => pts.map(([x, y, rx, ry, r, f]) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${x} ${y})" fill="${f ? yel : camo}" opacity="${f ? 0.85 : 0.55}"/>`).join("");
+      // арқадағы рюкзак (арқа заты кимесе, көрінбейді)
+      if (!back)
+        P.push(`<g filter="url(#${u}sh)"><rect x="50" y="132" width="100" height="78" rx="26" fill="#14384b" stroke="#0b1f2b" stroke-width="2.6"/><rect x="56" y="146" width="88" height="13" rx="6.5" fill="#ffd23f" stroke="#0b1f2b" stroke-width="2"/><rect x="62" y="186" width="76" height="20" rx="8" fill="#1d5a73" stroke="#0b1f2b" stroke-width="2"/><path d="M52 142Q100 128 148 142" fill="none" stroke="#4dd0e1" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>`);
+      // құйрық: артта қалың, оралған, сары дақты
+      const tailD = "M138 198C168 210 200 202 198 176C196 156 172 156 176 172C178 182 190 180 190 172";
+      P.push(`<g class="hf-tail"${ps("tl")}><path d="${tailD}" fill="none" stroke="${oc}" stroke-width="22" stroke-linecap="round"/><path d="${tailD}" fill="none" stroke="${bodyC}" stroke-width="17" stroke-linecap="round"/><path d="${tailD}" fill="none" stroke="${yel}" stroke-width="6" stroke-linecap="round" stroke-dasharray="3 14" opacity=".9"/><path d="${tailD}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35" transform="translate(-1 -3)"/><circle cx="190" cy="172" r="4.5" fill="#4dd0e1" stroke="${oc}" stroke-width="1.5"/></g>`);
+      // аяқ: қысқа жасыл балтыр + ақ кроссовка (көк мұрын, сары табан, тәж)
       const shoe = (x, k, cls, st) =>
-        `<g class="${cls}"${st}><ellipse cx="${x}" cy="205" rx="19" ry="10" fill="#e9ecef" ${SB}/><path d="M${x - 17} 208Q${x} 215 ${x + 17} 208" fill="none" stroke="#adb5bd" stroke-width="3" stroke-linecap="round"/><ellipse cx="${x + k * 9}" cy="202" rx="7" ry="4.5" fill="#fff" opacity=".9"/><path d="M${x - 8} 204l2-5 3 3 3-5 3 5 2-3 1 5z" fill="#ffd23f" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/><ellipse cx="${x - 6}" cy="200" rx="6" ry="2.4" fill="#fff" opacity=".6" filter="url(#${u}b1)"/></g>`;
-      P.push(shoe(78, -1, "hf-foot-l", ps("fl")) + shoe(122, 1, "hf-foot-r", ps("fr")));
-      // бас жиегінің қауырсындары (құлақ орнына)
-      const frill = (pts, cls) => `<g class="${cls}"><path d="${pts}" fill="url(#${u}ear)" stroke="#c75b00" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><path d="${pts}" fill="none" stroke="#fff" stroke-width="2" opacity=".5" transform="translate(-1 -1.5)" stroke-linejoin="round"/></g>`;
-      P.push(frill("M42 104L16 92L24 114L10 128L34 134L40 146", "hf-ear-l") + frill("M158 104L184 92L176 114L190 128L166 134L160 146", "hf-ear-r"));
-      // қолдар: сол қол тұрақты, оң қол сәлем береді
-      const arm = (k, cls, st, sleeve) => {
-        const x = k > 0 ? 156 : 44;
-        const fill = sleeve ? "#f8f9fa" : `url(#${u}body)`;
-        return `<g class="${cls}"${st}><g transform="rotate(${k * -16} ${x} 150)"><rect x="${x - 9}" y="146" width="18" height="38" rx="9" fill="${fill}" ${SB}/><path d="M${x - 9} 176h18" stroke="${sleeve ? "#ced4da" : oc}" stroke-width="2.4"/><ellipse cx="${x}" cy="189" rx="10" ry="9" fill="url(#${u}body)" ${SB}/><path d="M${x - 5} 195v3M${x} 197v3M${x + 5} 195v3" stroke="${oc}" stroke-width="2" stroke-linecap="round"/><ellipse cx="${x - 3}" cy="185" rx="3" ry="2.4" fill="#fff" opacity=".5"/></g></g>`;
+        `<g class="${cls}"${st}><rect x="${x - 9}" y="192" width="18" height="14" rx="6" fill="url(#${u}body)" ${SB}/><ellipse cx="${x}" cy="207" rx="20" ry="10" fill="#f1f3f5" ${SB}/><path d="M${x - 19} 210Q${x} 218 ${x + 19} 210" fill="none" stroke="#ffd23f" stroke-width="3.4" stroke-linecap="round"/><ellipse cx="${x + k * 11}" cy="207" rx="8" ry="6" fill="#1f4e6b" opacity=".9"/><path d="M${x - 8} 205l2-5 3 3 3-5 3 5 2-3 1 5z" fill="#ffd23f" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/><ellipse cx="${x - 7}" cy="202" rx="6" ry="2.2" fill="#fff" opacity=".7" filter="url(#${u}b1)"/></g>`;
+      P.push(shoe(76, -1, "hf-foot-l", ps("fl")) + shoe(124, 1, "hf-foot-r", ps("fr")));
+      // қолдар: камуфляж, ақ білезік, үш саусақ
+      const arm = (k, cls, st) => {
+        const x = k > 0 ? 158 : 42;
+        return `<g class="${cls}"${st}><g transform="rotate(${k * -14} ${x} 166)"><rect x="${x - 8.5}" y="164" width="17" height="38" rx="8.5" fill="url(#${u}body)" ${SB}/><ellipse cx="${x + k * 1}" cy="180" rx="4" ry="3" transform="rotate(30 ${x} 180)" fill="${yel}" opacity=".85"/><rect x="${x - 9.5}" y="192" width="19" height="7" rx="3" fill="#f8f9fa" stroke="${oc}" stroke-width="1.8"/><ellipse cx="${x}" cy="206" rx="10.5" ry="9" fill="url(#${u}body)" ${SB}/><path d="M${x - 5} 212v4M${x} 214v4M${x + 5} 212v4" stroke="${oc}" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="${x - 3}" cy="202" rx="3" ry="2.4" fill="#fff" opacity=".5"/></g></g>`;
       };
-      const sleeve = !outfit;
-      P.push(arm(-1, "hf-arm-l", ps("al"), sleeve));
-      // дене: көлем, бүйір көлеңкесі, төменгі көлеңке, жылтыр
+      P.push(arm(-1, "hf-arm-l", ps("al")));
+      // дене (бас): көлем, көлеңке, жылтыр
       P.push(`<path d="${BODY}" fill="url(#${u}body)" ${SB}/>`);
-      P.push(`<g clip-path="url(#${u}cb)"><rect x="34" y="64" width="132" height="140" fill="url(#${u}side)"/><rect x="34" y="64" width="132" height="140" fill="url(#${u}ao)"/><path d="M62 186C82 196 118 196 138 186" fill="none" stroke="${L(c, 0.6)}" stroke-width="5" stroke-linecap="round" opacity=".45" filter="url(#${u}b1)"/></g>`);
-      // басындағы сары дақтар
-      P.push(`<g fill="${belly}" stroke="${oc}" stroke-width="1.4" opacity=".95"><circle cx="100" cy="82" r="4.4"/><circle cx="84" cy="85" r="3.2"/><circle cx="116" cy="85" r="3.2"/><circle cx="68" cy="94" r="2.6"/><circle cx="132" cy="94" r="2.6"/></g>`);
-      P.push(`<ellipse cx="70" cy="96" rx="22" ry="11" transform="rotate(-28 70 96)" fill="#fff" opacity=".34" filter="url(#${u}b3)"/><path d="M57 110C59 94 69 86 84 82" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".55"/>`);
+      P.push(`<g clip-path="url(#${u}cb)"><rect x="34" y="58" width="132" height="116" fill="url(#${u}side)"/><rect x="34" y="58" width="132" height="116" fill="url(#${u}ao)"/>${blobs([[70, 80, 14, 7, -25, 1], [128, 84, 12, 6, 20, 1], [100, 72, 9, 5, 0, 0], [52, 108, 8, 12, 10, 1], [150, 112, 7, 12, -8, 0], [56, 92, 9, 5, 0, 0], [140, 96, 8, 5, 0, 0]])}<path d="M44 140C52 128 148 128 156 140C158 162 134 174 100 174C66 174 42 162 44 140Z" fill="${cream}"/><path d="M52 150Q100 140 148 150" fill="none" stroke="#f4d66a" stroke-width="2.2" opacity=".7"/><path d="M60 112C62 90 74 76 92 70" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" opacity=".5"/></g>`);
+      P.push(`<ellipse cx="72" cy="86" rx="20" ry="9" transform="rotate(-28 72 86)" fill="#fff" opacity=".3" filter="url(#${u}b3)"/>`);
+      // әдепкі киім: ақ жилет + </> белгісі, жасыл капюшон жиегі
       if (outfit) P.push(draw(outfit));
       else
-        P.push(`<g filter="url(#${u}sh)"><path d="${OUT}" fill="#f8f9fa" ${SB}/><path d="M72 166Q100 182 128 166" fill="none" stroke="#ced4da" stroke-width="3" stroke-linecap="round"/><path d="M92 172v10M108 172v10" stroke="#adb5bd" stroke-width="2.2" stroke-linecap="round"/><text x="100" y="193" font-family="ui-monospace,Menlo,Consolas,monospace" font-weight="900" font-size="12" text-anchor="middle" fill="#2f9e44">&lt;/&gt;</text></g>`);
+        P.push(`<g filter="url(#${u}sh)"><path d="${OUT}" fill="#f8f9fa" ${SB}/><path d="M62 166Q100 192 138 166" fill="none" stroke="#2f9e44" stroke-width="8" stroke-linecap="round"/><path d="M62 166Q100 192 138 166" fill="none" stroke="#69db7c" stroke-width="2.5" stroke-linecap="round" opacity=".8" transform="translate(0 -1)"/><path d="M92 176v9M108 176v9" stroke="#adb5bd" stroke-width="2.2" stroke-linecap="round"/><rect x="86" y="184" width="28" height="13" rx="3.5" fill="#1d3b4a" stroke="#0b1f2b" stroke-width="1.6"/><text x="100" y="194.5" font-family="ui-monospace,Menlo,Consolas,monospace" font-weight="900" font-size="9.5" text-anchor="middle" fill="#69db7c">&lt;/&gt;</text></g>`);
+      if (!back || true) P.push(`<path d="M70 168L64 198M130 168L136 198" stroke="#0b1f2b" stroke-width="5" stroke-linecap="round" opacity="${back ? 0 : 0.9}"/>`);
       if (pin) P.push(draw(pin));
-      P.push(arm(1, "hf-arm-r", ps("ar"), sleeve));
+      P.push(arm(1, "hf-arm-r", ps("ar")));
       // ұрт
-      P.push(`<ellipse data-k="1" cx="60" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity="${lite ? 0.32 : 0.5}" filter="url(#${u}b3)"/><ellipse data-k="1" cx="140" cy="148" rx="12" ry="7" fill="#ff5c9a" opacity="${lite ? 0.32 : 0.5}" filter="url(#${u}b3)"/>`);
-      // көздер: ақ алма, қарашық, жарқыл; қабақ жыпылықтайды
+      P.push(`<ellipse data-k="1" cx="56" cy="146" rx="11" ry="6.5" fill="#ff7a9c" opacity="${lite ? 0.3 : 0.45}" filter="url(#${u}b3)"/><ellipse data-k="1" cx="144" cy="146" rx="11" ry="6.5" fill="#ff7a9c" opacity="${lite ? 0.3 : 0.45}" filter="url(#${u}b3)"/>`);
+      // көздер: үлкен, қара қарашық, екі жарқыл
       const eye = (x) =>
-        `<ellipse cx="${x}" cy="129" rx="15" ry="18" fill="${Dk(c, 0.5)}" opacity=".35" filter="url(#${u}b3)"/><ellipse cx="${x}" cy="126" rx="13.5" ry="16" fill="#fff"/><ellipse cx="${x + 1}" cy="129" rx="10" ry="12" fill="url(#${u}iris)"/><ellipse cx="${x + 1}" cy="130" rx="5.5" ry="7" fill="#0a0720"/><path d="M${x - 13} 120Q${x} 106 ${x + 13} 120" fill="none" stroke="${Dk(c, 0.4)}" stroke-width="3" opacity=".35" filter="url(#${u}b1)"/><ellipse cx="${x + 4.5}" cy="122" rx="4.6" ry="5.4" fill="#fff"/><circle cx="${x - 4}" cy="135" r="2" fill="#fff" opacity=".9"/><circle cx="${x + 6}" cy="131" r="1.1" fill="#fff" opacity=".8"/>`;
-      P.push(`<g class="hf-eyes hf-e1">${eye(80)}${eye(120)}</g>`);
-      if (!s.still) P.push(`<g class="hf-e2"><path d="M67 130C71 115 89 115 93 130M107 130C111 115 129 115 133 130" fill="none" stroke="${Dk(c, 0.7)}" stroke-width="5.5" stroke-linecap="round"/></g>`);
-      const lid = (x) => `<ellipse cx="${x}" cy="126" rx="15" ry="17.6" fill="${bodyC}" stroke="${oc}" stroke-width="2.4"/><path d="M${x - 9} 134Q${x} 138 ${x + 9} 134" fill="none" stroke="${oc}" stroke-width="2" stroke-linecap="round" opacity=".7"/>`;
-      P.push(`<g class="hf-lids" style="transform:scaleY(0)">${lid(80)}${lid(120)}</g>`);
+        `<ellipse cx="${x}" cy="127" rx="16" ry="19.5" fill="${Dk(c, 0.5)}" opacity=".3" filter="url(#${u}b3)"/><ellipse cx="${x}" cy="124" rx="14.5" ry="18" fill="#fff" stroke="${oc}" stroke-width="2.2"/><ellipse cx="${x + 1}" cy="127" rx="11" ry="13.5" fill="url(#${u}iris)"/><ellipse cx="${x + 1.5}" cy="128" rx="7" ry="9.5" fill="#06120b"/><ellipse cx="${x + 5}" cy="120.5" rx="4.4" ry="5" fill="#fff"/><circle cx="${x - 3.5}" cy="133" r="2.2" fill="#fff" opacity=".9"/>`;
+      P.push(`<g class="hf-eyes hf-e1">${eye(78)}${eye(122)}</g>`);
+      if (!s.still) P.push(`<g class="hf-e2"><path d="M64 128C68 112 88 112 92 128M108 128C112 112 132 112 136 128" fill="none" stroke="${Dk(c, 0.7)}" stroke-width="5.5" stroke-linecap="round"/></g>`);
+      const lid = (x) => `<ellipse cx="${x}" cy="124" rx="16.5" ry="19.5" fill="${bodyC}" stroke="${oc}" stroke-width="2.4"/><path d="M${x - 10} 133Q${x} 138 ${x + 10} 133" fill="none" stroke="${oc}" stroke-width="2.2" stroke-linecap="round" opacity=".75"/>`;
+      P.push(`<g class="hf-lids" style="transform:scaleY(0)">${lid(78)}${lid(122)}</g>`);
       // қас
-      P.push(`<path d="M67 103Q79 96 91 102M109 102Q121 96 133 103" fill="none" stroke="${Dk(c, 0.6)}" stroke-width="4.5" stroke-linecap="round"/>`);
+      P.push(`<path d="M62 99Q76 90 93 98M107 98Q124 90 138 99" fill="none" stroke="${Dk(c, 0.55)}" stroke-width="4.5" stroke-linecap="round"/>`);
       // танау тесіктері
-      P.push(`<circle cx="96" cy="141" r="1.5" fill="${Dk(c, 0.6)}" opacity=".7"/><circle cx="104" cy="141" r="1.5" fill="${Dk(c, 0.6)}" opacity=".7"/>`);
-      // ауыз
-      P.push(`<g class="hf-m1"><path d="M88 148Q100 165 112 148Q100 153 88 148Z" fill="#3a0f2e"/><ellipse cx="100" cy="160" rx="8" ry="5" fill="#ff7aa8" clip-path="url(#${u}mo)"/></g>`);
-      if (!s.still) P.push(`<g class="hf-m2"><path d="M86 145C86 167 114 167 114 145Z" fill="#3a0f2e"/><ellipse cx="100" cy="162" rx="9" ry="6" fill="#ff7aa8" clip-path="url(#${u}mo2)"/><path d="M89 146H111" stroke="#fff" stroke-width="3" opacity=".9"/></g>`);
-      if (!s.still) P.push(`<path class="hf-m3" d="M90 157C95 149 105 149 110 157" fill="none" stroke="#3a0f2e" stroke-width="3.5" stroke-linecap="round"/><path class="hf-sweat" d="M152 96C147 105 147 111 152 111C157 111 157 105 152 96Z" fill="#9fe3ff" stroke="#1c7ed6" stroke-width="1.5"/>`);
+      P.push(`<ellipse cx="93" cy="139" rx="2" ry="1.4" fill="${Dk(c, 0.5)}" opacity=".75"/><ellipse cx="107" cy="139" rx="2" ry="1.4" fill="${Dk(c, 0.5)}" opacity=".75"/>`);
+      // ауыз: үлкен ашық күлкі
+      P.push(`<g class="hf-m1"><path d="M74 147Q100 178 126 147Q100 155 74 147Z" fill="#4a0f2a" stroke="${oc}" stroke-width="2" stroke-linejoin="round"/><ellipse cx="100" cy="163" rx="13" ry="7" fill="#ff7aa8" clip-path="url(#${u}mo)"/></g>`);
+      if (!s.still) P.push(`<g class="hf-m2"><path d="M68 144C68 180 132 180 132 144Z" fill="#4a0f2a" stroke="${oc}" stroke-width="2" stroke-linejoin="round"/><ellipse cx="100" cy="170" rx="17" ry="9" fill="#ff7aa8" clip-path="url(#${u}mo2)"/><path d="M74 146H126" stroke="#fff" stroke-width="3" opacity=".9"/></g>`);
+      if (!s.still) P.push(`<path class="hf-m3" d="M82 160C90 148 110 148 118 160" fill="none" stroke="#4a0f2a" stroke-width="3.5" stroke-linecap="round"/><path class="hf-sweat" d="M152 96C147 105 147 111 152 111C157 111 157 105 152 96Z" fill="#9fe3ff" stroke="#1c7ed6" stroke-width="1.5"/>`);
       if (neck) P.push(draw(neck));
       if (face) P.push(draw(face));
       if (hat) P.push(draw(hat));
