@@ -3,14 +3,15 @@
 (() => {
   "use strict";
   const CELL = 388; // SVG бірлігі
+  const rep = (n, ms) => Array(n).fill(ms);
   const A = {
-    idle: { n: 6, d: [180, 180, 180, 180, 180, 180] },
+    idle: { n: 48, d: rep(48, 60) },
     blink: { n: 6, d: [1500, 70, 90, 90, 70, 800] },
-    wave: { n: 12, d: [700, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 700] },
-    "walk-down": { n: 6, d: [120, 120, 120, 120, 120, 120] },
-    "walk-up": { n: 6, d: [120, 120, 120, 120, 120, 120] },
-    "walk-left": { n: 6, d: [120, 120, 120, 120, 120, 120] },
-    "walk-right": { n: 6, d: [120, 120, 120, 120, 120, 120] },
+    wave: { n: 48, d: rep(48, 50) },
+    "walk-down": { n: 24, d: rep(24, 40) },
+    "walk-up": { n: 24, d: rep(24, 40) },
+    "walk-left": { n: 24, d: rep(24, 40) },
+    "walk-right": { n: 24, d: rep(24, 40) },
   };
   Object.values(A).forEach((a) => (a.total = a.d.reduce((x, y) => x + y, 0)));
   const url = (k) => "img/mascot/" + k + ".webp";
@@ -102,7 +103,7 @@
     const i = Math.floor(t) % a.n;
     const cs = s.im.naturalWidth / a.n;
     const w = h; // кадр шаршы
-    ctx.drawImage(s.im, i * cs, 0, cs, s.im.naturalHeight, fx - w / 2, fy - h * 0.959, w, h);
+    ctx.drawImage(s.im, i * cs, 0, cs, s.im.naturalHeight, fx - w / 2, fy - h * 0.979, w, h);
     return true;
   }
   /* SVG-ны data-URI суретіне айналдыру үшін (куәлік, бөлісу картасы): idle парақты base64 етіп аламыз */

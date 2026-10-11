@@ -377,11 +377,11 @@
       /* Loop Python: дайын 2D кадрлар. Киімдер ескі координатадан (0..200) кейіпкер басына/денесіне көшіріледі */
       const MAP = {
         // слот: [ескі нүкте x,y -> жаңа нүкте X,Y, масштаб gx, gy]
-        hat: [100, 70, 253, 100, 1.4, 1.4],
-        face: [100, 126, 253, 154, 1.55, 1.45],
-        neck: [100, 172, 253, 232, 1.05, 1.05],
-        outfit: [100, 180, 253, 272, 0.9, 1.25],
-        pin: [138, 176, 296, 296, 0.9, 0.9],
+        hat: [100, 70, 253, 104, 1.2, 1.2],
+        face: [100, 126, 253, 152, 1.3, 1.25],
+        neck: [100, 172, 253, 234, 0.9, 0.9],
+        outfit: [100, 180, 253, 276, 0.72, 1.1],
+        pin: [138, 176, 286, 290, 0.8, 0.8],
         back: [100, 150, 253, 300, 1.5, 1.5],
         aura: [100, 130, 256, 282, 2.1, 2.1],
       };
@@ -392,7 +392,7 @@
       const live = !lite && !s.still;
       const crop = !!(lite && s.still && !(opts && opts.embed)); // кішкентай аватар: тек бас
       const P = [];
-      P.push(`<ellipse data-k="1" cx="253" cy="452" rx="92" ry="13" fill="#120d2a" opacity="${lite ? 0.12 : 0.2}" filter="url(#${u}b3)"/>`);
+      P.push(`<ellipse data-k="1" cx="253" cy="460" rx="92" ry="13" fill="#120d2a" opacity="${lite ? 0.12 : 0.2}" filter="url(#${u}b3)"/>`);
       if (auras) P.push(`<g class="hf-aura">${place("aura", auras)}</g>`);
       if (back && back.back) P.push(place("back", back));
       P.push(KZ.mascot.layers(live, opts && opts.embed, u));

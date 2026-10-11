@@ -789,7 +789,7 @@
         ctx.scale(sx, sy);
         const M = KZ.mascot;
         const k = S.done ? "wave" : mv ? ["walk-up", "walk-right", "walk-down", "walk-left"][dir] || "walk-down" : "idle";
-        const fi = S.done ? now / 120 : mv ? ph / (Math.PI / 3) : now / 180;
+        const fi = S.done ? now / 50 : mv ? ph / (Math.PI / 12) : now / 60;
         if (!M.draw(ctx, k, fi, 0, 0, hh)) {
           ctx.font = Math.round(T * 0.9) + "px serif";
           ctx.textAlign = "center";
