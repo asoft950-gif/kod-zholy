@@ -2,10 +2,10 @@
    - Сайттың өз файлдары: алдымен желіден (жаңа нұсқа), желі жоқ болса, кэштен.
    - CDN файлдары (Pyodide, CodeMirror, қаріптер): кэштен, жоқ болса, желіден алып сақтайды.
    - Supabase сұраулары (аккаунт, прогресс) ешқашан кэштелмейді. */
-const VERSION = "bitlings-9945bb366f";
+const VERSION = "bitlings-b150a8a51c";
 const SHELL = [
   "./", "index.html", "style.css", "manifest.webmanifest", "py/runner.py",
-  "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
+  "assets/logo.png", "assets/favicon.png", "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
   "assets/icon-192.png", "assets/icon-512.png", "assets/apple-touch-icon.png",
   "js/core.js", "js/vendor/show-hint.js", "js/hints.js", "js/main.js", "js/views.js", "js/play.js", "js/tryinline.js", "js/jsrunner.js", "js/ktrunner.js", "js/web.js", "js/webdoc.js",
   "js/streak.js", "js/offline.js", "js/mascot.js", "js/hero.js", "js/landing.js", "js/algo.js", "js/review.js", "js/review-content.js", "js/cert.js", "js/classstats.js", "js/settings.js", "js/config.js", "js/auth.js", "js/sync.js", "js/assign.js", "js/cabinet.js", "js/messages.js", "js/profile.js", "js/social.js", "js/game-data.js", "js/game.js", "py/game.py",
