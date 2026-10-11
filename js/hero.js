@@ -21,13 +21,13 @@
   ];
 
   const SLOTS = [
-    { id: "hat", name: KZ.t("Бас киім"), e: "🎩" },
+    { id: "outfit", name: KZ.t("Костюм"), e: "👕" },
+    { id: "head", name: KZ.t("Бас киім"), e: "🎩" },
+    { id: "ears", name: KZ.t("Құлаққап"), e: "🎧" },
     { id: "face", name: KZ.t("Көзілдірік"), e: "🕶️" },
     { id: "neck", name: KZ.t("Мойын"), e: "🧣" },
-    { id: "outfit", name: KZ.t("Киім"), e: "👕" },
-    { id: "pin", name: KZ.t("Белгі"), e: "📌" },
     { id: "back", name: KZ.t("Арқа"), e: "🎒" },
-    { id: "aura", name: KZ.t("Серия ауасы"), e: "🔥" },
+    { id: "hand", name: KZ.t("Қолда"), e: "🪄" },
   ];
 
   /* Биттің пішіні (координаттар 0..200 x 0..220) */
@@ -49,94 +49,29 @@
   const pinBadge = (txt) => `<circle cx="138" cy="176" r="12" fill="#ffffff" ${S3}/><text x="138" y="181" font-size="13" text-anchor="middle">${txt}</text>`;
 
   /* unlock: "start" (басында кездейсоқ беріледі), жетістік id-і, не { streak: N } (қазіргі серия N-ге жеткенде ғана көрінеді) */
+  /* Loop Python гардеробы: lw — img/wardrobe/wardrobe.json ішіндегі id. unlock: "start" | жетістік id | "chest" */
   const ITEMS = [
-    /* ---- бас киім ---- */
-    { id: "cap", slot: "hat", n: KZ.t("Қызыл кепка"), unlock: "start", svg: () => `<path d="M50 86C50 50 72 38 100 38C128 38 150 50 150 86Z" fill="#ff6b6b" ${S}/><path d="M112 84Q150 76 184 88Q152 98 112 92Z" fill="#e8504f" ${S}/><circle cx="100" cy="38" r="5" fill="#e8504f" ${S3}/>` },
-    { id: "beanie", slot: "hat", n: KZ.t("Тоқыма бөрік"), unlock: "start", svg: () => `<path d="M52 84C52 44 74 30 100 30C126 30 148 44 148 84Z" fill="#ffa94d" ${S}/><rect x="46" y="76" width="108" height="18" rx="9" fill="#ff922b" ${S}/><path d="M68 80v10M84 80v10M100 80v10M116 80v10M132 80v10" stroke="#ffd8a8" stroke-width="3"/><circle cx="100" cy="26" r="11" fill="#ffffff" ${S}/>` },
-    { id: "flower", slot: "hat", n: KZ.t("Гүл"), unlock: "start", svg: () => `<g ${S3}><circle cx="138" cy="66" r="9" fill="#f783ac"/><circle cx="152" cy="74" r="9" fill="#f783ac"/><circle cx="148" cy="88" r="9" fill="#f783ac"/><circle cx="132" cy="86" r="9" fill="#f783ac"/><circle cx="128" cy="72" r="9" fill="#f783ac"/><circle cx="140" cy="78" r="6" fill="#ffd23f"/></g>` },
-    { id: "party", slot: "hat", n: KZ.t("Мереке қалпағы"), unlock: "daily1", svg: () => `<path d="M74 82L100 14L126 82Z" fill="#2ec4b6" ${S}/><path d="M84 58h32M92 36h16" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="14" r="8" fill="#ffd23f" ${S3}/>` },
-    { id: "phones", slot: "hat", n: KZ.t("Құлаққап"), unlock: "streak3", svg: () => `<path d="M34 112C34 46 166 46 166 112" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M34 112C34 46 166 46 166 112" fill="none" stroke="#495057" stroke-width="6" stroke-linecap="round"/><rect x="18" y="100" width="26" height="44" rx="12" fill="#ff6b6b" ${S}/><rect x="156" y="100" width="26" height="44" rx="12" fill="#ff6b6b" ${S}/>` },
-    { id: "wizard", slot: "hat", n: KZ.t("Сиқыршы қалпағы"), unlock: "lv30", svg: () => `<ellipse cx="100" cy="82" rx="68" ry="13" fill="#5f3dc4" ${S}/><path d="M62 80L104 4Q112 -2 116 8L140 80Z" fill="#7048e8" ${S}/><path d="${star(104, 52, 11)}" fill="#ffd23f" stroke="${INK}" stroke-width="2.5"/>` },
-    { id: "helmet", slot: "hat", n: KZ.t("Ғарышкер дулыға"), unlock: "lv60", svg: () => `<path d="M22 154C14 64 58 26 100 26C142 26 186 64 178 154Z" fill="rgba(165,216,255,.42)" ${S}/><path d="M46 70Q62 44 92 38" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity=".8"/><g fill="#ffffff"><circle class="fx fx-twinkle" cx="74" cy="64" r="3"/><circle class="fx fx-twinkle d2" cx="128" cy="52" r="2.5"/><circle class="fx fx-twinkle d3" cx="146" cy="96" r="2"/></g>` },
-    { id: "takiya", slot: "hat", n: KZ.t("Тақия"), unlock: "start", svg: () => `<path d="M56 84C56 50 76 38 100 38C124 38 144 50 144 84Q100 94 56 84Z" fill="#c92a2a" ${S}/><path d="M62 76Q100 84 138 76" fill="none" stroke="#ffd23f" stroke-width="3.5"/><path d="M86 56Q92 48 100 56Q108 48 114 56M92 64Q100 70 108 64" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>` },
-    { id: "borik", slot: "hat", n: KZ.t("Бөрік"), unlock: "streak7", svg: () => `<path d="M62 78C62 44 80 30 100 30C120 30 138 44 138 78Z" fill="#c92a2a" ${S}/><path d="M48 86Q48 64 100 64Q152 64 152 86Q152 100 100 100Q48 100 48 86Z" fill="#8d6e63" ${S}/><path d="M100 30L94 12M100 30L104 10M100 30L110 14" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>` },
-    /* ---- көзілдірік (көздер: 80/120, 126) ---- */
-    { id: "round", slot: "face", n: KZ.t("Дөңгелек көзілдірік"), unlock: "start", svg: () => `<circle cx="79" cy="126" r="20" fill="rgba(255,255,255,.22)" ${S}/><circle cx="121" cy="126" r="20" fill="rgba(255,255,255,.22)" ${S}/><path d="M99 124h2M59 120L42 112M141 120L158 112" ${S}/>` },
-    { id: "sun", slot: "face", n: KZ.t("Күннен қорғайтын"), unlock: "start", svg: () => `<path d="M52 110H148V124Q148 146 126 146Q104 146 104 128H96Q96 146 74 146Q52 146 52 124Z" fill="#212529" ${S}/><path d="M60 118L72 118M110 118L122 118" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity=".7"/><path d="M52 114L40 108M148 114L160 108" ${S}/>` },
-    { id: "visor", slot: "face", n: KZ.t("Жасыл визор"), unlock: "lv10", svg: () => `<rect x="48" y="108" width="104" height="36" rx="16" fill="rgba(46,196,182,.78)" ${S}/><path d="M60 118h22" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".8"/>` },
-    { id: "starshade", slot: "face", n: KZ.t("Жұлдыз көзілдірік"), unlock: "perfect10", svg: () => `<path d="${star(79, 126, 22)}" fill="#ffd23f" ${S3}/><path d="${star(121, 126, 22)}" fill="#ffd23f" ${S3}/><path d="M96 126h8" ${S3}/>` },
-    { id: "monocle", slot: "face", n: KZ.t("Монокль"), unlock: "bug10", svg: () => `<circle cx="121" cy="126" r="21" fill="rgba(255,255,255,.25)" ${S}/><path d="M140 136Q160 160 148 186" fill="none" stroke="#fab005" stroke-width="3"/>` },
-    { id: "lens", slot: "face", n: KZ.t("Лупа"), unlock: "bug1", svg: () => `<path d="M138 144L166 178" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M138 144L166 178" stroke="#8d6e63" stroke-width="7" stroke-linecap="round"/><circle cx="122" cy="126" r="22" fill="rgba(165,216,255,.35)" ${S}/>` },
-    /* ---- мойын (иек астында) ---- */
-    { id: "scarf", slot: "neck", n: KZ.t("Қызыл шарф"), unlock: "start", svg: () => `<path d="M42 160Q100 182 158 160L160 174Q100 198 40 174Z" fill="#ff6b6b" ${S}/><path d="M118 178L126 208L144 202L136 174Z" fill="#e8504f" ${S}/>` },
-    { id: "bow", slot: "neck", n: KZ.t("Көбелек галстук"), unlock: "start", svg: () => `<path d="M100 172L78 160V184ZM100 172L122 160V184Z" fill="#f783ac" ${S}/><circle cx="100" cy="172" r="6" fill="#ffffff" ${S3}/>` },
-    { id: "tie", slot: "neck", n: KZ.t("Галстук"), unlock: "poly", svg: () => `<path d="M92 164H108L112 174L100 202L88 174Z" fill="#2ec4b6" ${S}/>` },
-    { id: "medal", slot: "neck", n: KZ.t("Жеңімпаз медалі"), unlock: "bonus1", svg: () => `<path d="M76 160L100 184L124 160" fill="none" stroke="#ff6b6b" stroke-width="7"/><circle cx="100" cy="188" r="12" fill="#ffd23f" ${S}/><path d="${star(100, 188, 6)}" fill="#fab005"/>` },
-    { id: "tumar", slot: "neck", n: KZ.t("Тұмар"), unlock: "start", svg: () => `<path d="M72 158Q100 178 128 158" fill="none" stroke="#c92a2a" stroke-width="3.5"/><path d="M100 168L113 181L100 194L87 181Z" fill="#ffd23f" ${S}/><circle cx="100" cy="181" r="3" fill="#c92a2a"/>` },
-    /* ---- киім (дененің төменгі жағы) ---- */
-    { id: "tee_blue", slot: "outfit", n: KZ.t("Көк футболка"), unlock: "start", svg: () => `<path d="${OUT}" fill="#4dabf7" ${S}/>` },
-    { id: "tee_green", slot: "outfit", n: KZ.t("Жасыл футболка"), unlock: "start", svg: () => `<path d="${OUT}" fill="#51cf66" ${S}/><path d="M58 184H142" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".85"/>` },
-    { id: "hoodie", slot: "outfit", n: KZ.t("Худи"), unlock: "lv10", svg: () => `<path d="${OUT}" fill="#9775fa" ${S}/><rect x="80" y="180" width="40" height="13" rx="6" fill="#845ef7" ${S3}/><path d="M90 172V180M110 172V180" ${S3}/>` },
-    { id: "overall", slot: "outfit", n: KZ.t("Комбинезон"), unlock: "daily7", svg: () => `<path d="M58 168L52 150M142 168L148 150" stroke="${INK}" stroke-width="11" stroke-linecap="round"/><path d="M58 168L52 150M142 168L148 150" stroke="#1971c2" stroke-width="5" stroke-linecap="round"/><path d="${OUT}" fill="#1c7ed6" ${S}/><rect x="86" y="180" width="28" height="13" rx="4" fill="#1864ab" ${S3}/>` },
-    { id: "hero_suit", slot: "outfit", n: KZ.t("Батыр костюмы"), unlock: "streak7", svg: () => `<path d="${OUT}" fill="#fa5252" ${S}/><path d="${star(100, 184, 11)}" fill="#ffd23f" stroke="${INK}" stroke-width="2.5"/>` },
-    { id: "tux", slot: "outfit", n: KZ.t("Смокинг"), unlock: "lv60", svg: () => `<path d="${OUT}" fill="#343a40" ${S}/><path d="M86 172L100 196L114 172Q100 176 86 172Z" fill="#ffffff" ${S3}/><path d="M100 178L92 173V183ZM100 178L108 173V183Z" fill="#c92a2a"/>` },
-    { id: "kamzol", slot: "outfit", n: KZ.t("Камзол"), unlock: "start", svg: () => `<path d="${OUT}" fill="#2b8a3e" ${S}/><path d="M90 173Q100 174 110 173V198H90Z" fill="#fff4e6" ${S3}/><path d="M58 182Q64 176 70 182Q76 188 82 182M118 182Q124 176 130 182Q136 188 142 182" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>` },
-    { id: "shapan", slot: "outfit", n: KZ.t("Шапан"), unlock: "done_python", svg: () => `<path d="${OUT}" fill="#862e9c" ${S}/><path d="M44 166Q100 184 156 166" fill="none" stroke="#ffd23f" stroke-width="4"/><path d="M100 176V198" ${S3}/><path d="M62 190Q68 184 74 190M126 190Q132 184 138 190" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>` },
-    /* ---- белгі (курс бітіргенде) ---- */
-    ...[
-      ["python", "🐍", "Python"],
-      ["html", "🌐", "HTML"],
-      ["css", "🎨", "CSS"],
-      ["javascript", "⚡", "JavaScript"],
-      ["kotlin", "🟣", "Kotlin"],
-      ["projects", "🚀", KZ.t("Жобалар")],
-      ["sql", "🗄️", "SQL"],
-    ].map(([c, e, n]) => ({ id: "pin_" + c, slot: "pin", n: n + KZ.t(" белгісі"), unlock: "done_" + c, svg: () => pinBadge(e) })),
-    { id: "star_pin", slot: "pin", n: KZ.t("Алтын жұлдыз"), unlock: "first", svg: () => `<path d="${star(138, 176, 12)}" fill="#ffd23f" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` },
-    { id: "bug_pin", slot: "pin", n: KZ.t("Қате аулаушы"), unlock: "bug1", svg: () => pinBadge("🐞") },
-    { id: "matrix_pin", slot: "pin", n: KZ.t("Матрицадан шыққан"), unlock: "game_z1", svg: () => pinBadge("💊") },
-    { id: "matrix_visor", slot: "face", n: KZ.t("Матрица көзілдірігі"), unlock: "game_z1", svg: () => `<rect x="50" y="112" width="100" height="30" rx="14" fill="#04140e" ${S}/><rect x="54" y="116" width="92" height="22" rx="10" fill="rgba(61,255,176,.18)"/><g font-family="ui-monospace,Menlo,monospace" font-weight="700" font-size="9" fill="#3dffb0"><text class="fx fx-bit" x="58" y="128">1 0 1 1 0</text><text class="fx fx-bit d2" x="58" y="137">0 1 0 0 1</text><text class="fx fx-bit d3" x="102" y="128">0 1 1 0 1</text><text class="fx fx-bit d4" x="102" y="137">1 0 0 1 0</text></g><path d="M52 118L38 110M148 118L162 110" ${S}/><path d="M60 114H140" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round"/>` },
-    { id: "crystal_aura", slot: "aura", n: KZ.t("Кристалл ауасы"), unlock: "game_farm", back: true, svg: () => `<g ${S3}><path class="fx fx-pulse" d="M22 150l10-26 10 26-10 18z" fill="#74c0fc"/><path class="fx fx-pulse d2" d="M168 120l12-30 12 30-12 20z" fill="#4dabf7"/><path class="fx fx-pulse d3" d="M150 196l8-20 8 20-8 14z" fill="#a5d8ff"/><path class="fx fx-pulse d2" d="M34 70l7-18 7 18-7 12z" fill="#a5d8ff"/></g><g fill="#fff"><path class="fx fx-twinkle" d="M100 20l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path class="fx fx-twinkle d3" d="M184 170l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z"/></g>` },
-    { id: "farm_pin", slot: "pin", n: KZ.t("Кристалл фермері"), unlock: "game_farm", svg: () => pinBadge("🌾") },
-    { id: "oyu_pin", slot: "pin", n: KZ.t("Ою белгісі"), unlock: "reader", svg: () => `<circle cx="138" cy="176" r="12" fill="#c92a2a" ${S3}/><path d="M138 168Q131 172 135 176Q131 180 138 184M138 168Q145 172 141 176Q145 180 138 184" fill="none" stroke="#ffd23f" stroke-width="2.5"/>` },
-    /* ---- арқа ---- */
-    { id: "pack", slot: "back", n: KZ.t("Рюкзак"), unlock: "start", back: true, svg: () => `<rect x="22" y="112" width="156" height="78" rx="26" fill="#ff922b" ${S}/><path d="M60 92Q52 130 60 168M140 92Q148 130 140 168" fill="none" stroke="${INK}" stroke-width="5"/>` },
-    { id: "book", slot: "back", n: KZ.t("Кітап"), unlock: "reader", back: true, svg: () => `<rect x="150" y="136" width="36" height="48" rx="5" fill="#4dabf7" ${S}/><path d="M158 150h20M158 160h20M158 170h14" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>` },
-    { id: "cape", slot: "back", n: KZ.t("Батыр жапқышы"), unlock: "streak7", back: true, svg: () => `<path d="M52 100L16 214H184L148 100Z" fill="#e64980" ${S}/>` },
-    { id: "wings", slot: "back", n: KZ.t("Қанаттар"), unlock: "streak30", back: true, svg: () => `<path d="M44 140C8 138 -2 102 6 72C20 88 30 92 40 104C34 84 40 70 50 62C58 82 58 106 50 128Z" fill="#e7f5ff" ${S}/><path d="M156 140C192 138 202 102 194 72C180 88 170 92 160 104C166 84 160 70 150 62C142 82 142 106 150 128Z" fill="#e7f5ff" ${S}/>` },
-    { id: "sparkle", slot: "back", n: KZ.t("Жарқыл"), unlock: "perfect10", back: true, svg: () => `<g fill="#ffd23f" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"><path d="M22 52l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path d="M182 96l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path d="M168 30l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></g>` },
-    { id: "dombyra", slot: "back", n: KZ.t("Домбыра"), unlock: "poly", back: true, svg: () => `<path d="M168 150L192 46" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M168 150L192 46" stroke="#a0522d" stroke-width="5" stroke-linecap="round"/><path d="M162 204C140 202 136 182 142 166C148 150 166 146 178 152C192 160 192 182 184 194C178 202 170 204 162 204Z" fill="#d9480f" ${S}/><circle cx="166" cy="178" r="5" fill="#5c2b0f"/>` },
-    /* ---- серия ауасы (серия тірі болғанда ғана көрінеді) ---- */
-    { id: "flame", slot: "aura", n: KZ.t("Жалын ауасы"), unlock: { streak: 3 }, back: true, svg: () => `<g opacity=".92"><path d="M100 214C40 214 16 172 24 128C30 96 54 84 58 54C72 70 76 86 80 96C82 70 92 48 100 28C108 48 118 70 120 96C124 86 128 70 142 54C146 84 170 96 176 128C184 172 160 214 100 214Z" fill="#ff922b" ${S3}/><path d="M100 210C58 210 42 180 48 150C52 128 68 120 72 100C80 112 84 122 86 130C88 112 94 98 100 84C106 98 112 112 114 130C116 122 120 112 128 100C132 120 148 128 152 150C158 180 142 210 100 210Z" fill="#ffd43b"/></g>` },
-    { id: "bolt", slot: "aura", n: KZ.t("Найзағай ауасы"), unlock: { streak: 7 }, back: true, svg: () => `<g fill="#ffe066" ${S3}><path d="M14 54l22 6-12 18 20 6-28 30 6-24-18-6z"/><path d="M176 70l20 6-10 16 18 6-26 28 5-22-16-6z"/></g>` },
-    { id: "galaxy", slot: "aura", n: KZ.t("Галактика ауасы"), unlock: { streak: 30 }, back: true, svg: () => `<circle cx="100" cy="132" r="98" fill="rgba(108,92,231,.28)" stroke="#9775fa" stroke-width="3" stroke-dasharray="4 9"/><g fill="#ffffff"><circle cx="20" cy="96" r="3"/><circle cx="178" cy="70" r="3"/><circle cx="172" cy="196" r="2.5"/><circle cx="26" cy="190" r="2.5"/><circle cx="150" cy="40" r="2"/></g>` },
-    /* ---- АҢЫЗ (legend): анимациялы, тек ауыр жетістікпен ашылады ---- */
-    { id: "crown_gold", slot: "hat", legend: true, rich: true, n: KZ.t("Алтын шаңырақ тәж"), unlock: "perfect60", svg: (c, u) => `<ellipse cx="100" cy="94" rx="54" ry="8" fill="rgba(18,13,42,.3)" filter="url(#${u}b3)"/><path d="M52 90L43 40Q44 32 51 36L74 57L94 22Q100 13 106 22L126 57L149 36Q156 32 157 40L148 90Q100 99 52 90Z" fill="url(#${u}gold)" ${GS}/><path d="M58 82L52 48L75 66L100 30L125 66L148 48L142 82" fill="none" stroke="rgba(255,246,204,.6)" stroke-width="2" stroke-linejoin="round"/><path d="M50 79Q100 91 150 79L149 93Q100 105 51 93Z" fill="url(#${u}goldH)" ${GS}/><path d="M56 86Q63 94 70 87Q77 95 84 88Q92 96 100 89Q108 96 116 88Q123 95 130 87Q137 94 144 86" fill="none" stroke="rgba(122,71,0,.55)" stroke-width="1.6"/><g class="fx fx-pulse"><path d="M100 48L110 59L100 72L90 59Z" fill="url(#${u}ruby)" ${GS}/><path d="M100 48L100 72M90 59L110 59" stroke="rgba(255,255,255,.45)" stroke-width=".8"/><ellipse cx="96" cy="55" rx="2.5" ry="1.6" fill="rgba(255,255,255,.9)"/></g><circle class="fx fx-pulse d2" cx="68" cy="88" r="5.5" fill="url(#${u}sapph)" ${GS}/><circle class="fx fx-pulse d3" cx="132" cy="88" r="5.5" fill="url(#${u}emer)" ${GS}/><circle cx="66.5" cy="86" r="1.6" fill="rgba(255,255,255,.95)"/><circle cx="130.5" cy="86" r="1.6" fill="rgba(255,255,255,.95)"/><circle cx="49" cy="34" r="5.5" fill="url(#${u}pearl)" ${GS}/><circle cx="100" cy="16" r="6.5" fill="url(#${u}pearl)" ${GS}/><circle cx="151" cy="34" r="5.5" fill="url(#${u}pearl)" ${GS}/><g fill="rgba(255,255,255,1)"><path class="fx fx-twinkle" d="M36 14l2.6 7 7 2.6-7 2.6-2.6 7-2.6-7-7-2.6 7-2.6z"/><path class="fx fx-twinkle d2" d="M166 10l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z"/><path class="fx fx-twinkle d3" d="M120 2l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z"/></g>` },
-    { id: "coder_glasses", slot: "face", legend: true, rich: true, n: KZ.t("Кодтаушы көзілдірігі"), unlock: "done_python", svg: (c, u) => `<path d="M52 118L32 109M148 118L168 109" stroke="url(#${u}frame)" stroke-width="5" stroke-linecap="round"/><rect x="52" y="108" width="44" height="36" rx="13" fill="url(#${u}lens)"/><rect x="104" y="108" width="44" height="36" rx="13" fill="url(#${u}lens)"/><g clip-path="url(#${u}lc)" font-family="ui-monospace, Menlo, Consolas, monospace" font-weight="700" font-size="7.4" fill="rgb(61,255,176)" filter="url(#${u}glow)"><text class="fx fx-bit" x="56" y="121">def kod():</text><text class="fx fx-bit d2" x="56" y="132">  ret 42</text><text class="fx fx-bit d3" x="108" y="121">for i in</text><text class="fx fx-bit d4" x="108" y="132">  print(i)</text><rect class="fx fx-bit d2" x="84" y="136" width="5" height="2"/><path d="M58 146L76 106L84 106L66 146Z M110 146L128 106L134 106L116 146Z" fill="rgba(255,255,255,.14)"/></g><rect x="52" y="108" width="44" height="36" rx="13" fill="none" stroke="url(#${u}frame)" stroke-width="5"/><rect x="104" y="108" width="44" height="36" rx="13" fill="none" stroke="url(#${u}frame)" stroke-width="5"/><path d="M96 121Q100 116 104 121" fill="none" stroke="url(#${u}frame)" stroke-width="4.5"/><path d="M60 107.5H88M112 107.5H140" stroke="rgba(222,226,230,.7)" stroke-width="1.6" stroke-linecap="round"/>` },
-    { id: "fire_wings", slot: "back", legend: true, rich: true, n: KZ.t("Жалын қанаттар"), unlock: "done_projects", back: true, svg: (c, u) => {
-      const w = `<path d="M44 150C10 150 -8 116 -2 72C12 90 22 94 32 102C24 80 30 60 42 50C50 70 54 88 50 104C58 88 62 78 70 72C70 100 64 128 44 150Z" fill="rgba(255,146,43,.55)" filter="url(#${u}b7)"/><path d="M44 150C10 150 -8 116 -2 72C12 90 22 94 32 102C24 80 30 60 42 50C50 70 54 88 50 104C58 88 62 78 70 72C70 100 64 128 44 150Z" fill="url(#${u}fire)" stroke="#a61e1e" stroke-width="1.6" stroke-linejoin="round"/><path d="M46 140C24 138 12 116 12 92C22 104 30 108 38 114C36 98 40 86 46 78C52 94 54 110 50 124C56 112 60 104 64 100C62 118 58 130 46 140Z" fill="rgba(255,224,102,.75)"/><path d="M44 132C30 128 22 114 22 102M48 122C42 110 42 96 44 86" fill="none" stroke="rgba(201,42,42,.4)" stroke-width="1.6"/>`;
-      return `<g transform="translate(-16 -26) scale(1.18)"><g class="fx fx-flapL">${w}</g></g><g transform="translate(216 -26) scale(-1.18 1.18)"><g class="fx fx-flapL d2">${w}</g></g><g fill="rgb(255,212,59)" filter="url(#${u}glow)"><circle class="fx fx-spark" cx="10" cy="64" r="3"/><circle class="fx fx-spark d2" cx="190" cy="58" r="3"/><circle class="fx fx-spark d3" cx="22" cy="96" r="2.4"/><circle class="fx fx-spark d4" cx="178" cy="92" r="2.4"/></g>`;
-    } },
-    { id: "magic_scarf", slot: "neck", legend: true, rich: true, n: KZ.t("Сиқырлы шарф"), unlock: "streak14", svg: (c, u) => `<g class="fx fx-hue"><path d="M40 158Q100 182 160 158L162 175Q100 202 38 175Z" fill="url(#${u}scarf)" ${TS}/><path d="M40 158Q100 182 160 158L162 175Q100 202 38 175Z" fill="url(#${u}knit)"/><path d="M44 171Q100 194 156 171" fill="none" stroke="rgba(43,22,112,.35)" stroke-width="3"/><path d="M46 161Q100 182 154 161" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.2"/><g class="fx fx-flutter"><path d="M118 180L112 214Q126 220 140 213L138 180Z" fill="url(#${u}scarf)" ${TS}/><path d="M118 180L112 214Q126 220 140 213L138 180Z" fill="url(#${u}knit)"/><path d="M114 198Q126 201 139 197" stroke="rgb(255,212,59)" stroke-width="3.5" fill="none"/><path d="M113 206Q126 209 139.5 205" stroke="rgba(255,212,59,.8)" stroke-width="2" fill="none"/><path d="M115 216v6M120 217.5v6M125 218v6M130 217.5v6M135 216v6" stroke="rgb(132,94,247)" stroke-width="2.4" stroke-linecap="round"/></g><ellipse cx="128" cy="181" rx="10" ry="8" fill="url(#${u}scarf)" ${TS}/><ellipse cx="125" cy="178" rx="4" ry="2.5" fill="rgba(255,255,255,.5)"/><g fill="rgb(255,224,102)"><path class="fx fx-twinkle" d="M64 170l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path class="fx fx-twinkle d3" d="M96 177l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z"/></g></g>` },
-    { id: "dombyra_play", slot: "back", legend: true, n: KZ.t("Шертетін домбыра"), unlock: "read30", back: true, svg: () => `<g class="fx fx-strum"><path d="M168 150L192 46" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M168 150L192 46" stroke="#a0522d" stroke-width="5" stroke-linecap="round"/><path d="M162 204C140 202 136 182 142 166C148 150 166 146 178 152C192 160 192 182 184 194C178 202 170 204 162 204Z" fill="#d9480f" ${S}/><circle cx="166" cy="178" r="5" fill="#5c2b0f"/><path d="M152 176L180 180" stroke="#ffe8cc" stroke-width="1.8"/></g><g font-size="16" font-weight="900" fill="rgb(31,29,54)"><text class="fx fx-note" x="132" y="150">♪</text><text class="fx fx-note d2" x="146" y="140">♫</text><text class="fx fx-note d3" x="124" y="136">♪</text></g>` },
-    { id: "code_rain", slot: "aura", legend: true, n: KZ.t("Код жаңбыры"), unlock: "lv100", back: true, svg: () => `<g font-family="monospace" font-weight="800" font-size="13" fill="rgb(81,207,102)"><text class="fx fx-fall" x="8" y="60">1</text><text class="fx fx-fall d2" x="8" y="120">0</text><text class="fx fx-fall d3" x="22" y="90">1</text><text class="fx fx-fall d4" x="22" y="160">0</text><text class="fx fx-fall d3" x="176" y="70">0</text><text class="fx fx-fall" x="176" y="140">1</text><text class="fx fx-fall d2" x="190" y="100">1</text><text class="fx fx-fall d4" x="190" y="170">0</text></g>` },
-    /* ---- САНДЫҚ: апталық сандықтан кездейсоқ түседі (анимациялы) ---- */
-    { id: "star_rain", slot: "aura", chest: true, n: KZ.t("Жұлдыз жаңбыры"), unlock: "chest", back: true, svg: () => `<g fill="#ffd23f" stroke="${INK}" stroke-width="2" stroke-linejoin="round"><path class="fx fx-twinkle" d="${star(22, 70, 10)}"/><path class="fx fx-twinkle d2" d="${star(180, 60, 9)}"/><path class="fx fx-twinkle d3" d="${star(14, 150, 8)}"/><path class="fx fx-twinkle d4" d="${star(188, 150, 10)}"/><path class="fx fx-fall" d="${star(100, 18, 7)}"/><path class="fx fx-fall d3" d="${star(150, 26, 6)}"/></g>` },
-    { id: "butterfly", slot: "pin", chest: true, n: KZ.t("Көбелек"), unlock: "chest", svg: () => `<g class="fx fx-bfly"><path d="M138 174C124 158 120 176 130 184C122 192 132 202 138 186Z" fill="#4dabf7" ${S3}/><path d="M138 174C152 158 156 176 146 184C154 192 144 202 138 186Z" fill="#f783ac" ${S3}/></g><path d="M138 172V190" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` },
-    { id: "balloon", slot: "back", chest: true, n: KZ.t("Ұшатын шар"), unlock: "chest", back: true, svg: () => `<g class="fx fx-float"><path d="M168 96C168 134 168 134 168 140" fill="none" stroke="${INK}" stroke-width="3"/><ellipse cx="168" cy="70" rx="22" ry="28" fill="#ff6b6b" ${S}/><path d="M158 56Q160 46 170 44" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".7"/><path d="M164 98L168 104L172 98Z" fill="#e8504f" ${S3}/></g>` },
-    { id: "heart_glasses", slot: "face", chest: true, n: KZ.t("Жүрек көзілдірік"), unlock: "chest", svg: () => `<g class="fx fx-pulse"><path d="M79 142C62 130 58 118 66 112C72 108 79 112 79 118C79 112 86 108 92 112C100 118 96 130 79 142Z" fill="#ff6b6b" ${S3}/></g><g class="fx fx-pulse d2"><path d="M121 142C104 130 100 118 108 112C114 108 121 112 121 118C121 112 128 108 134 112C142 118 138 130 121 142Z" fill="#ff6b6b" ${S3}/></g><path d="M96 120h8" ${S3}/>` },
-    { id: "cat_ears", slot: "hat", chest: true, n: KZ.t("Мысық құлақ"), unlock: "chest", svg: () => `<g class="fx fx-ear"><path d="M54 88L52 40L88 66Z" fill="#ffa94d" ${S}/><path d="M60 78L60 54L78 68Z" fill="#f783ac"/></g><g class="fx fx-ear d3"><path d="M146 88L148 40L112 66Z" fill="#ffa94d" ${S}/><path d="M140 78L140 54L122 68Z" fill="#f783ac"/></g>` },
-    { id: "cosmo_tee", slot: "outfit", chest: true, n: KZ.t("Ғарыш футболка"), unlock: "chest", svg: () => `<path d="${OUT}" fill="#1b1b3a" ${S}/><g fill="#ffffff"><circle class="fx fx-twinkle" cx="70" cy="184" r="2.5"/><circle class="fx fx-twinkle d2" cx="94" cy="190" r="2"/><circle class="fx fx-twinkle d3" cx="118" cy="184" r="2.8"/><circle class="fx fx-twinkle d4" cx="136" cy="190" r="2"/></g><circle cx="100" cy="182" r="6" fill="#ffd23f" ${S3}/>` },
-    /* ---- МАУСЫМДЫҚ: мереке кезінде ғана ашық, кейін жабылады ---- */
-    { id: "nauryz_wreath", slot: "hat", legend: true, n: KZ.t("Наурыз гүл тәжі"), unlock: { season: "nauryz" }, svg: () => `<path d="M48 84Q50 52 100 46Q150 52 152 84" fill="none" stroke="#51cf66" stroke-width="9" stroke-linecap="round"/><g ${S3}><circle class="fx fx-pulse" cx="62" cy="64" r="9" fill="#f783ac"/><circle class="fx fx-pulse d2" cx="100" cy="48" r="10" fill="#ffd23f"/><circle class="fx fx-pulse d3" cx="138" cy="64" r="9" fill="#4dabf7"/><circle cx="80" cy="52" r="6" fill="#ffa94d"/><circle cx="120" cy="52" r="6" fill="#f783ac"/></g><g fill="#f783ac"><circle class="fx fx-fall" cx="40" cy="60" r="3"/><circle class="fx fx-fall d2" cx="160" cy="52" r="3"/><circle class="fx fx-fall d3" cx="30" cy="90" r="2.5"/><circle class="fx fx-fall d4" cx="172" cy="84" r="2.5"/></g>` },
-    { id: "snow_hat", slot: "hat", legend: true, n: KZ.t("Жаңа жыл бөрігі"), unlock: { season: "newyear" }, svg: () => `<path d="M52 84C52 50 76 34 108 40C136 44 150 60 150 84Z" fill="#e03131" ${S}/><rect x="46" y="76" width="108" height="18" rx="9" fill="#ffffff" ${S}/><g class="fx fx-flutter" style="transform-origin:70% 20%"><path d="M108 40Q150 30 160 62" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M108 40Q150 30 160 62" fill="none" stroke="#e03131" stroke-width="8" stroke-linecap="round"/><circle cx="162" cy="66" r="10" fill="#ffffff" ${S3}/></g><g fill="#ffffff" stroke="#74c0fc" stroke-width="1.5"><circle class="fx fx-fall" cx="30" cy="40" r="3.5"/><circle class="fx fx-fall d2" cx="62" cy="20" r="3"/><circle class="fx fx-fall d3" cx="150" cy="24" r="3.5"/><circle class="fx fx-fall d4" cx="176" cy="48" r="3"/></g>` },
-    /* ---- апталық лига (өткен аптада сыныпта топ-3; тек осы апта ғана) ---- */
-    { id: "lg1", slot: "hat", n: KZ.t("Алтын лавр (лига 🥇)"), unlock: { league: 1 }, svg: () => `<g ${S3} fill="#ffd23f"><ellipse cx="54" cy="84" rx="6" ry="11" transform="rotate(-28 54 84)"/><ellipse cx="47" cy="68" rx="6" ry="11" transform="rotate(-8 47 68)"/><ellipse cx="52" cy="52" rx="6" ry="11" transform="rotate(18 52 52)"/><ellipse cx="66" cy="40" rx="6" ry="11" transform="rotate(42 66 40)"/><ellipse cx="146" cy="84" rx="6" ry="11" transform="rotate(28 146 84)"/><ellipse cx="153" cy="68" rx="6" ry="11" transform="rotate(8 153 68)"/><ellipse cx="148" cy="52" rx="6" ry="11" transform="rotate(-18 148 52)"/><ellipse cx="134" cy="40" rx="6" ry="11" transform="rotate(-42 134 40)"/></g><path d="${star(100, 34, 13)}" fill="#ff6b6b" stroke="${INK}" stroke-width="3"/>` },
-    { id: "lg2", slot: "pin", n: KZ.t("Күміс медаль (лига 🥈)"), unlock: { league: 2 }, svg: () => `<path d="M126 150l10 20M150 150l-10 20" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M126 150l10 20M150 150l-10 20" stroke="#4dabf7" stroke-width="5" stroke-linecap="round"/><circle cx="138" cy="182" r="14" fill="#ced4da" ${S3}/><text x="138" y="188" font-size="16" font-weight="900" text-anchor="middle" fill="#495057">2</text>` },
-    { id: "lg3", slot: "pin", n: KZ.t("Қола медаль (лига 🥉)"), unlock: { league: 3 }, svg: () => `<path d="M126 150l10 20M150 150l-10 20" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M126 150l10 20M150 150l-10 20" stroke="#ff922b" stroke-width="5" stroke-linecap="round"/><circle cx="138" cy="182" r="14" fill="#e0955a" ${S3}/><text x="138" y="188" font-size="16" font-weight="900" text-anchor="middle" fill="#5c2b0f">3</text>` },
+    { id: "sk_street", lw: "street", slot: "outfit", n: KZ.t("Күнделікті худи"), unlock: "start" },
+    { id: "sk_sport", lw: "sport", slot: "outfit", n: KZ.t("Спорттық киім"), unlock: "daily1" },
+    { id: "sk_knight", lw: "knight", slot: "outfit", legend: true, n: KZ.t("Фэнтези сауыт"), unlock: "streak7" },
+    { id: "sk_formal", lw: "formal", slot: "outfit", n: KZ.t("Классикалық костюм"), unlock: "poly" },
+    { id: "sk_wizard", lw: "wizard", slot: "outfit", legend: true, n: KZ.t("Сиқыршы киімі"), unlock: "lv30" },
+    { id: "sk_cyber", lw: "cyber", slot: "outfit", legend: true, n: KZ.t("Киберпанк киімі"), unlock: "game_z1" },
+    { id: "ac_cap", lw: "cap", slot: "head", n: KZ.t("Кепка"), unlock: "start" },
+    { id: "ac_beanie", lw: "beanie", slot: "head", chest: true, n: KZ.t("Тоқылған қалпақ"), unlock: "chest" },
+    { id: "ac_wizard_hat", lw: "wizard-hat", slot: "head", legend: true, n: KZ.t("Сиқыршы қалпағы"), unlock: "done_python" },
+    { id: "ac_crown", lw: "crown", slot: "head", legend: true, n: KZ.t("Алтын тәж"), unlock: "perfect60" },
+    { id: "ac_helmet", lw: "space-helmet", slot: "head", legend: true, n: KZ.t("Ғарыш дулығасы"), unlock: "lv60" },
+    { id: "ac_phones", lw: "headphones", slot: "ears", n: KZ.t("Құлаққап"), unlock: "streak3" },
+    { id: "ac_glasses", lw: "glasses", slot: "face", n: KZ.t("Дөңгелек көзілдірік"), unlock: "start" },
+    { id: "ac_scarf", lw: "scarf", slot: "neck", n: KZ.t("Шарф"), unlock: "start" },
+    { id: "ac_backpack", lw: "backpack", slot: "back", n: KZ.t("Рюкзак"), unlock: "start" },
+    { id: "ac_cape", lw: "cape", slot: "back", legend: true, n: KZ.t("Батыр мантиясы"), unlock: "streak14" },
+    { id: "ac_wings", lw: "wings", slot: "back", legend: true, n: KZ.t("Фея қанаттары"), unlock: "streak30" },
+    { id: "ac_wand", lw: "wand", slot: "hand", n: KZ.t("Сиқырлы таяқша"), unlock: "perfect10" },
   ];
   const BYID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
-  const STARTERS_N = 4;
+  const STARTERS_N = 5;
   let gradN = 0;
   /* екі HEX түсті араластыру (t: екінші түстің үлесі) */
   function mix(a, b, t) {
@@ -153,17 +88,22 @@
   function ensure() {
     let s = load();
     if (s && Array.isArray(s.starters)) {
-      if (s.mv !== 3) {
-        /* кейіпкер Loop Python кесірткесіне ауысты: бір рет жасыл түске қайтарамыз */
-        s.mv = 3;
-        s.color = COLORS[0][0];
+      if (s.mv !== 4) {
+        /* Loop Python гардеробы: ескі заттар жаңа жүйеге көшпейді, бастапқы жиынтық қайта беріледі */
+        const pool = ITEMS.filter((i) => i.unlock === "start");
+        s.mv = 4;
+        s.starters = pool.map((i) => i.id);
+        s.eq = {};
+        pool.forEach((i) => {
+          if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
+        });
         save(s);
       }
       return s;
     }
     const pool = ITEMS.filter((i) => i.unlock === "start");
     const pick = pool.slice().sort(() => Math.random() - 0.5).slice(0, STARTERS_N);
-    s = { mv: 3, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
+    s = { mv: 4, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
     // әр слотқа басында бір затты кигіземіз
     pick.forEach((i) => {
       if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
@@ -313,106 +253,33 @@
       s.color = c;
       save(s);
     },
-    /* SVG жолы (Мульт 3D стилі). opts: { eq, color, preview, still } */
+    /* Кейіпкер суреті (canvas белгілеуі). opts: { eq, preview, still, lite }. lite/still — қозғалмайтын сурет; lite+still — бас қана (аватар) */
     svg(opts) {
-      const lite = !!(opts && opts.lite); // кішкентай суреттер: бұлыңғыр сүзгісіз (телефонға жеңіл)
       const own = !(opts && opts.eq);
       const s = own ? ensure() : opts;
-      const c = s.color || "#6c5ce7";
       const eq = s.eq || {};
-      const u = "hg" + ++gradN;
-      const L = (x, t) => mix(x, "#ffffff", t);
-      const Dk = (x, t) => mix(x, "#120d2a", t);
-      const oc = Dk(c, 0.55); // контур: дененің қою реңі
-      const SB = `stroke="${oc}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"`;
-      const defs = {};
-      /* зат түсі -> көлемді радиал градиент (жарық сол жақ жоғарыдан) */
-      const grad = (hex) => {
-        const k = hex.slice(1).toLowerCase();
-        if (!defs[k]) defs[k] = `<radialGradient id="${u}g${k}" cx=".35" cy=".28" r=".95"><stop offset="0" stop-color="${L(hex, 0.55)}"/><stop offset=".5" stop-color="${hex}"/><stop offset="1" stop-color="${Dk(hex, 0.38)}"/></radialGradient>`;
-        return `url(#${u}g${k})`;
-      };
-      /* ескі «жалпақ» заттарды 3D етеміз: түсті градиент, қара контурды өз түсінің қою реңімен ауыстырамыз */
-      const inkRe = new RegExp(`stroke="${INK}"`, "g");
-      const skin = (str) =>
-        str.replace(/<(path|circle|ellipse|rect|polygon|g)\b([^>]*?)(\/?)>/g, (m, tag, a, sl) => {
-          const fm = a.match(/fill="(#[0-9a-fA-F]{6})"/);
-          if (fm) a = a.replace(fm[0], `fill="${grad(fm[1])}"`).replace(inkRe, `stroke="${Dk(fm[1], 0.6)}"`);
-          else a = a.replace(inkRe, 'stroke="#2d2550"');
-          a = a.replace(/stroke-width="4"/g, 'stroke-width="2.6"').replace(/stroke-width="3"/g, 'stroke-width="2.2"');
-          return `<${tag}${a}${sl}>`;
-        });
-      const get = (slot) => {
-        const it = BYID[eq[slot]];
-        return it && it.slot === slot && (s.preview || (own && hero.god()) || hero.visible(it, s)) ? it : null;
-      };
-      let rich = false;
-      const draw = (it) => {
-        if (it.rich) rich = true;
-        return `<g filter="url(#${u}sh)">${skin(it.svg(c, u))}</g>`;
-      };
-      const auras = get("aura");
-      const back = get("back");
-      const hat = get("hat");
-      const outfit = get("outfit");
-      const pin = get("pin");
-      const neck = get("neck");
-      const face = get("face");
-      const fx = `
-        <filter id="${u}b1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter>
-        <filter id="${u}b3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
-        <filter id="${u}b7" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
-        <filter id="${u}glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="${u}sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#120d2a" flood-opacity=".28"/></filter>
-        <clipPath id="${u}cb"><path d="${BODY}"/></clipPath>
-        <clipPath id="${u}mo"><path d="M74 147Q100 178 126 147Q100 155 74 147Z"/></clipPath>
-        <clipPath id="${u}mo2"><path d="M68 144C68 180 132 180 132 144Z"/></clipPath>
-        <radialGradient id="${u}body" cx=".34" cy=".24" r="1"><stop offset="0" stop-color="${L(c, 0.6)}"/><stop offset=".28" stop-color="${L(c, 0.25)}"/><stop offset=".62" stop-color="${c}"/><stop offset="1" stop-color="${Dk(c, 0.42)}"/></radialGradient>
-        <linearGradient id="${u}ao" x1="0" y1="0" x2="0" y2="1"><stop offset=".5" stop-color="${Dk(c, 0.7)}" stop-opacity="0"/><stop offset="1" stop-color="${Dk(c, 0.7)}" stop-opacity=".5"/></linearGradient>
-        <linearGradient id="${u}side" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${Dk(c, 0.6)}" stop-opacity=".35"/><stop offset=".25" stop-color="${Dk(c, 0.6)}" stop-opacity="0"/><stop offset=".8" stop-color="${Dk(c, 0.6)}" stop-opacity="0"/><stop offset="1" stop-color="${Dk(c, 0.6)}" stop-opacity=".3"/></linearGradient>
-        <radialGradient id="${u}iris" cx=".45" cy=".6" r=".75"><stop offset="0" stop-color="#8be26a"/><stop offset=".5" stop-color="#2f9e44"/><stop offset="1" stop-color="#0b3d1e"/></radialGradient>
-        <linearGradient id="${u}ear" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffd43b"/><stop offset="1" stop-color="#f08c00"/></linearGradient>
-        <radialGradient id="${u}foot" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="${L(c, 0.25)}"/><stop offset="1" stop-color="${Dk(c, 0.5)}"/></radialGradient>
-        <linearGradient id="${u}cur" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b2f2ea"/><stop offset=".45" stop-color="#2ec4b6"/><stop offset="1" stop-color="#0b7f74"/></linearGradient>`;
-      /* Loop Python: дайын 2D кадрлар. Киімдер ескі координатадан (0..200) кейіпкер басына/денесіне көшіріледі */
-      const MAP = {
-        // слот: [ескі нүкте x,y -> жаңа нүкте X,Y, масштаб gx, gy]
-        hat: [100, 70, 253, 104, 1.2, 1.2],
-        face: [100, 126, 253, 152, 1.3, 1.25],
-        neck: [100, 172, 253, 234, 0.9, 0.9],
-        outfit: [100, 180, 253, 276, 0.72, 1.1],
-        pin: [138, 176, 286, 290, 0.8, 0.8],
-        back: [100, 150, 253, 300, 1.5, 1.5],
-        aura: [100, 130, 256, 282, 2.1, 2.1],
-      };
-      const place = (slot, it) => {
-        const [ax, ay, X, Y, gx, gy] = MAP[slot];
-        return `<g transform="translate(${(X - ax * gx).toFixed(1)} ${(Y - ay * gy).toFixed(1)}) scale(${gx} ${gy})">${draw(it)}</g>`;
-      };
-      const live = !lite && !s.still;
-      const crop = !!(lite && s.still && !(opts && opts.embed)); // кішкентай аватар: тек бас
-      const P = [];
-      P.push(`<ellipse data-k="1" cx="253" cy="460" rx="92" ry="13" fill="#120d2a" opacity="${lite ? 0.12 : 0.2}" filter="url(#${u}b3)"/>`);
-      if (auras) P.push(`<g class="hf-aura">${place("aura", auras)}</g>`);
-      if (back && back.back) P.push(place("back", back));
-      P.push(KZ.mascot.layers(live, opts && opts.embed, u));
-      if (outfit) P.push(place("outfit", outfit));
-      if (pin) P.push(place("pin", pin));
-      if (neck) P.push(place("neck", neck));
-      if (face) P.push(place("face", face));
-      if (hat) P.push(place("hat", hat));
-      let defsStr = fx + Object.values(defs).join("") + (rich ? richDefs(u) : "");
-      let body = P.join("");
-      if (lite) {
-        /* сүзгілерді алып тастаймыз: бұлыңғыр әшекейлер өшеді, қалғаны сүзгісіз қалады */
-        defsStr = defsStr.replace(/<filter\b[\s\S]*?<\/filter>/g, "");
-        body = body.replace(/<(\w+)([^>]*?) filter="url\(#hg\d+(\w+)\)"([^>]*?)(\/?)>/g, (m, tag, a1, id, a2, sl) => ((id === "b3" || id === "b7") && sl && !/data-k=/.test(a1 + a2) ? "" : `<${tag}${a1}${a2}${sl}>`));
-      }
-      return KZ.tt("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"{2}\" role=\"img\" aria-label=\"Битлинг\"><defs>{0}</defs>{1}</svg>", defsStr, body, crop ? "128 10 250 262" : "40 0 432 470");
+      const sel = {};
+      SLOTS.forEach((sl) => {
+        const it = BYID[eq[sl.id]];
+        if (it && it.slot === sl.id && (s.preview || (own && hero.god()) || hero.visible(it, s))) sel[sl.id] = it.lw;
+      });
+      const lite = !!(opts && opts.lite);
+      const still = !!(opts && opts.still);
+      return KZ.mascot.markup(sel, { live: !lite && !still, crop: lite && still, px: lite ? (still ? 96 : 120) : 300 });
     },
-    /* куәлік/бөлісу картасы үшін: сурет data-URI ретінде салынады (сыртқы файл canvas-қа жүктелмейді) */
-    svgAsync(o) {
-      return KZ.mascot.embed().then((d) => hero.svg(Object.assign({}, o, { embed: d, lite: true, still: true, crop: false })));
+    /* ойын, куәлік үшін: ағымдағы киім (lw id-лері) */
+    lwSel() {
+      const s = ensure();
+      const sel = {};
+      SLOTS.forEach((sl) => {
+        const it = BYID[s.eq[sl.id]];
+        if (it && it.slot === sl.id && (hero.god() || hero.visible(it, s))) sel[sl.id] = it.lw;
+      });
+      return sel;
+    },
+    /* куәлік/бөлісу картасы үшін: кейіпкер canvas ретінде */
+    canvasAsync(px) {
+      return KZ.mascot.snapshot(hero.lwSel(), px || 512);
     },
     /* Сәлем: қолын булғайды */
     wave(f) {
@@ -681,8 +548,8 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       }, "image/png");
     };
-    hero.svgAsync({ color: s.color, eq: s.eq }).then((svg) => {
-      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    hero.canvasAsync(480).then((cv) => {
+      img.src = cv.toDataURL("image/png");
     });
   }
 
@@ -728,7 +595,6 @@
     page.appendChild(stage);
     const redraw = () => {
       fig.innerHTML = hero.svg();
-      sw.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.c === ensure().color));
       lists.querySelectorAll(".item").forEach((b) => b.classList.toggle("on", ensure().eq[b.dataset.slot] === b.dataset.id));
       lists.querySelectorAll(".none").forEach((b) => b.classList.toggle("on", !ensure().eq[b.dataset.slot]));
     };

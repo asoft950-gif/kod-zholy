@@ -1,66 +1,78 @@
-/* Bitlings: Loop Python — дайын 2D анимациялы кейіпкер (кадрлар img/mascot/*.webp, әр кадр 288px, бір қатарда).
-   Кадр көрінісі: бастапқы 512px кадрдың (62,80)-(450,468) аймағы, яғни 388x388 бірлік. */
+/* Bitlings: Битлинг (Loop Python) — модульді 2D кейіпкер. Суреттер img/wardrobe/*.webp, қозғалыс js/loopwardrobe.js (Canvas 2D).
+   Сурет <canvas class="mz"> ретінде орналасады; бір ортақ қозғалтқыш барлық көрінетін canvas-ты сызады. */
 (() => {
   "use strict";
-  const CELL = 388; // SVG бірлігі
-  const rep = (n, ms) => Array(n).fill(ms);
-  const A = {
-    idle: { n: 48, d: rep(48, 60) },
-    blink: { n: 6, d: [1500, 70, 90, 90, 70, 800] },
-    wave: { n: 48, d: rep(48, 50) },
-    "walk-down": { n: 24, d: rep(24, 40) },
-    "walk-up": { n: 24, d: rep(24, 40) },
-    "walk-left": { n: 24, d: rep(24, 40) },
-    "walk-right": { n: 24, d: rep(24, 40) },
-  };
-  Object.values(A).forEach((a) => (a.total = a.d.reduce((x, y) => x + y, 0)));
-  const url = (k) => "img/mascot/" + k + ".webp";
-  const LIVE = ["idle", "blink", "wave", "walk-down"];
+  const BASE = "img/wardrobe";
+  let LW = null;
+  let readyP = null;
+  function ready() {
+    if (!readyP)
+      readyP = fetch(BASE + "/wardrobe.json")
+        .then((r) => r.json())
+        .then((m) => LoopWardrobe.load(BASE, m))
+        .then((l) => ((LW = l), l));
+    return readyP;
+  }
   const reduce = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const X0 = 62; // кадр аймағының сол жақ шеті SVG координатында
-  const Y0 = 80;
-  /* SVG ішіне салынатын кадр қабаттары. live=false: тек бірінші кадр (аватар, карта). u — бірегей id */
-  function layers(live, embed, u) {
-    const img = (k, vis) => `<image class="mz-l" data-a="${k}" href="${k === "idle" && embed ? embed : url(k)}" x="${X0}" y="${Y0}" width="${A[k].n * CELL}" height="${CELL}" preserveAspectRatio="none"${vis ? "" : ' style="display:none"'}/>`;
-    return `<clipPath id="${u}mz"><rect x="${X0}" y="${Y0}" width="${CELL}" height="${CELL}"/></clipPath><g clip-path="url(#${u}mz)"${live ? ' data-mz="1"' : ""}>${live ? LIVE.map((k) => img(k, k === "idle")).join("") : img("idle", true)}</g>`;
+  /* sel: { слот: lw-id } -> LoopWardrobe параметрлері */
+  function opts(sel) {
+    const o = { outfit: sel.outfit || "base", accessories: [] };
+    Object.keys(sel).forEach((k) => {
+      if (k !== "outfit") o.accessories.push(sel[k]);
+    });
+    return o;
   }
 
-  /* ---------- кадр қозғалтқышы ---------- */
-  const ST = new WeakMap();
-  function frameAt(a, t) {
-    t %= a.total;
-    for (let i = 0; i < a.n; i++) {
-      if (t < a.d[i]) return i;
-      t -= a.d[i];
-    }
-    return a.n - 1;
+  /* HTML белгілеу: <canvas> */
+  function markup(sel, o) {
+    const px = (o && o.px) || 300;
+    return `<canvas class="mz" width="${px}" height="${px}" data-s='${JSON.stringify(sel || {})}'${o && o.live ? ' data-live="1"' : ""}${o && o.crop ? ' data-crop="1"' : ""}></canvas>`;
   }
+
+  /* ---------- сызу ---------- */
+  const CROP = { x: 140, y: 40, w: 234 }; // бас аймағы 512 кадрда
+  function paint(cv, anim, timeMs) {
+    const g = cv.getContext("2d");
+    const W = cv.width;
+    const base = opts(JSON.parse(cv.dataset.s || "{}"));
+    if (cv.dataset.crop) {
+      const k = W / CROP.w;
+      LW.draw(g, Object.assign(base, { animation: "idle", phase: 0, size: 512 * k, x: -CROP.x * k, y: -CROP.y * k }));
+    } else LW.draw(g, Object.assign(base, { animation: anim, timeMs, size: W, x: 0, y: 0 }));
+  }
+
+  const ST = new WeakMap();
+  const visible = (cv) => {
+    const r = cv.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && r.width > 0;
+  };
   function tick(now) {
-    document.querySelectorAll("[data-mz]").forEach((sv) => {
-      const fig = sv.closest(".hero-fig") || sv.ownerSVGElement.parentNode;
-      let st = ST.get(sv);
-      if (!st) {
-        st = { mode: "idle", t0: now, nextBlink: now + 1800 + Math.random() * 2500, nextWave: now + 9000 + Math.random() * 8000, imgs: {} };
-        sv.querySelectorAll(".mz-l").forEach((i) => (st.imgs[i.dataset.a] = i));
-        ST.set(sv, st);
+    document.querySelectorAll("canvas.mz").forEach((cv) => {
+      if (!cv.dataset.live) {
+        if (!cv.dataset.d) {
+          paint(cv, "idle", 0);
+          cv.dataset.d = "1";
+        }
+        return;
       }
+      if (!visible(cv)) return;
+      const fig = cv.closest(".hero-fig") || cv.parentNode;
       const cl = fig.classList;
-      let want = cl.contains("walking") ? "walk-down" : cl.contains("waving") || cl.contains("cheer") ? "wave" : null;
-      const set = (m) => {
-        st.mode = m;
-        st.t0 = now;
-        Object.keys(st.imgs).forEach((k) => (st.imgs[k].style.display = k === m ? "" : "none"));
-      };
-      if (cl.contains("calm")) {
-        /* тыныш режим: тек көз жыпылықтайды, қол қозғалмайды */
-        if (st.mode !== "blink") set("blink");
-      } else if (want && st.mode !== want) set(want);
-      else if (!want && st.mode !== "idle") {
-        const a = A[st.mode];
-        if (st.mode.startsWith("walk") || now - st.t0 >= a.total) set("idle");
-      } else if (!want && st.mode === "idle") {
-        if (now >= st.nextWave && !fig.closest(".no-wave")) {
+      let st = ST.get(cv);
+      if (!st) {
+        st = { mode: "idle", t0: now, nextBlink: now + 1800 + Math.random() * 2500, nextWave: now + 9000 + Math.random() * 8000 };
+        ST.set(cv, st);
+      }
+      const set = (m) => ((st.mode = m), (st.t0 = now));
+      const want = cl.contains("calm") ? "blinkloop" : cl.contains("walking") ? "walk-down" : cl.contains("waving") || cl.contains("cheer") ? "wave" : null;
+      if (want) {
+        if (st.mode !== want) set(want);
+      } else if (st.mode === "wave" && now - st.t0 >= 2400) set("idle");
+      else if (st.mode === "blink" && now - st.t0 >= 330) set("idle");
+      else if (st.mode === "blinkloop" || st.mode === "walk-down") set("idle");
+      else if (st.mode === "idle") {
+        if (now >= st.nextWave && !cl.contains("no-wave")) {
           set("wave");
           st.nextWave = now + 14000 + Math.random() * 10000;
           st.nextBlink = now + 5000;
@@ -69,60 +81,45 @@
           st.nextBlink = now + 3500 + Math.random() * 3500;
         }
       }
-      const a = A[st.mode];
-      const f = frameAt(a, now - st.t0);
-      if (st.f !== f || st.m !== st.mode) {
-        st.f = f;
-        st.m = st.mode;
-        st.imgs[st.mode].setAttribute("x", String(X0 - f * CELL));
-      }
+      const el = now - st.t0;
+      let anim = st.mode;
+      let t = el;
+      if (anim === "idle") t = now;
+      else if (anim === "blink") t = 1500 + el; // тек жұму кадрлары (1500мс ұстап тұру жоқ)
+      else if (anim === "blinkloop") (anim = "blink"), (t = el);
+      paint(cv, anim, t);
     });
   }
   let timer = null;
   function start() {
-    if (timer || reduce()) return;
+    if (timer) return;
     timer = setInterval(() => {
-      if (!document.hidden) tick(performance.now());
-    }, 60);
+      if (LW && !document.hidden) tick(performance.now());
+    }, reduce() ? 250 : 33);
   }
+  ready().then(start, () => {});
   start();
 
-  /* ---------- canvas үшін (ойын) ---------- */
-  const sheets = {};
-  function sheet(k) {
-    if (!sheets[k]) {
-      const im = new Image();
-      sheets[k] = { im, ok: false };
-      im.onload = () => (sheets[k].ok = true);
-      im.src = url(k);
+  /* ---------- ойын үшін: негізгі ctx-ке тікелей. Аяқ нүктесі (fx,fy), size — 512 кадрдың көрінетін өлшемі ---------- */
+  function drawAt(ctx, anim, o, fx, fy, size, sel) {
+    if (!LW) return false;
+    const k = size / 512;
+    try {
+      LW.draw(ctx, Object.assign(opts(sel || {}), o, { animation: anim, size, x: fx - 256 * k, y: fy - 460 * k, clear: false }));
+    } catch (e) {
+      return false;
     }
-    return sheets[k];
-  }
-  /* ctx-ке кадрды сызу: аяқ нүктесі (fx,fy), биіктігі h */
-  function draw(ctx, k, t, fx, fy, h) {
-    const s = sheet(k);
-    if (!s.ok) return false;
-    const a = A[k];
-    const i = Math.floor(t) % a.n;
-    const cs = s.im.naturalWidth / a.n;
-    const w = h; // кадр шаршы
-    ctx.drawImage(s.im, i * cs, 0, cs, s.im.naturalHeight, fx - w / 2, fy - h * 0.979, w, h);
     return true;
   }
-  /* SVG-ны data-URI суретіне айналдыру үшін (куәлік, бөлісу картасы): idle парақты base64 етіп аламыз */
-  let embedP = null;
-  function embed() {
-    if (!embedP)
-      embedP = fetch(url("idle"))
-        .then((r) => r.blob())
-        .then((b) => new Promise((res, rej) => {
-          const fr = new FileReader();
-          fr.onload = () => res(fr.result);
-          fr.onerror = rej;
-          fr.readAsDataURL(b);
-        }));
-    return embedP;
+  /* куәлік/бөлісу картасы: жеке canvas */
+  function snapshot(sel, px) {
+    return ready().then(() => {
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = px;
+      LW.draw(cv.getContext("2d"), Object.assign(opts(sel || {}), { animation: "idle", phase: 0, size: px, x: 0, y: 0 }));
+      return cv;
+    });
   }
 
-  KZ.mascot = { A, CELL, layers, draw, sheet, embed, url, preload: () => LIVE.concat(["walk-up", "walk-left", "walk-right"]).forEach(sheet) };
+  KZ.mascot = { markup, ready, drawAt, snapshot, refresh: () => document.querySelectorAll("canvas.mz[data-d]").forEach((c) => delete c.dataset.d) };
 })();

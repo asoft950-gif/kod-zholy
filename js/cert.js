@@ -26,17 +26,7 @@
   }
 
   function robotImage() {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => resolve(null);
-      const go = (src) => {
-        const svg = src.indexOf("xmlns") > -1 ? src : src.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
-        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-      };
-      if (KZ.hero && KZ.hero.svgAsync) KZ.hero.svgAsync(KZ.hero.state()).then(go, () => go(KZ.ROBOT_SVG));
-      else go(KZ.ROBOT_SVG);
-    });
+    return KZ.hero && KZ.hero.canvasAsync ? KZ.hero.canvasAsync(512).then((c) => c, () => null) : Promise.resolve(null);
   }
 
   function fit(ctx, text, maxW, size, weight, family) {

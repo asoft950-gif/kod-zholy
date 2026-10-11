@@ -40,7 +40,7 @@
     txt.appendChild(h("small", "lp-note", KZ.t("Тіркелу бір минут алады. Прогресің барлық құрылғыда сақталады.")));
     hero.appendChild(txt);
     const stage = el("div", "lp-stage");
-    stage.appendChild(bit("#6c5ce7", { hat: "cap", face: "round" }, "lp-bit-main"));
+    stage.appendChild(bit("", { head: "ac_cap", face: "ac_glasses" }, "lp-bit-main"));
     stage.appendChild(h("div", "lp-bubble", KZ.t("Сәлем! Мен Битлинг. Бірге бастаймыз ба? 👋")));
     hero.appendChild(stage);
     page.appendChild(hero);
@@ -77,7 +77,7 @@
     /* --- Битлинг --- */
     const b = sec("lp-bits", head(KZ.t("Кейіпкерің Битлинг"), KZ.t("Өзіңнің Битлингіңді жаса"), KZ.t("Түсін таңда, жетістік пен серия арқылы бас киім, көзілдірік, жапқыш пен аура аш. Апталық лигада топ-3 арнайы зат алады.")));
     const row = el("div", "lp-bitrow");
-    [["#ff6b6b", { hat: "wizard" }], ["#2ec4b6", { hat: "crown_gold", face: "round" }], ["#ffa94d", { hat: "party", back: "cape" }], ["#4dabf7", { hat: "helmet" }], ["#f783ac", { hat: "takiya", face: "round" }]].forEach(([c, eq]) => row.appendChild(bit(c, eq)));
+    [["", { outfit: "sk_wizard", head: "ac_wizard_hat", hand: "ac_wand" }], ["", { outfit: "sk_knight", head: "ac_crown" }], ["", { outfit: "sk_cyber", ears: "ac_phones" }], ["", { outfit: "sk_sport", ears: "ac_phones", face: "ac_glasses" }], ["", { outfit: "sk_formal", face: "ac_glasses", neck: "ac_scarf" }]].forEach(([c, eq]) => row.appendChild(bit(c, eq)));
     b.appendChild(row);
     page.appendChild(b);
 
@@ -107,7 +107,7 @@
     /* --- соңғы шақыру --- */
     page.appendChild(
       h("section", "lp-final",
-        bit("#6c5ce7", { hat: "beanie" }, "lp-bit-sm"),
+        bit("", { head: "ac_beanie", neck: "ac_scarf" }, "lp-bit-sm"),
         h("h2", null, KZ.t("Бүгін бастайық!")),
         h("p", null, KZ.t("Бір минут: тіркел де, бірінші тапсырманы шеш.")),
         h("div", "lp-cta", A("btn primary big", "#/login/register", KZ.t("✨ Тегін бастау")), A("btn big", "#/login", KZ.t("🔑 Аккаунтқа кіру"))))

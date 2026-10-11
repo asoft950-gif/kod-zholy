@@ -77,12 +77,12 @@
   }
 
   /* ---------- Кейіпкер суреті (гардеробтағы скиндермен) ---------- */
-  /* Loop Python кадрлары (img/mascot): жүру төрт бағытта, тұрғанда idle, жеңгенде сәлем */
+  /* Битлинг (img/wardrobe): жүру төрт бағытта, тұрғанда idle, жеңгенде сәлем; киімі гардеробтағыдай */
   let heroImg = null;
   function heroImage() {
     if (!heroImg) {
-      heroImg = { ok: true, ar: 1 };
-      KZ.mascot.preload();
+      heroImg = { ok: true, ar: 1, sel: KZ.hero.lwSel() };
+      KZ.mascot.ready();
     }
     return heroImg;
   }
@@ -746,7 +746,7 @@
     }
 
     function drawHero(now) {
-      const hh = T * 1.75;
+      const hh = T * 2.3;
       const ww = hh;
       const shk = S.shake ? (Math.random() - 0.5) * 5 : 0;
       const cx = px(S.hx) + T / 2 + shk;
@@ -787,10 +787,9 @@
         ctx.translate(ox + (S.fight ? lunge : 0), oy2 - hop);
         ctx.rotate(tilt + hurtK);
         ctx.scale(sx, sy);
-        const M = KZ.mascot;
         const k = S.done ? "wave" : mv ? ["walk-up", "walk-right", "walk-down", "walk-left"][dir] || "walk-down" : "idle";
-        const fi = S.done ? now / 50 : mv ? ph / (Math.PI / 12) : now / 60;
-        if (!M.draw(ctx, k, fi, 0, 0, hh)) {
+        const o = S.done ? { timeMs: now } : mv ? { phase: ph / (2 * Math.PI) } : { timeMs: now };
+        if (!KZ.mascot.drawAt(ctx, k, o, 0, 0, hh, hi.sel)) {
           ctx.font = Math.round(T * 0.9) + "px serif";
           ctx.textAlign = "center";
           ctx.fillText("🦎", 0, -T * 0.2);
