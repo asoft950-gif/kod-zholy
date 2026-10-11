@@ -746,7 +746,7 @@
     }
 
     function drawHero(now) {
-      const hh = T * 2.3;
+      const hh = T * 1.85; // 512 кадрдың өлшемі; кейіпкердің өзі ≈ 0.72 бөлігі
       const ww = hh;
       const shk = S.shake ? (Math.random() - 0.5) * 5 : 0;
       const cx = px(S.hx) + T / 2 + shk;
@@ -804,11 +804,11 @@
         ctx.fillStyle = "rgba(77,171,247," + (0.25 * Math.min(1, S.shield)).toFixed(2) + ")";
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.ellipse(cx, feet - hh * 0.4, T * 0.5, hh * 0.55, 0, 0, 7);
+        ctx.ellipse(cx, feet - hh * 0.3, T * 0.42, hh * 0.4, 0, 0, 7);
         ctx.fill();
         ctx.stroke();
       }
-      if (S.fight) hpBar(cx, feet - hh - 6, S.hp, S.hpmax, "#51cf66", "", -0.32);
+      if (S.fight) hpBar(cx, feet - hh * 0.76 - 6, S.hp, S.hpmax, "#51cf66", "", -0.32);
     }
 
     function draw(now) {
