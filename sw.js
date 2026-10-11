@@ -2,7 +2,7 @@
    - Сайттың өз файлдары: алдымен желіден (жаңа нұсқа), желі жоқ болса, кэштен.
    - CDN файлдары (Pyodide, CodeMirror, қаріптер): кэштен, жоқ болса, желіден алып сақтайды.
    - Supabase сұраулары (аккаунт, прогресс) ешқашан кэштелмейді. */
-const VERSION = "bitlings-e325e8e555";
+const VERSION = "bitlings-a7770b27e5";
 const SHELL = [
   "./", "index.html", "style.css", "manifest.webmanifest", "py/runner.py",
   "assets/logo.png", "assets/favicon.png", "assets/logo.svg", "assets/favicon.svg", "assets/robot.svg", "assets/cat.svg", "assets/star.svg",
