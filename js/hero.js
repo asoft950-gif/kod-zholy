@@ -734,20 +734,7 @@
     };
     const sw = el("div", "hero-sw");
     sw.hidden = true;
-    const act = el("div", "hero-act");
-    const bw = h("button", "btn small ghost", KZ.t("👋 Сәлем"));
-    bw.type = "button";
-    bw.addEventListener("click", () => hero.wave(fig));
-    const bk = h("button", "btn small ghost", KZ.t("🚶 Жүр"));
-    bk.type = "button";
-    bk.addEventListener("click", () => {
-      fig.classList.toggle("walking");
-      bk.textContent = fig.classList.contains("walking") ? KZ.t("⏸ Тоқта") : KZ.t("🚶 Жүр");
-    });
-    act.append(bw, bk);
-    wrap.appendChild(act);
-    fig.classList.add("hero-fig");
-    fig.addEventListener("click", () => hero.wave(fig));
+    fig.classList.add("hero-fig", "calm");
     const sa = KZ.activity.streak().n;
     wrap.appendChild(h("small", null, KZ.t("🔥 Қазіргі серия: ") + sa + KZ.t(" күн · ең ұзағы: ") + KZ.activity.best()));
     const lists = el("div", "hero-lists");

@@ -52,7 +52,10 @@
         st.t0 = now;
         Object.keys(st.imgs).forEach((k) => (st.imgs[k].style.display = k === m ? "" : "none"));
       };
-      if (want && st.mode !== want) set(want);
+      if (cl.contains("calm")) {
+        /* тыныш режим: тек көз жыпылықтайды, қол қозғалмайды */
+        if (st.mode !== "blink") set("blink");
+      } else if (want && st.mode !== want) set(want);
       else if (!want && st.mode !== "idle") {
         const a = A[st.mode];
         if (st.mode.startsWith("walk") || now - st.t0 >= a.total) set("idle");
