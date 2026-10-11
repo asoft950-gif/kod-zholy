@@ -1048,7 +1048,6 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 
 /* Кейіпкер: тірі қозғалыстар */
 .hero-fig svg .hf-bob { animation: hfBob 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
-.hero-fig svg .hf-eyes { animation: hfBlink 5s infinite; transform-box: fill-box; transform-origin: 50% 50%; }
 .hero-fig svg .hf-aura { animation: hfAura 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 .hero-fig svg .hf-m2 { display: none; }
 .hero-fig.cheer svg .hf-m1 { display: none; }
@@ -1066,17 +1065,16 @@ html[data-theme="dark"] .sql-err { background: #5a4220; }
 @media (prefers-reduced-motion: reduce) { .hero-fig svg *, .hi-fig svg * { animation: none !important; } }
 
 /* Бит: курсор жыпылықтайды, < > құлақтар серпіледі, қуанғанда көзі күледі */
-.hero-fig svg .hf-cur { animation: hfCur 1.1s steps(1) infinite; }
-.hero-fig svg .hf-ear-l { animation: hfEarL 2.6s ease-in-out infinite; }
-.hero-fig svg .hf-ear-r { animation: hfEarR 2.6s ease-in-out infinite; }
+.hero-fig svg .hf-ear-l { animation: hfEarL 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 100% 60%; }
+.hero-fig svg .hf-ear-r { animation: hfEarR 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 0% 60%; }
 .hero-fig svg .hf-e2 { display: none; }
 .hero-fig.cheer svg .hf-e1 { display: none; }
 .hero-fig.cheer svg .hf-e2 { display: inline; }
 .hero-fig.cheer svg .hf-ear-l { animation: hfEarL .3s ease-in-out 4; }
 .hero-fig.cheer svg .hf-ear-r { animation: hfEarR .3s ease-in-out 4; }
 @keyframes hfCur { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .15; } }
-@keyframes hfEarL { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
-@keyframes hfEarR { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+@keyframes hfEarL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+@keyframes hfEarR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
 
 /* Рейтингтегі Бит */
 .rating-bit { width: 38px; height: 42px; flex: none; }
@@ -1545,3 +1543,32 @@ img, svg, canvas, video { max-width: 100%; }
 .hm-c.l1 { background: #7bd88f; }
 .hm-c.l2 { background: #1fa34a; }
 .hm-c.fut { background: transparent; }
+
+/* ---------- Loop Python кейіпкері: жыпылықтау, сәлем, жүріс ---------- */
+.hero-fig svg .hf-lids, .hero-fig svg .hf-arm-l, .hero-fig svg .hf-arm-r, .hero-fig svg .hf-tail, .hero-fig svg .hf-foot-l, .hero-fig svg .hf-foot-r { transform-box: fill-box; }
+.hero-fig svg .hf-lids { transform-origin: 50% 0%; animation: hfLid 4.6s infinite; }
+.hero-fig svg .hf-arm-l { transform-origin: 50% 6%; }
+.hero-fig svg .hf-arm-r { transform-origin: 50% 6%; animation: hfHello 9s ease-in-out infinite; }
+.hero-fig svg .hf-tail { transform-origin: 0% 90%; animation: hfTail 3.4s ease-in-out infinite; }
+.hero-fig svg .hf-foot-l, .hero-fig svg .hf-foot-r { transform-origin: 50% 100%; }
+.hero-avatar .hero-fig svg .hf-arm-r, .hi-fig .hero-fig svg .hf-arm-r { animation: none; }
+.hero-fig.cheer svg .hf-lids { display: none; }
+.hero-fig.waving svg .hf-arm-r { animation: hfWaveNow 2.8s ease-in-out 1; }
+.hero-fig.walking svg .hf-bob { animation: hfStride .5s ease-in-out infinite; }
+.hero-fig.walking svg .hf-foot-l { animation: hfStepL .5s ease-in-out infinite; }
+.hero-fig.walking svg .hf-foot-r { animation: hfStepR .5s ease-in-out infinite; }
+.hero-fig.walking svg .hf-arm-l { animation: hfSwingL .5s ease-in-out infinite; }
+.hero-fig.walking svg .hf-arm-r { animation: hfSwingR .5s ease-in-out infinite; }
+.hero-fig.walking svg .hf-tail { animation: hfTailW .5s ease-in-out infinite; }
+@keyframes hfLid { 0%, 86%, 100% { transform: scaleY(0); } 88.5%, 90% { transform: scaleY(1); } 92.5% { transform: scaleY(0); } 94% { transform: scaleY(1); } 96.5% { transform: scaleY(0); } }
+@keyframes hfHello { 0%, 62%, 100% { transform: rotate(0); } 67% { transform: rotate(-140deg); } 70% { transform: rotate(-165deg); } 73% { transform: rotate(-138deg); } 76% { transform: rotate(-165deg); } 79% { transform: rotate(-138deg); } 82% { transform: rotate(-165deg); } 86% { transform: rotate(-140deg); } 92% { transform: rotate(0); } }
+@keyframes hfWaveNow { 0%, 100% { transform: rotate(0); } 12% { transform: rotate(-140deg); } 24% { transform: rotate(-168deg); } 36% { transform: rotate(-138deg); } 48% { transform: rotate(-168deg); } 60% { transform: rotate(-138deg); } 72% { transform: rotate(-168deg); } 86% { transform: rotate(-140deg); } }
+@keyframes hfTail { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+@keyframes hfTailW { 0%, 100% { transform: rotate(6deg); } 50% { transform: rotate(-6deg); } }
+@keyframes hfStride { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 25%, 75% { transform: translateY(-4px) rotate(0); } 50% { transform: translateY(0) rotate(1.5deg); } }
+@keyframes hfStepL { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-8px) translateX(-2px); } 50% { transform: translateY(0); } }
+@keyframes hfStepR { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-8px) translateX(2px); } }
+@keyframes hfSwingL { 0%, 100% { transform: rotate(22deg); } 50% { transform: rotate(-8deg); } }
+@keyframes hfSwingR { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(8deg); } }
+.hero-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-act .btn { flex: 1 1 110px; }

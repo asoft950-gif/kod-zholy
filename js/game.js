@@ -78,23 +78,34 @@
 
   /* ---------- Кейіпкер суреті (гардеробтағы скиндермен) ---------- */
   let heroImg = null;
+  /* кадрлар: тұрған, екі қадам, сәлем (қолы екі жағдайда) */
   function heroImage() {
     if (heroImg) return heroImg;
-    const img = new Image();
-    heroImg = { img, ok: false, ar: 1.2 };
-    try {
-      const svg = KZ.hero.svg({ still: true, lite: true, streak: 0 });
-      const m = /viewBox="([\d.\s-]+)"/.exec(svg);
-      if (m) {
-        const v = m[1].trim().split(/\s+/).map(Number);
-        heroImg.ar = v[3] / v[2];
+    heroImg = { img: null, ok: false, ar: 1.2, f: {} };
+    const load = (pose) => {
+      const img = new Image();
+      const o = { img, ok: false };
+      try {
+        const svg = KZ.hero.svg({ still: true, lite: true, streak: 0, pose });
+        if (!pose) {
+          const m = /viewBox="([\d.\s-]+)"/.exec(svg);
+          if (m) {
+            const v = m[1].trim().split(/\s+/).map(Number);
+            heroImg.ar = v[3] / v[2];
+          }
+        }
+        const src = /xmlns=/.test(svg) ? svg : svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+        img.onload = () => (o.ok = true);
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src);
+      } catch (e) {
+        /* эмоджи қолданылады */
       }
-      const src = /xmlns=/.test(svg) ? svg : svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
-      img.onload = () => (heroImg.ok = true);
-      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src);
-    } catch (e) {
-      /* эмоджи қолданылады */
-    }
+      return o;
+    };
+    const base = load();
+    heroImg.img = base.img;
+    Object.defineProperty(heroImg, "ok", { get: () => base.ok });
+    ["a", "b", "w1", "w2"].forEach((k) => (heroImg.f[k] = load(k)));
     return heroImg;
   }
   KZ.game.resetHero = () => (heroImg = null);
@@ -800,7 +811,11 @@
         ctx.translate(ox + (S.fight ? lunge : 0), oy2 - hop);
         ctx.rotate(tilt + hurtK);
         ctx.scale((dir === 3 ? -1 : 1) * sx, sy);
-        if (hi.ok) ctx.drawImage(hi.img, -ww / 2, -hh * 0.95, ww, hh);
+        if (hi.ok) {
+          const fk = S.done ? (Math.sin(now / 150) > 0 ? "w1" : "w2") : mv ? (Math.sin(ph) > 0 ? "a" : "b") : null;
+          const fr = fk && hi.f[fk] && hi.f[fk].ok ? hi.f[fk].img : hi.img;
+          ctx.drawImage(fr, -ww / 2, -hh * 0.95, ww, hh);
+        }
         else {
           ctx.font = Math.round(T * 0.9) + "px serif";
           ctx.textAlign = "center";
