@@ -249,8 +249,14 @@
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
     const nr = preview() ? narrate(i) : null;
-    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, keepCalc(i, nr));
-    if (fwd) flyAll(i);
+    opTimers.forEach(clearTimeout);
+    opTimers = [];
+    document.querySelectorAll(".fly-token.op").forEach((n) => n.remove());
+    const kp = keepCalc(i, nr);
+    calcLead = fwd && nr && nr.calc ? opFlight() / 1000 : 0;
+    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, kp);
+    if (fwd && nr && nr.calc && calcLead) flyOperands(nr.calc);
+    if (fwd) flyAll(i, kp && kp.j === i - 1 ? ".calc-keep .cc.big" : null);
     showOut(f, i, fwd);
     renderNote(f);
     showDom(f, i === lastIdx());
@@ -364,6 +370,7 @@
       const changed = !isNew && old.r !== v.r;
       const card = el("div", "var" + (isNew ? " fresh" : changed ? " changed" : "") + (narr && narr.calc && narr.calc.names.includes(v.n) ? " src" : ""));
       card.style.setProperty("--c", KZ.colorFor(v.n));
+      card.dataset.n = v.n;
       const name = el("div", "var-name", v.n);
       name.appendChild(el("small", null, v.t));
       if (v.i) name.appendChild(el("small", "len", "· " + (v.more ? v.i.length + "+" : v.i.length) + KZ.nt(v.i.length, " элемент")));
@@ -510,10 +517,48 @@
 
   /* ---------- Мән коддан қорапқа ұшып барады ---------- */
   let flyTimers = [];
-  function flyAll(i) {
+  /* операндтар: айнымалы қораптан есептеу карточкасына ұшып барады */
+  let opTimers = [];
+  function opFlight() {
+    const d = delay();
+    return d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1300, Math.max(800, d * 1.2)) : 1100);
+  }
+  function flyOperands(calc) {
+    const F = opFlight();
+    const chips = Array.from(document.querySelectorAll(".narr .calc .cc.wait"));
+    const free = (c) => c.classList.remove("wait");
+    if (!F) return chips.forEach(free);
+    chips.forEach((c, k) => {
+      const src = document.querySelector('#memory .var[data-n="' + c.dataset.n + '"] .bx-body');
+      if (!src) return free(c);
+      const a = src.getBoundingClientRect();
+      const b = c.getBoundingClientRect();
+      const sx = a.left + a.width / 2;
+      const sy = a.top + a.height / 2;
+      const tx = b.left + b.width / 2;
+      const ty = b.top + b.height / 2;
+      const tok = el("div", "fly-token op", c.lastChild ? c.lastChild.textContent : "");
+      document.body.appendChild(tok);
+      const at = (x, y, sc) => "translate(" + x + "px," + y + "px) translate(-50%,-50%) scale(" + sc + ")";
+      if (tok.animate) {
+        const an = tok.animate(
+          [
+            { transform: at(sx, sy, 1), opacity: 1 },
+            { transform: at((sx + tx) / 2, Math.min(sy, ty) - 30 - k * 8, 1.15), opacity: 1, offset: 0.5 },
+            { transform: at(tx, ty, 1), opacity: 1 },
+          ],
+          { duration: F, delay: k * 180, easing: "cubic-bezier(.45,.05,.4,1)", fill: "both" }
+        );
+        an.onfinish = () => tok.remove();
+      } else tok.remove();
+      opTimers.push(setTimeout(() => free(c), F + k * 180 - 30));
+    });
+    opTimers.push(setTimeout(() => document.querySelectorAll(".fly-token.op").forEach((n) => n.remove()), F + chips.length * 180 + 200));
+  }
+  function flyAll(i, fromSel) {
     flyTimers.forEach(clearTimeout);
     flyTimers = [];
-    document.querySelectorAll(".fly-token").forEach((n) => n.remove());
+    document.querySelectorAll(".fly-token:not(.op):not(.out)").forEach((n) => n.remove());
     const waits = Array.from(document.querySelectorAll("#memory .bx.wait, #memory .var-cell.wait"));
     if (!waits.length) return;
     const prev = run.frames[i - 1];
@@ -538,6 +583,15 @@
       sy = Math.min(Math.max((c.top + c.bottom) / 2, 20), innerHeight - 20);
     } catch (e) {
       /* координата табылмады: жоғарыдан ұшады */
+    }
+    /* есептеу нәтижесі: «Соңғы есептеу» карточкасындағы жасыл санынан ұшады */
+    const fromEl = fromSel ? document.querySelector(fromSel) : null;
+    if (fromEl) {
+      const fr = fromEl.getBoundingClientRect();
+      if (fr.width) {
+        sx = fr.left + fr.width / 2;
+        sy = fr.top + fr.height / 2;
+      }
     }
     waits.slice(0, 3).forEach((bx, k) => {
       const val = bx.querySelector(".bx-val") || bx.querySelector(".v");
@@ -725,17 +779,19 @@
     return { text, verdict, eq, fork, calc, chips: chips.slice(0, 4), n: i + 1 };
   }
   /* есептеу жолдары: анимациямен (келесі қадамда ауысады) немесе қозғалмай тұрады (sticky) */
+  let calcLead = 0; // операндтар ұшып жеткенше күтетін уақыт (с)
   function calcEl(calc, still) {
     const cb = el("div", "calc" + (still ? " still" : ""));
     const sym = { "*": "×", "/": "÷", "**": "^" };
     calc.rows.forEach((r, k) => {
       const row = el("div", "calc-row" + (r.fin ? " fin" : ""));
-      if (!still) row.style.animationDelay = k * 1.7 + "s";
+      if (!still) row.style.animationDelay = calcLead + k * 1.7 + "s";
       if (r.fin) row.appendChild(el("span", "calc-eq", "="));
       r.t.forEach((t, j) => {
         const hl = !still && !r.fin && j >= r.hl[0] && j <= r.hl[1];
         if (t.k === "n") {
-          const c = el("span", "cc" + (hl ? " hl" : "") + (t.res ? " res" : "") + (r.fin ? " big" : ""));
+          const c = el("span", "cc" + (hl ? " hl" : "") + (t.res ? " res" : "") + (r.fin ? " big" : "") + (!still && calcLead && k === 0 && t.name ? " wait" : ""));
+          if (t.name) c.dataset.n = t.name;
           if (t.name) {
             c.style.setProperty("--c", KZ.colorFor(t.name));
             c.appendChild(el("small", null, t.name));
@@ -753,7 +809,7 @@
     if (cur && cur.calc) return null;
     for (let j = i - 1; j >= 0 && j >= i - 40; j--) {
       const nj = narrate(j);
-      if (nj && nj.calc) return { calc: nj.calc, text: nj.text };
+      if (nj && nj.calc) return { calc: nj.calc, text: nj.text, j };
     }
     return null;
   }

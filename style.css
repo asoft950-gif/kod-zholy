@@ -1688,3 +1688,6 @@ html[data-theme="dark"] .narr.err { background: #3a2226; }
 .calc-keep { grid-column: 1 / -1; flex: 1 0 100%; width: 100%; box-sizing: border-box; margin: 8px 0; padding: 8px 10px; border: 2px dashed var(--line); border-radius: 14px; background: #f3fbe8; }
 .calc-keep-t { font: 800 12px "Nunito", sans-serif; opacity: .7; margin-bottom: 4px; }
 .calc.still .calc-row { animation: none; }
+
+.cc.wait { visibility: hidden; }
+.fly-token.op { font-size: 17px; padding: 2px 10px; background: #fff; border-width: 2px; }
