@@ -363,12 +363,21 @@
         v.i.forEach((item, k) => {
           const was = old && old.i;
           const cls = !was || k >= was.length ? (isNew ? "" : " new") : was[k] !== item ? " hot" : "";
-          const cell = el("div", "var-cell" + cls);
+          const cell = el("div", "var-cell" + cls + (anim && cls ? " wait" : ""));
           cell.appendChild(el("div", "v", item));
           cell.appendChild(el("div", "i", String(k)));
           row.appendChild(cell);
         });
         if (v.more) row.appendChild(el("div", "var-cell", "…"));
+        /* алынып тасталған элементтер (pop/remove): ұяшық жоғары көтеріліп жоғалады */
+        if (anim && old && old.i && !v.more && !old.more && old.i.length > v.i.length) {
+          for (let k = v.i.length; k < Math.min(old.i.length, v.i.length + 3); k++) {
+            const g = el("div", "var-cell gone");
+            g.appendChild(el("div", "v", old.i[k]));
+            g.appendChild(el("div", "i", String(k)));
+            row.appendChild(g);
+          }
+        }
         card.appendChild(row);
       } else if (v.d && preview()) {
         const tb = el("div", "var-dict");
@@ -411,7 +420,7 @@
       box.appendChild(card);
     });
     shownVars = {};
-    vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d }));
+    vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d, more: v.more }));
   }
 
   /* ---------- print: мәтін коддан экранға ұшып барып, әріп-әріптен жазылады ---------- */
@@ -495,7 +504,7 @@
     flyTimers.forEach(clearTimeout);
     flyTimers = [];
     document.querySelectorAll(".fly-token").forEach((n) => n.remove());
-    const waits = Array.from(document.querySelectorAll("#memory .bx.wait"));
+    const waits = Array.from(document.querySelectorAll("#memory .bx.wait, #memory .var-cell.wait"));
     if (!waits.length) return;
     const prev = run.frames[i - 1];
     const d = delay();
@@ -506,7 +515,8 @@
     };
     if (!F || !prev || !prev.line) return waits.forEach(done);
     /* қорап көрінбей тұрса, бетті сәл жылжытамыз: мәннің қайда түскенін көру үшін */
-    const r0 = waits[0].querySelector(".bx-body").getBoundingClientRect();
+    const bodyOf = (n) => n.querySelector(".bx-body") || n;
+    const r0 = bodyOf(waits[0]).getBoundingClientRect();
     if (r0.bottom > innerHeight - 30) window.scrollBy(0, Math.round(r0.bottom - innerHeight + 60));
     else if (r0.top < 70) window.scrollBy(0, Math.round(r0.top - 90));
     const lineN = Math.max(0, Math.min(prev.line - 1, editor.lastLine()));
@@ -520,8 +530,8 @@
       /* координата табылмады: жоғарыдан ұшады */
     }
     waits.slice(0, 3).forEach((bx, k) => {
-      const val = bx.querySelector(".bx-val");
-      const body = bx.querySelector(".bx-body");
+      const val = bx.querySelector(".bx-val") || bx.querySelector(".v");
+      const body = bodyOf(bx);
       const r = body.getBoundingClientRect();
       const tx = r.left + r.width / 2;
       const ty = r.top + r.height / 2;
@@ -557,6 +567,12 @@
       .replace(/^\((.*)\)$/, "$1")
       .trim();
   }
+  /* өрнектегі айнымалыларды қазіргі мәндерімен алмастыру: total > 1 → 3 > 1 */
+  function subst(expr, f) {
+    const cur = {};
+    ((f && f.vars) || []).forEach((v) => (cur[v.n] = v.r));
+    return expr.replace(/(["'])(?:\\.|(?!\1).)*\1|[A-Za-z_]\w*/g, (w) => (/^["']/.test(w) || /^(and|or|not|in|is|True|False|true|false|null|None)$/.test(w) ? w : cur[w] !== undefined ? cur[w] : w));
+  }
   function narrate(i) {
     const f = run && run.frames[i];
     if (!f || !f.line || f.kind === "error") return null;
@@ -568,6 +584,7 @@
     let text = null;
     let verdict = null;
     let eq = null;
+    let fork = null;
     let m;
     if ((m = /^(?:\}\s*)?(if|else\s+if|elif|while)\b/.exec(src))) {
       const wh = m[1] === "while";
@@ -575,6 +592,7 @@
       if (next && next.line) {
         const ni = indentOf(editor.getLine(next.line - 1) || "");
         const inside = next.line === f.line + 1 || ni > indentOf(raw);
+        fork = { expr: condOf(src), sub: subst(condOf(src), f), ok: inside, wh };
         verdict = inside ? { ok: true, t: wh ? KZ.t("✅ Ақиқат: цикл денесі қайта орындалады") : KZ.t("✅ Ақиқат: ішіндегі код орындалады") } : { ok: false, t: wh ? KZ.t("❌ Жалған: циклден шығамыз") : KZ.t("❌ Жалған: бұл блокты өткізіп жібереміз") };
       }
     } else if (/^(?:\}\s*)?for\b/.test(src)) {
@@ -610,7 +628,7 @@
         else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
       });
     }
-    return { text, verdict, eq, chips: chips.slice(0, 4), n: i + 1 };
+    return { text, verdict, eq, fork, chips: chips.slice(0, 4), n: i + 1 };
   }
   function narrCard(n) {
     const card = el("div", "narr");
@@ -625,7 +643,18 @@
       e.append("🧮 ", el("code", null, n.eq.expr), " = ", el("code", null, n.eq.res));
       body.appendChild(e);
     }
-    if (n.verdict) body.appendChild(el("div", "narr-v " + (n.verdict.ok ? "yes" : "no"), n.verdict.t));
+    if (n.fork) {
+      const fk = el("div", "fork " + (n.fork.ok ? "yes" : "no"));
+      const q = el("div", "fork-q");
+      q.appendChild(el("code", null, n.fork.sub));
+      q.appendChild(el("b", "fork-b", n.fork.ok ? "True" : "False"));
+      const arms = el("div", "fork-arms");
+      const yes = el("div", "fork-arm y", n.fork.wh ? KZ.t("иә → цикл денесі") : KZ.t("иә → ішіндегі код"));
+      const no = el("div", "fork-arm n", n.fork.wh ? KZ.t("жоқ → циклден шығу") : KZ.t("жоқ → өткізу"));
+      arms.append(yes, no);
+      fk.append(q, arms);
+      body.appendChild(fk);
+    } else if (n.verdict) body.appendChild(el("div", "narr-v " + (n.verdict.ok ? "yes" : "no"), n.verdict.t));
     if (n.chips.length) {
       const row = el("div", "narr-chips");
       n.chips.forEach((c) => row.appendChild(el("span", "narr-chip", c)));
@@ -651,7 +680,25 @@
       }
     });
     const rounds = Math.max(total - 1, 0); // соңғы келу: цикл аяқталатын тексеру
-    return { src, upto, rounds, done: upto > rounds, kw: m[1] };
+    /* for: айнымалы әр айналымда қандай мән алатынын алдын ала көрсетеміз */
+    let seq = null;
+    let name = null;
+    if (m[1] === "for") {
+      const mm = /^for\s*\(?\s*(?:(?:let|const|var|val)\s+)?(\w+)\s*(?:in|of|=)/.exec(src);
+      if (mm) {
+        name = mm[1];
+        seq = [];
+        run.frames.forEach((g, k) => {
+          if (g.line === f.line && g.kind !== "error" && run.frames[k + 1]) {
+            const nv = (run.frames[k + 1].vars || []).find((x) => x.n === name);
+            if (nv && run.frames[k + 1].line !== f.line) seq.push(nv.r);
+          }
+        });
+        seq = seq.slice(0, rounds);
+        if (seq.length !== rounds) seq = null;
+      }
+    }
+    return { src, upto, rounds, done: upto > rounds, kw: m[1], seq, name };
   }
   function loopCard(info) {
     const card = el("div", "loopbox");
@@ -659,6 +706,17 @@
     card.appendChild(
       el("div", "loop-t", info.done ? KZ.t("🔁 Цикл аяқталды · ") + info.rounds + KZ.nt(info.rounds, " айналым") : "🔁 " + cur + KZ.t("-айналым / ") + info.rounds)
     );
+    if (info.seq && info.seq.length <= 12) {
+      const tr = el("div", "loop-track");
+      tr.appendChild(el("span", "lt-name", info.name + " ∈"));
+      info.seq.forEach((val, k) => {
+        const st = info.done || k + 1 < cur ? " past" : k + 1 === cur ? " now" : "";
+        tr.appendChild(el("span", "lt" + st, val));
+      });
+      tr.appendChild(el("span", "lt-back" + (info.done ? " out" : ""), info.done ? "🏁" : "↻"));
+      card.appendChild(tr);
+      return card;
+    }
     const dots = el("div", "loop-dots");
     for (let k = 1; k <= Math.min(info.rounds, 40); k++) {
       dots.appendChild(el("span", "ld" + (k < cur || info.done ? " done" : k === cur ? " now" : "")));
