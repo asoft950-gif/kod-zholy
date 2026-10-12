@@ -3,7 +3,7 @@
 (() => {
   "use strict";
 
-  const K = { theme: "kodzholy.theme", fs: "kodzholy.fs", sound: "kodzholy.sound" };
+  const K = { theme: "kodzholy.theme", fs: "kodzholy.fs", sound: "kodzholy.sound", lite: "kodzholy.lite" };
   const read = (k, d) => {
     try {
       const v = localStorage.getItem(k);
@@ -28,6 +28,12 @@
     return i >= 0 && i < FS.length ? i : 1;
   };
   S.sound = () => read(K.sound, "on") !== "off";
+  S.lite = () => {
+    const v = read(K.lite, "");
+    if (v) return v === "on";
+    const m = navigator.deviceMemory;
+    return !!(m && m <= 2);
+  };
   S.dark = () => (S.theme() === "dark" ? true : S.theme() === "light" ? false : !!(mq && mq.matches));
 
   S.apply = () => {
@@ -35,6 +41,7 @@
     const dark = S.dark();
     root.dataset.theme = dark ? "dark" : "light";
     root.style.setProperty("--fs", String(FS[S.fs()]));
+    root.classList.toggle("lite-fx", S.lite());
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", dark ? "#2a2540" : "#ffd23f");
     S.onChange.forEach((f) => {
@@ -46,6 +53,7 @@
   S.onChange = [];
   S.setTheme = (v) => (write(K.theme, v), S.apply());
   S.setFs = (i) => (write(K.fs, String(Math.max(0, Math.min(FS.length - 1, i)))), S.apply());
+  S.setLite = (on) => (write(K.lite, on ? "on" : "off"), S.apply());
   S.setSound = (on) => {
     write(K.sound, on ? "on" : "off");
     if (on) S.beep("click");
@@ -131,6 +139,8 @@
       '<button type="button" data-v="0">A−</button><button type="button" data-v="1">A</button><button type="button" data-v="2">A+</button><button type="button" data-v="3">A++</button></div></div>' +
       KZ.t('<div class="set-row"><span>Дыбыс</span><div class="seg" data-k="sound">') +
       KZ.t('<button type="button" data-v="on">🔊 Қосулы</button><button type="button" data-v="off">🔇 Өшірулі</button></div></div>') +
+      KZ.t('<div class="set-row"><span>Жеңіл режим</span><div class="seg" data-k="lite">') +
+      KZ.t('<button type="button" data-v="on">⚡ Қосулы</button><button type="button" data-v="off">✨ Өшірулі</button></div></div>') +
       KZ.t('<div class="set-row"><span>Битлинг көмекші</span><div class="seg" data-k="helper">') +
       KZ.t('<button type="button" data-v="on">🙂 Қосулы</button><button type="button" data-v="off">🤐 Өшірулі</button></div></div>') +
       KZ.t('<div class="set-row off-row" hidden><span>Офлайн</span><div class="off-box"><button type="button" class="btn small" id="offBtn">⬇ Интернетсіз жұмысқа жүктеу</button><small id="offMsg"></small></div></div>') +
@@ -138,7 +148,7 @@
     document.body.appendChild(dlg);
 
     const mark = () => {
-      const cur = { theme: S.theme(), fs: String(S.fs()), sound: S.sound() ? "on" : "off", helper: KZ.hero && !KZ.hero.helperOn() ? "off" : "on" };
+      const cur = { theme: S.theme(), fs: String(S.fs()), sound: S.sound() ? "on" : "off", lite: S.lite() ? "on" : "off", helper: KZ.hero && !KZ.hero.helperOn() ? "off" : "on" };
       dlg.querySelectorAll(".seg").forEach((seg) => {
         seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.v === cur[seg.dataset.k]));
       });
@@ -151,6 +161,7 @@
       if (k === "theme") S.setTheme(b.dataset.v);
       else if (k === "fs") S.setFs(parseInt(b.dataset.v, 10));
       else if (k === "sound") S.setSound(b.dataset.v === "on");
+      else if (k === "lite") S.setLite(b.dataset.v === "on");
       else if (k === "helper" && KZ.hero) KZ.hero.setHelper(b.dataset.v === "on");
       mark();
     });

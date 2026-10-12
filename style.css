@@ -1761,3 +1761,7 @@ html[data-theme="dark"] .narr.err { background: #3a2226; }
 .wt.now { opacity: 1; background: var(--sun); transform: translateY(-3px); box-shadow: 0 3px 0 var(--line); animation: ltPop 1.2s cubic-bezier(.2,1.5,.4,1); }
 .wt.no.now, .wt.no.past { background: #ffe0dc; }
 .wt-arr { opacity: .5; font-weight: 800; }
+
+/* Жеңіл режим: ауыр анимациялар өшеді */
+.lite-fx *, .lite-fx *::before, .lite-fx *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+.lite-fx .fly-token { display: none !important; }

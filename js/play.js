@@ -333,7 +333,7 @@
   function show(i) {
     predictBox.hidden = true;
     const f = run.frames[i];
-    const fwd = preview() && idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const fwd = preview() && idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) && !document.documentElement.classList.contains("lite-fx");
     idx = i;
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();

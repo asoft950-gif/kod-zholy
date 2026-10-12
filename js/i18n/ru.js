@@ -657,6 +657,8 @@ Object.assign(KZ.ru, {
 "<button type=\"button\" data-v=\"on\">🔊 Қосулы</button><button type=\"button\" data-v=\"off\">🔇 Өшірулі</button></div></div>": "<button type=\"button\" data-v=\"on\">🔊 Включён</button><button type=\"button\" data-v=\"off\">🔇 Выключен</button></div></div>",
 "<div class=\"set-row\"><span>Битлинг көмекші</span><div class=\"seg\" data-k=\"helper\">": "<div class=\"set-row\"><span>Битлинг-помощник</span><div class=\"seg\" data-k=\"helper\">",
 "<button type=\"button\" data-v=\"on\">🙂 Қосулы</button><button type=\"button\" data-v=\"off\">🤐 Өшірулі</button></div></div>": "<button type=\"button\" data-v=\"on\">🙂 Включён</button><button type=\"button\" data-v=\"off\">🤐 Выключен</button></div></div>",
+"<div class=\"set-row\"><span>Жеңіл режим</span><div class=\"seg\" data-k=\"lite\">": "<div class=\"set-row\"><span>Лёгкий режим</span><div class=\"seg\" data-k=\"lite\">",
+"<button type=\"button\" data-v=\"on\">⚡ Қосулы</button><button type=\"button\" data-v=\"off\">✨ Өшірулі</button></div></div>": "<button type=\"button\" data-v=\"on\">⚡ Вкл</button><button type=\"button\" data-v=\"off\">✨ Выкл</button></div></div>",
 "<div class=\"set-row off-row\" hidden><span>Офлайн</span><div class=\"off-box\"><button type=\"button\" class=\"btn small\" id=\"offBtn\">⬇ Интернетсіз жұмысқа жүктеу</button><small id=\"offMsg\"></small></div></div>": "<div class=\"set-row off-row\" hidden><span>Офлайн</span><div class=\"off-box\"><button type=\"button\" class=\"btn small\" id=\"offBtn\">⬇ Загрузить для работы без интернета</button><small id=\"offMsg\"></small></div></div>",
 "✔ Python, JavaScript және SQL дайын: интернетсіз де жұмыс істейді.": "✔ Python, JavaScript и SQL готовы: работают и без интернета.",
 "Python, JavaScript және SQL файлдарын алдын ала сақтайды (шамамен 15 МБ). Wi-Fi-да басқан жөн.": "Заранее сохраняет файлы Python, JavaScript и SQL (около 15 МБ). Лучше нажимать по Wi-Fi.",
@@ -1658,5 +1660,9 @@ Object.assign(KZ.ru, {
 "ішіндегі қораптар": "— коробки внутри",
 "↩️ Функция нәтижені есептеп қайтарады: ": "↩️ Функция считает результат и возвращает: ",
 "👆 Ұяшықты бас: индексін көр": "👆 Нажми на ячейку: увидишь индекс",
+"иә → цикл денесі": "да → тело цикла",
+"иә → ішіндегі код": "да → код внутри",
+"жоқ → циклден шығу": "нет → выход из цикла",
+"жоқ → өткізу": "нет → пропустить",
 "Қатенің мәтіні: %s": "Текст ошибки: %s"
 });
