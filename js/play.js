@@ -248,7 +248,8 @@
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
-    renderVars(f.vars || [], loopInfoAt(i), preview() ? narrate(i) : null, fwd);
+    const nr = preview() ? narrate(i) : null;
+    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, keepCalc(i, nr));
     if (fwd) flyAll(i);
     showOut(f, i, fwd);
     renderNote(f);
@@ -339,11 +340,17 @@
   const preview = () => true;
 
   /* ---------- Қораптар (жад) ---------- */
-  function renderVars(vars, loopInfo, narr, anim) {
+  function renderVars(vars, loopInfo, narr, anim, keep) {
     const box = $("#memory");
     box.textContent = "";
     const prev = shownVars;
     if (narr) box.appendChild(narrCard(narr));
+    if (keep) {
+      const kc = el("div", "calc-keep");
+      kc.appendChild(el("div", "calc-keep-t", "🧮 " + KZ.t("Соңғы есептеу")));
+      kc.appendChild(calcEl(keep.calc, true));
+      box.appendChild(kc);
+    }
     if (loopInfo) box.appendChild(loopCard(loopInfo));
     if (!vars.length) {
       if (!loopInfo)
@@ -444,7 +451,7 @@
     }
     const add = now.slice(before.length);
     const d = delay();
-    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1000, Math.max(550, d * 0.9)) : 1000);
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1500, Math.max(800, d * 1.3)) : 1500);
     if (!F || !prev.line) {
       con.textContent = now;
       con.scrollTop = con.scrollHeight;
@@ -486,7 +493,7 @@
       a.onfinish = () => tok.remove();
     } else tok.remove();
     /* токен экранға түскенде мәтін әріп-әріптен жазылады */
-    const step = Math.max(22, Math.min(80, 700 / Math.max(1, add.length)));
+    const step = Math.max(30, Math.min(120, 1000 / Math.max(1, add.length)));
     let k = 0;
     const type = () => {
       k++;
@@ -511,7 +518,7 @@
     if (!waits.length) return;
     const prev = run.frames[i - 1];
     const d = delay();
-    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1150, Math.max(600, d * 1.1)) : 1150);
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1700, Math.max(900, d * 1.6)) : 1700);
     const done = (bx) => {
       bx.classList.remove("wait");
       bx.classList.add("recv");
@@ -717,6 +724,39 @@
     }
     return { text, verdict, eq, fork, calc, chips: chips.slice(0, 4), n: i + 1 };
   }
+  /* есептеу жолдары: анимациямен (келесі қадамда ауысады) немесе қозғалмай тұрады (sticky) */
+  function calcEl(calc, still) {
+    const cb = el("div", "calc" + (still ? " still" : ""));
+    const sym = { "*": "×", "/": "÷", "**": "^" };
+    calc.rows.forEach((r, k) => {
+      const row = el("div", "calc-row" + (r.fin ? " fin" : ""));
+      if (!still) row.style.animationDelay = k * 1.7 + "s";
+      if (r.fin) row.appendChild(el("span", "calc-eq", "="));
+      r.t.forEach((t, j) => {
+        const hl = !still && !r.fin && j >= r.hl[0] && j <= r.hl[1];
+        if (t.k === "n") {
+          const c = el("span", "cc" + (hl ? " hl" : "") + (t.res ? " res" : "") + (r.fin ? " big" : ""));
+          if (t.name) {
+            c.style.setProperty("--c", KZ.colorFor(t.name));
+            c.appendChild(el("small", null, t.name));
+          }
+          c.appendChild(document.createTextNode(t.v));
+          row.appendChild(c);
+        } else row.appendChild(el("span", "co" + (hl ? " hl" : ""), t.k === "o" ? sym[t.v] || t.v : t.v));
+      });
+      cb.appendChild(row);
+    });
+    return cb;
+  }
+  /* соңғы есептеуді экранда қалдырамыз: келесі есептеу шыққанша */
+  function keepCalc(i, cur) {
+    if (cur && cur.calc) return null;
+    for (let j = i - 1; j >= 0 && j >= i - 40; j--) {
+      const nj = narrate(j);
+      if (nj && nj.calc) return { calc: nj.calc, text: nj.text };
+    }
+    return null;
+  }
   function narrCard(n) {
     const card = el("div", "narr" + (n.err ? " err" : ""));
     const face = el("div", "narr-face");
@@ -726,27 +766,7 @@
     n.text.split("`").forEach((part, k) => line.appendChild(k % 2 ? el("code", null, part) : document.createTextNode(part)));
     body.appendChild(line);
     if (n.calc) {
-      const cb = el("div", "calc");
-      const sym = { "*": "×", "/": "÷", "**": "^" };
-      n.calc.rows.forEach((r, k) => {
-        const row = el("div", "calc-row" + (r.fin ? " fin" : ""));
-        row.style.animationDelay = k * 1.15 + "s";
-        if (r.fin) row.appendChild(el("span", "calc-eq", "="));
-        r.t.forEach((t, j) => {
-          const hl = !r.fin && j >= r.hl[0] && j <= r.hl[1];
-          if (t.k === "n") {
-            const c = el("span", "cc" + (hl ? " hl" : "") + (t.res ? " res" : "") + (r.fin ? " big" : ""));
-            if (t.name) {
-              c.style.setProperty("--c", KZ.colorFor(t.name));
-              c.appendChild(el("small", null, t.name));
-            }
-            c.appendChild(document.createTextNode(t.v));
-            row.appendChild(c);
-          } else row.appendChild(el("span", "co" + (hl ? " hl" : ""), t.k === "o" ? sym[t.v] || t.v : t.v));
-        });
-        cb.appendChild(row);
-      });
-      body.appendChild(cb);
+      body.appendChild(calcEl(n.calc, false));
     } else if (n.eq) {
       const e = el("div", "narr-eq");
       e.append("🧮 ", el("code", null, n.eq.expr), " = ", el("code", null, n.eq.res));
