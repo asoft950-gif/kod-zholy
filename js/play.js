@@ -441,7 +441,7 @@
     }
     const add = now.slice(before.length);
     const d = delay();
-    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(650, Math.max(350, d * 0.6)) : 650);
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1000, Math.max(550, d * 0.9)) : 1000);
     if (!F || !prev.line) {
       con.textContent = now;
       con.scrollTop = con.scrollHeight;
