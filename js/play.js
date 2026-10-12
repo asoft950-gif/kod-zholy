@@ -244,7 +244,7 @@
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
-    renderVars(f.vars || [], loopInfoAt(i));
+    renderVars(f.vars || [], loopInfoAt(i), narrate(i));
     $("#console").textContent = f.out || "";
     renderNote(f);
     showDom(f, i === lastIdx());
@@ -331,10 +331,11 @@
   }
 
   /* ---------- Қораптар (жад) ---------- */
-  function renderVars(vars, loopInfo) {
+  function renderVars(vars, loopInfo, narr) {
     const box = $("#memory");
     box.textContent = "";
     const prev = shownVars;
+    if (narr) box.appendChild(narrCard(narr));
     if (loopInfo) box.appendChild(loopCard(loopInfo));
     if (!vars.length) {
       if (!loopInfo)
@@ -364,14 +365,109 @@
         });
         if (v.more) row.appendChild(el("div", "var-cell", "…"));
         card.appendChild(row);
+      } else if (v.d) {
+        const tb = el("div", "var-dict");
+        v.d.forEach((kv) => {
+          const was = old && old.d && old.d.find((x) => x[0] === kv[0]);
+          const row = el("div", "dict-row" + (!old || !old.d ? "" : !was ? " new" : was[1] !== kv[1] ? " hot" : ""));
+          row.appendChild(el("div", "dk", kv[0]));
+          row.appendChild(el("div", "dv", kv[1]));
+          tb.appendChild(row);
+        });
+        if (v.dn > v.d.length) tb.appendChild(el("div", "dict-row", "…"));
+        card.appendChild(tb);
       } else {
         if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
         card.appendChild(el("div", "var-box", v.r));
+        if (v.t === "str" && v.s && v.s.length >= 2 && v.s.length <= 12) {
+          const row = el("div", "var-chars");
+          Array.from(v.s).forEach((ch, k) => {
+            const c = el("div", "var-cell");
+            c.appendChild(el("div", "v", ch === " " ? "␣" : ch));
+            c.appendChild(el("div", "i", String(k)));
+            row.appendChild(c);
+          });
+          card.appendChild(row);
+        }
       }
       box.appendChild(card);
     });
     shownVars = {};
-    vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i }));
+    vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d }));
+  }
+
+  /* ---------- Битлинг қадамды түсіндіреді ---------- */
+  const indentOf = (t) => (/^\s*/.exec(t) || [""])[0].replace(/\t/g, "    ").length;
+  function condOf(src) {
+    return src
+      .replace(/^(else\s+if|elif|if|while)\b\s*/, "")
+      .replace(/\s*\{\s*$/, "")
+      .replace(/:\s*$/, "")
+      .replace(/^\((.*)\)$/, "$1")
+      .trim();
+  }
+  function narrate(i) {
+    const f = run && run.frames[i];
+    if (!f || !f.line || f.kind === "error") return null;
+    const raw = editor.getLine(f.line - 1) || "";
+    const src = raw.trim();
+    if (!src || src.startsWith("#") || src.startsWith("//") || f.kind === "move" || f.kind === "collect" || f.kind === "crash") return null;
+    const next = run.frames[i + 1];
+    const prev = i > 0 ? run.frames[i - 1] : null;
+    let text = null;
+    let verdict = null;
+    let m;
+    if ((m = /^(?:\}\s*)?(if|else\s+if|elif|while)\b/.exec(src))) {
+      const wh = m[1] === "while";
+      text = (wh ? KZ.t("Шартты тексереміз (қайталау үшін): ") : KZ.t("Шартты тексереміз: ")) + "`" + condOf(src) + "`";
+      if (next && next.line) {
+        const ni = indentOf(editor.getLine(next.line - 1) || "");
+        const inside = next.line === f.line + 1 || ni > indentOf(raw);
+        verdict = inside ? { ok: true, t: wh ? KZ.t("✅ Ақиқат: цикл денесі қайта орындалады") : KZ.t("✅ Ақиқат: ішіндегі код орындалады") } : { ok: false, t: wh ? KZ.t("❌ Жалған: циклден шығамыз") : KZ.t("❌ Жалған: бұл блокты өткізіп жібереміз") };
+      }
+    } else if (/^(?:\}\s*)?for\b/.test(src)) {
+      const li = loopInfoAt(i);
+      text = KZ.t("Цикл: айнымалы келесі мәнді алады") + (li && !li.done ? " (" + Math.min(li.upto, li.rounds) + "/" + li.rounds + ")" : "");
+      if (li && li.done) verdict = { ok: false, t: KZ.t("Мәндер бітті: циклден шығамыз") };
+    } else if ((m = /^(?:def|fun|function)\s+(\w+)/.exec(src))) {
+      text = KZ.t("Функция жасалады: ") + "`" + m[1] + "`" + KZ.t(" (әлі іске қосылмайды)");
+    } else if (/^return\b/.test(src)) {
+      text = KZ.t("Функция нәтижені қайтарып, шақырған жерге оралады");
+    } else if (/^(print|println|console\.log)\b/.test(src)) {
+      const was = (f.out || "").length;
+      const after = next ? (next.out || "").slice(was).trim() : "";
+      text = KZ.t("Экранға шығарамыз") + (after ? ": " + after : "");
+    } else if ((m = /^(?:var\s+|val\s+|let\s+|const\s+)?([A-Za-z_][\w.\[\]'"]*)\s*(\+=|-=|\*=|\/=|=)(?!=)\s*(.+)$/.exec(src))) {
+      text = KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + m[3].replace(/;$/, "") + "`";
+    } else text = KZ.t("Жолды орындаймыз: ") + "`" + src + "`";
+    /* алдыңғы қадамның нәтижесі: өзгерген айнымалылар */
+    const chips = [];
+    if (prev) {
+      const pv = {};
+      (prev.vars || []).forEach((v) => (pv[v.n] = v.r));
+      (f.vars || []).forEach((v) => {
+        if (pv[v.n] === undefined) chips.push(v.n + " = " + v.r);
+        else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
+      });
+    }
+    return { text, verdict, chips: chips.slice(0, 4), n: i + 1 };
+  }
+  function narrCard(n) {
+    const card = el("div", "narr");
+    const face = el("div", "narr-face");
+    face.innerHTML = KZ.hero ? KZ.hero.svg({ lite: true, still: true }) : "";
+    const body = el("div", "narr-body");
+    const line = el("div", "narr-t");
+    n.text.split("`").forEach((part, k) => line.appendChild(k % 2 ? el("code", null, part) : document.createTextNode(part)));
+    body.appendChild(line);
+    if (n.verdict) body.appendChild(el("div", "narr-v " + (n.verdict.ok ? "yes" : "no"), n.verdict.t));
+    if (n.chips.length) {
+      const row = el("div", "narr-chips");
+      n.chips.forEach((c) => row.appendChild(el("span", "narr-chip", c)));
+      body.appendChild(row);
+    }
+    card.append(face, body);
+    return card;
   }
 
   /* Цикл көрсеткіші: for/while жолына неше рет келді */

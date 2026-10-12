@@ -307,7 +307,11 @@ def run(code, cfg_json=None):
                 res.append({"n": name, "t": tname, "r": _clip(repr(val), 80),
                             "i": [_clip(repr(x), 12) for x in list(val)[:16]],
                             "more": len(val) > 16})
-            elif isinstance(val, (dict, set)):
+            elif isinstance(val, dict):
+                res.append({"n": name, "t": tname, "r": _clip(repr(val), 80),
+                            "d": [[_clip(repr(k), 12), _clip(repr(x), 16)] for k, x in list(val.items())[:12]],
+                            "dn": len(val)})
+            elif isinstance(val, set):
                 res.append({"n": name, "t": tname, "r": _clip(repr(val), 80)})
         return res
 

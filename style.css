@@ -1572,3 +1572,24 @@ img, svg, canvas, video { max-width: 100%; }
 @keyframes hfSwingR { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(8deg); } }
 .hero-act { display: flex; gap: 8px; flex-wrap: wrap; }
 .hero-act .btn { flex: 1 1 110px; }
+
+/* ---------- Битлинг қадамды түсіндіреді ---------- */
+.narr { flex: 1 1 100%; display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; box-shadow: 0 2px 0 var(--line); }
+.narr-face { width: 44px; height: 44px; flex: none; border-radius: 50%; overflow: hidden; background: var(--mint); border: 2px solid var(--line); }
+.narr-face canvas { width: 100%; height: 100%; display: block; }
+.narr-body { min-width: 0; display: grid; gap: 4px; }
+.narr-t { font-weight: 800; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.narr-v { font-weight: 800; font-size: 13px; padding: 2px 8px; border-radius: 8px; width: fit-content; }
+.narr-v.yes { background: var(--mint); }
+.narr-v.no { background: #ffd9d9; }
+html[data-theme="dark"] .narr-v.no { background: #5a2530; }
+.narr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.narr-chip { font: 700 12px "JetBrains Mono", ui-monospace, monospace; background: var(--sun); border: 1.5px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.var-dict { display: grid; gap: 3px; min-width: 110px; }
+.dict-row { display: grid; grid-template-columns: minmax(36px, auto) 1fr; border: 2px solid var(--line); border-radius: 8px; overflow: hidden; font: 700 13px "JetBrains Mono", ui-monospace, monospace; background: var(--paper); }
+.dict-row .dk { background: color-mix(in srgb, var(--c) 35%, var(--paper)); padding: 2px 8px; border-right: 2px solid var(--line); }
+.dict-row .dv { padding: 2px 8px; }
+.dict-row.new { animation: drop-in 0.5s cubic-bezier(.2,.9,.3,1.3); }
+.dict-row.hot .dv { background: color-mix(in srgb, var(--c) 55%, var(--paper)); animation: pop 0.45s ease; }
+.var-chars { display: flex; gap: 2px; margin-top: 4px; }
+.var-chars .var-cell { min-width: 22px; }
