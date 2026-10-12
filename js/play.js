@@ -508,7 +508,7 @@
     if (!waits.length) return;
     const prev = run.frames[i - 1];
     const d = delay();
-    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(750, Math.max(380, d * 0.75)) : 750);
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(1150, Math.max(600, d * 1.1)) : 1150);
     const done = (bx) => {
       bx.classList.remove("wait");
       bx.classList.add("recv");
