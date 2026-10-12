@@ -1593,3 +1593,28 @@ html[data-theme="dark"] .narr-v.no { background: #5a2530; }
 .dict-row.hot .dv { background: color-mix(in srgb, var(--c) 55%, var(--paper)); animation: pop 0.45s ease; }
 .var-chars { display: flex; gap: 2px; margin-top: 4px; }
 .var-chars .var-cell { min-width: 22px; }
+
+/* ---------- Айнымалы қорабы: мән ұшып келіп қорапқа түседі ---------- */
+.narr-eq { font-weight: 800; font-size: 14px; }
+.narr-eq code { font-size: 13px; }
+.bx { position: relative; padding-top: 12px; min-width: 92px; max-width: 280px; }
+.bx-body { position: relative; min-height: 54px; display: grid; place-items: center; padding: 8px 10px 6px; border: 3px solid var(--line); border-radius: 4px 4px 12px 12px; box-shadow: 0 3px 0 var(--line);
+  background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(0,0,0,.035) 14px 15px), color-mix(in srgb, var(--c) 30%, #ecd3a4); }
+.bx-lids { position: absolute; left: 0; right: 0; top: 0; height: 14px; pointer-events: none; z-index: 3; }
+.lid { position: absolute; top: 0; width: 52%; height: 14px; background: color-mix(in srgb, var(--c) 40%, #d9b27c); border: 3px solid var(--line); transition: transform 0.35s cubic-bezier(.3,1.4,.5,1) 0.25s; }
+.lid.l { left: -2px; transform-origin: 0 100%; border-radius: 6px 0 0 0; }
+.lid.r { right: -2px; transform-origin: 100% 100%; border-radius: 0 6px 0 0; }
+.bx.wait .lid.l { transform: rotate(-72deg); transition-delay: 0s; }
+.bx.wait .lid.r { transform: rotate(72deg); transition-delay: 0s; }
+.bx-val { position: relative; z-index: 2; font: 700 20px "JetBrains Mono", ui-monospace, monospace; background: var(--paper); border: 2.5px solid var(--line); border-radius: 9px; padding: 2px 12px; overflow-wrap: anywhere; box-shadow: 0 2px 0 var(--line); }
+.bx-old { position: absolute; z-index: 1; font: 700 18px "JetBrains Mono", ui-monospace, monospace; background: color-mix(in srgb, var(--paper) 80%, #999); border: 2px dashed var(--line); border-radius: 9px; padding: 1px 10px; text-decoration: line-through; opacity: 0; }
+.bx.wait .bx-val { opacity: 0; }
+.bx.wait .bx-old { opacity: 1; }
+.bx.recv .bx-val { animation: val-drop 0.7s cubic-bezier(.2,.9,.3,1.25); }
+.bx.recv .bx-old { animation: old-pop 0.9s ease-out forwards; }
+.bx.changed.recv .bx-body { animation: box-bump 0.5s ease 0.1s; }
+@keyframes val-drop { 0% { transform: translateY(-34px) scale(0.7); opacity: 0; } 55% { transform: translateY(4px) scale(1.1); opacity: 1; } 100% { transform: none; opacity: 1; } }
+@keyframes old-pop { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-46px) rotate(-8deg); } }
+@keyframes box-bump { 0%, 100% { transform: none; } 40% { transform: scale(1.06, 0.94); } 70% { transform: scale(0.98, 1.03); } }
+.fly-token { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; font: 700 20px "JetBrains Mono", ui-monospace, monospace; background: var(--sun); color: var(--ink); border: 3px solid var(--line); border-radius: 12px; padding: 2px 14px; box-shadow: 0 4px 0 var(--line), 0 10px 18px rgba(0,0,0,.25); will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .bx.recv .bx-val, .bx.recv .bx-old, .bx.changed.recv .bx-body { animation: none; } .lid { transition: none; } }

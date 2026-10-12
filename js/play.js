@@ -240,11 +240,13 @@
   /* ---------- Кадрды көрсету ---------- */
   function show(i) {
     const f = run.frames[i];
+    const fwd = idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
     idx = i;
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
-    renderVars(f.vars || [], loopInfoAt(i), narrate(i));
+    renderVars(f.vars || [], loopInfoAt(i), narrate(i), fwd);
+    if (fwd) flyAll(i);
     $("#console").textContent = f.out || "";
     renderNote(f);
     showDom(f, i === lastIdx());
@@ -331,7 +333,7 @@
   }
 
   /* ---------- Қораптар (жад) ---------- */
-  function renderVars(vars, loopInfo, narr) {
+  function renderVars(vars, loopInfo, narr, anim) {
     const box = $("#memory");
     box.textContent = "";
     const prev = shownVars;
@@ -377,8 +379,15 @@
         if (v.dn > v.d.length) tb.appendChild(el("div", "dict-row", "…"));
         card.appendChild(tb);
       } else {
-        if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
-        card.appendChild(el("div", "var-box", v.r));
+        const bx = el("div", "bx" + (isNew ? " fresh" : changed && !old.i ? " changed" : "") + (anim && (isNew || (changed && !old.i)) ? " wait" : ""));
+        bx.dataset.v = v.n;
+        const lids = el("div", "bx-lids");
+        lids.append(el("i", "lid l"), el("i", "lid r"));
+        const body = el("div", "bx-body");
+        if (changed && !old.i) body.appendChild(el("div", "bx-old", old.r));
+        body.appendChild(el("div", "bx-val", v.r));
+        bx.append(lids, body);
+        card.appendChild(bx);
         if (v.t === "str" && v.s && v.s.length >= 2 && v.s.length <= 12) {
           const row = el("div", "var-chars");
           Array.from(v.s).forEach((ch, k) => {
@@ -394,6 +403,64 @@
     });
     shownVars = {};
     vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d }));
+  }
+
+  /* ---------- Мән коддан қорапқа ұшып барады ---------- */
+  let flyTimers = [];
+  function flyAll(i) {
+    flyTimers.forEach(clearTimeout);
+    flyTimers = [];
+    document.querySelectorAll(".fly-token").forEach((n) => n.remove());
+    const waits = Array.from(document.querySelectorAll("#memory .bx.wait"));
+    if (!waits.length) return;
+    const prev = run.frames[i - 1];
+    const d = delay();
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(750, Math.max(380, d * 0.75)) : 750);
+    const done = (bx) => {
+      bx.classList.remove("wait");
+      bx.classList.add("recv");
+    };
+    if (!F || !prev || !prev.line) return waits.forEach(done);
+    /* қорап көрінбей тұрса, бетті сәл жылжытамыз: мәннің қайда түскенін көру үшін */
+    const r0 = waits[0].querySelector(".bx-body").getBoundingClientRect();
+    if (r0.bottom > innerHeight - 30) window.scrollBy(0, Math.round(r0.bottom - innerHeight + 60));
+    else if (r0.top < 70) window.scrollBy(0, Math.round(r0.top - 90));
+    const lineN = Math.max(0, Math.min(prev.line - 1, editor.lastLine()));
+    let sx = innerWidth / 2;
+    let sy = 80;
+    try {
+      const c = editor.charCoords({ line: lineN, ch: (editor.getLine(lineN) || "").length }, "window");
+      sx = Math.min(Math.max(c.right - 6, 20), innerWidth - 20);
+      sy = Math.min(Math.max((c.top + c.bottom) / 2, 20), innerHeight - 20);
+    } catch (e) {
+      /* координата табылмады: жоғарыдан ұшады */
+    }
+    waits.slice(0, 3).forEach((bx, k) => {
+      const val = bx.querySelector(".bx-val");
+      const body = bx.querySelector(".bx-body");
+      const r = body.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2;
+      const tok = el("div", "fly-token", val ? val.textContent : "");
+      document.body.appendChild(tok);
+      const at = (x, y, sc) => "translate(" + x + "px," + y + "px) translate(-50%,-50%) scale(" + sc + ")";
+      const mid = { x: (sx + tx) / 2, y: Math.min(sy, ty) - 50 - k * 10 };
+      if (tok.animate) {
+        const a = tok.animate(
+          [
+            { transform: at(sx, sy, 0.7), opacity: 0.2 },
+            { transform: at(sx + (mid.x - sx) * 0.2, sy + (mid.y - sy) * 0.4, 1.2), opacity: 1, offset: 0.2 },
+            { transform: at(mid.x, mid.y, 1.25), opacity: 1, offset: 0.55 },
+            { transform: at(tx, ty - 6, 0.95), opacity: 1 },
+          ],
+          { duration: F, easing: "cubic-bezier(.45,.05,.4,1)", fill: "forwards" }
+        );
+        a.onfinish = () => tok.remove();
+      } else tok.remove();
+      flyTimers.push(setTimeout(() => done(bx), F - 40));
+    });
+    waits.slice(3).forEach(done);
+    flyTimers.push(setTimeout(() => document.querySelectorAll(".fly-token").forEach((n) => n.remove()), F + 200));
   }
 
   /* ---------- Битлинг қадамды түсіндіреді ---------- */
@@ -416,6 +483,7 @@
     const prev = i > 0 ? run.frames[i - 1] : null;
     let text = null;
     let verdict = null;
+    let eq = null;
     let m;
     if ((m = /^(?:\}\s*)?(if|else\s+if|elif|while)\b/.exec(src))) {
       const wh = m[1] === "while";
@@ -438,7 +506,15 @@
       const after = next ? (next.out || "").slice(was).trim() : "";
       text = KZ.t("Экранға шығарамыз") + (after ? ": " + after : "");
     } else if ((m = /^(?:var\s+|val\s+|let\s+|const\s+)?([A-Za-z_][\w.\[\]'"]*)\s*(\+=|-=|\*=|\/=|=)(?!=)\s*(.+)$/.exec(src))) {
-      text = KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + m[3].replace(/;$/, "") + "`";
+      const rhs = m[3].replace(/;$/, "");
+      text = KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + rhs + "`";
+      /* ойша есептеу: айнымалы орнына мәнін қоямыз */
+      const cur = {};
+      (f.vars || []).forEach((v) => (cur[v.n] = v.r));
+      const base = m[2] === "=" ? rhs : m[1] + " " + m[2].slice(0, -1) + " (" + rhs + ")";
+      const sub = base.replace(/(["'])(?:\\.|(?!\1).)*\1|[A-Za-z_]\w*/g, (w) => (/^["']/.test(w) ? w : cur[w] !== undefined ? cur[w] : w));
+      const tgt = next && (next.vars || []).find((v) => v.n === m[1]);
+      if (tgt && sub !== tgt.r && /[A-Za-z_+\-*\/%()\[\]]/.test(rhs) && !/^["'].*["']$/.test(rhs)) eq = { expr: sub, res: tgt.r };
     } else text = KZ.t("Жолды орындаймыз: ") + "`" + src + "`";
     /* алдыңғы қадамның нәтижесі: өзгерген айнымалылар */
     const chips = [];
@@ -450,7 +526,7 @@
         else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
       });
     }
-    return { text, verdict, chips: chips.slice(0, 4), n: i + 1 };
+    return { text, verdict, eq, chips: chips.slice(0, 4), n: i + 1 };
   }
   function narrCard(n) {
     const card = el("div", "narr");
@@ -460,6 +536,11 @@
     const line = el("div", "narr-t");
     n.text.split("`").forEach((part, k) => line.appendChild(k % 2 ? el("code", null, part) : document.createTextNode(part)));
     body.appendChild(line);
+    if (n.eq) {
+      const e = el("div", "narr-eq");
+      e.append("🧮 ", el("code", null, n.eq.expr), " = ", el("code", null, n.eq.res));
+      body.appendChild(e);
+    }
     if (n.verdict) body.appendChild(el("div", "narr-v " + (n.verdict.ok ? "yes" : "no"), n.verdict.t));
     if (n.chips.length) {
       const row = el("div", "narr-chips");
