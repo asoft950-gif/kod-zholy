@@ -48,7 +48,7 @@
   const richDefs = (u) => `<linearGradient id="${u}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".18" stop-color="#ffe066"/><stop offset=".42" stop-color="#fcc419"/><stop offset=".62" stop-color="#d9770b"/><stop offset=".8" stop-color="#ffd43b"/><stop offset="1" stop-color="#8f5200"/></linearGradient><linearGradient id="${u}goldH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5200"/><stop offset=".22" stop-color="#ffd43b"/><stop offset=".45" stop-color="#fff6cc"/><stop offset=".62" stop-color="#fcc419"/><stop offset="1" stop-color="#7a4700"/></linearGradient><radialGradient id="${u}ruby" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffe3e3"/><stop offset=".3" stop-color="#ff6b6b"/><stop offset="1" stop-color="#8f1515"/></radialGradient><radialGradient id="${u}sapph" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#e7f5ff"/><stop offset=".35" stop-color="#339af0"/><stop offset="1" stop-color="#0b3a8a"/></radialGradient><radialGradient id="${u}emer" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ebfbee"/><stop offset=".35" stop-color="#40c057"/><stop offset="1" stop-color="#145a24"/></radialGradient><radialGradient id="${u}pearl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f1f3f5"/><stop offset="1" stop-color="#9aa3ad"/></radialGradient><linearGradient id="${u}frame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#868e96"/><stop offset=".35" stop-color="#343a40"/><stop offset="1" stop-color="#101418"/></linearGradient><linearGradient id="${u}lens" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2b52" stop-opacity=".78"/><stop offset="1" stop-color="#050a18" stop-opacity=".9"/></linearGradient><clipPath id="${u}lc"><rect x="52" y="108" width="44" height="36" rx="13"/><rect x="104" y="108" width="44" height="36" rx="13"/></clipPath><linearGradient id="${u}scarf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d0bfff"/><stop offset=".45" stop-color="#845ef7"/><stop offset="1" stop-color="#4c2bb0"/></linearGradient><pattern id="${u}knit" width="7" height="6" patternUnits="userSpaceOnUse"><path d="M0 0L3.5 4.5L7 0" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.3"/></pattern><linearGradient id="${u}fire" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff9db"/><stop offset=".22" stop-color="#ffd43b"/><stop offset=".5" stop-color="#ff922b"/><stop offset=".8" stop-color="#f03e3e"/><stop offset="1" stop-color="#9c1717"/></linearGradient>`;
   const pinBadge = (txt) => `<circle cx="138" cy="176" r="12" fill="#ffffff" ${S3}/><text x="138" y="181" font-size="13" text-anchor="middle">${txt}</text>`;
 
-  /* unlock: "start" (басында кездейсоқ беріледі), жетістік id-і, не { streak: N } (қазіргі серия N-ге жеткенде ғана көрінеді) */
+  /* unlock: "start" (басында беріледі, тек бір киім), жетістік id-і, не { streak: N } (қазіргі серия N-ге жеткенде ғана көрінеді) */
   /* Loop Python гардеробы: lw — img/wardrobe/wardrobe.json ішіндегі id. unlock: "start" | жетістік id | "chest" */
   const ITEMS = [
     { id: "sk_street", lw: "street", slot: "outfit", n: KZ.t("Күнделікті худи"), unlock: "start" },
@@ -57,15 +57,15 @@
     { id: "sk_formal", lw: "formal", slot: "outfit", n: KZ.t("Классикалық костюм"), unlock: "poly" },
     { id: "sk_wizard", lw: "wizard", slot: "outfit", legend: true, n: KZ.t("Сиқыршы киімі"), unlock: "lv30" },
     { id: "sk_cyber", lw: "cyber", slot: "outfit", legend: true, n: KZ.t("Киберпанк киімі"), unlock: "game_z1" },
-    { id: "ac_cap", lw: "cap", slot: "head", n: KZ.t("Кепка"), unlock: "start" },
-    { id: "ac_beanie", lw: "beanie", slot: "head", chest: true, n: KZ.t("Тоқылған қалпақ"), unlock: "chest" },
+    { id: "ac_cap", lw: "cap", slot: "head", n: KZ.t("Кепка"), unlock: "first" },
+    { id: "ac_beanie", lw: "beanie", slot: "head", n: KZ.t("Тоқылған қалпақ"), unlock: "bonus1" },
     { id: "ac_wizard_hat", lw: "wizard-hat", slot: "head", legend: true, n: KZ.t("Сиқыршы қалпағы"), unlock: "done_python" },
     { id: "ac_crown", lw: "crown", slot: "head", legend: true, n: KZ.t("Алтын тәж"), unlock: "perfect60" },
     { id: "ac_helmet", lw: "space-helmet", slot: "head", legend: true, n: KZ.t("Ғарыш дулығасы"), unlock: "lv60" },
     { id: "ac_phones", lw: "headphones", slot: "ears", n: KZ.t("Құлаққап"), unlock: "streak3" },
-    { id: "ac_glasses", lw: "glasses", slot: "face", n: KZ.t("Дөңгелек көзілдірік"), unlock: "start" },
-    { id: "ac_scarf", lw: "scarf", slot: "neck", n: KZ.t("Шарф"), unlock: "start" },
-    { id: "ac_backpack", lw: "backpack", slot: "back", n: KZ.t("Рюкзак"), unlock: "start" },
+    { id: "ac_glasses", lw: "glasses", slot: "face", n: KZ.t("Дөңгелек көзілдірік"), unlock: "lv10" },
+    { id: "ac_scarf", lw: "scarf", slot: "neck", n: KZ.t("Шарф"), unlock: "reader" },
+    { id: "ac_backpack", lw: "backpack", slot: "back", n: KZ.t("Рюкзак"), unlock: "bug1" },
     { id: "ac_cape", lw: "cape", slot: "back", legend: true, n: KZ.t("Батыр мантиясы"), unlock: "streak14" },
     { id: "ac_wings", lw: "wings", slot: "back", legend: true, n: KZ.t("Фея қанаттары"), unlock: "streak30" },
     { id: "ac_wand", lw: "wand", slot: "hand", n: KZ.t("Сиқырлы таяқша"), unlock: "perfect10" },
@@ -88,22 +88,27 @@
   function ensure() {
     let s = load();
     if (s && Array.isArray(s.starters)) {
-      if (s.mv !== 4) {
-        /* Loop Python гардеробы: ескі заттар жаңа жүйеге көшпейді, бастапқы жиынтық қайта беріледі */
-        const pool = ITEMS.filter((i) => i.unlock === "start");
-        s.mv = 4;
-        s.starters = pool.map((i) => i.id);
-        s.eq = {};
-        pool.forEach((i) => {
-          if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
+      if (s.mv !== 5) {
+        /* Тек бір бастапқы киім; қалғаны жетістік арқылы. Бұрынғы кездейсоқ берілген заттар алынады */
+        const base = ITEMS.filter((i) => i.unlock === "start");
+        s.mv = 5;
+        s.starters = base.map((i) => i.id);
+        const eq = {};
+        Object.keys(s.eq || {}).forEach((k) => {
+          const it = BYID[s.eq[k]];
+          if (it && it.slot === k && (it.unlock === "start" || (typeof it.unlock === "string" && KZ.ach && KZ.ach.unlocked && KZ.ach.unlocked()[it.unlock]))) eq[k] = it.id;
         });
+        base.forEach((i) => {
+          if (!eq[i.slot]) eq[i.slot] = i.id;
+        });
+        s.eq = eq;
         save(s);
       }
       return s;
     }
     const pool = ITEMS.filter((i) => i.unlock === "start");
-    const pick = pool.slice().sort(() => Math.random() - 0.5).slice(0, STARTERS_N);
-    s = { mv: 4, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
+    const pick = pool;
+    s = { mv: 5, color: COLORS[0][0], starters: pick.map((i) => i.id), eq: {} };
     // әр слотқа басында бір затты кигіземіз
     pick.forEach((i) => {
       if (!s.eq[i.slot]) s.eq[i.slot] = i.id;
@@ -154,7 +159,7 @@
 
   const need = (i) => {
     const u = i.unlock;
-    if (u === "start") return KZ.t("Бастапқы жиынтықта кездейсоқ беріледі");
+    if (u === "start") return KZ.t("Бастапқы киім");
     if (u === "chest") return KZ.t("Апталық сандықтан кездейсоқ түседі");
     if (u.season) return KZ.t("Маусымдық зат: тек ") + SEASONS[u.season].t + KZ.t(" аралығында киіледі");
     if (u.league) return KZ.t("Апталық лига: өткен аптада сыныпта ") + u.league + KZ.t("-орын алсаң, осы аптада ғана киесің");
@@ -586,7 +591,7 @@
     back.href = "#/";
     page.appendChild(back);
     page.appendChild(h("h1", null, KZ.t("🎽 Менің кейіпкерім")));
-    page.appendChild(h("p", "hint", KZ.t("Битлинг — сенің кейіпкерің. Басында бірнеше зат кездейсоқ беріледі, ал қалғандарын жетістіктер мен күн сериясы арқылы ашасың.")));
+    page.appendChild(h("p", "hint", KZ.t("Битлинг — сенің кейіпкерің. Басында бір киім беріледі, ал қалғандарын жетістіктер арқылы ашасың.")));
     const stage = el("section", "card hero-stage");
     const fig = el("div", "hero-big");
     stage.appendChild(fig);
@@ -656,6 +661,7 @@
       }, 1100);
     });
     cbody.appendChild(ob);
+    cc.hidden = !ITEMS.some((i) => i.chest);
     cc.append(cbox, cbody);
     page.appendChild(cc);
 
