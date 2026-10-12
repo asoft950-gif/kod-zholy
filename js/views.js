@@ -187,6 +187,7 @@
       const topicOpen = KZ.progress.topicUnlocked(c, t.id);
       const open = KZ.progress.tasksUnlocked(c, t.id);
       const card = el("section", "card topic" + (open ? "" : " locked"));
+      card.id = "topic-" + t.id;
       card.appendChild(
         h(
           "div",
@@ -288,6 +289,74 @@
     page.appendChild(box);
   }
 
+  /* ---------- Жол картасы: тақырыптар жолы ---------- */
+  function pathMap(c) {
+    const ts = (c.topics || []).filter((t) => (c.levels || []).some((l) => KZ.topicOf(l) === t.id));
+    const wrap = el("section", "card pmap-card");
+    wrap.appendChild(h("div", "card-title", KZ.t("🗺 Менің жолым")));
+    if (ts.length < 2) return null;
+    const info = ts.map((t) => {
+      const items = c.levels.filter((l) => KZ.topicOf(l) === t.id);
+      const got = items.filter((l) => KZ.progress.stars(c.id, l.id) > 0).length;
+      return { t, items, got, done: got === items.length, open: KZ.progress.topicUnlocked(c, t.id) };
+    });
+    let cur = info.findIndex((x) => x.open && !x.done);
+    if (cur < 0) cur = info.length - 1;
+    const SP = 100;
+    const H = info.length * SP + 30;
+    const pos = info.map((_, i) => ({ x: 50 + 26 * Math.sin(i * 1.25), y: 52 + i * SP }));
+    const seg = (a, b) => "C " + a.x + " " + (a.y + SP / 2) + ", " + b.x + " " + (b.y - SP / 2) + ", " + b.x + " " + b.y;
+    let dAll = "M " + pos[0].x + " " + pos[0].y;
+    let dDone = dAll;
+    for (let i = 1; i < pos.length; i++) {
+      dAll += " " + seg(pos[i - 1], pos[i]);
+      if (i <= cur) dDone += " " + seg(pos[i - 1], pos[i]);
+    }
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 100 " + H);
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("class", "pmap-svg");
+    [["pm-all", dAll], ["pm-done", dDone]].forEach(([cls, d]) => {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", d);
+      path.setAttribute("class", cls);
+      path.setAttribute("fill", "none");
+      path.setAttribute("vector-effect", "non-scaling-stroke");
+      svg.appendChild(path);
+    });
+    const map = el("div", "pmap");
+    map.style.height = H + "px";
+    map.appendChild(svg);
+    info.forEach((x, i) => {
+      const st = x.done ? "done" : !x.open ? "locked" : i === cur ? "now" : "open";
+      const n = A("pnode " + st, "#/" + c.id + (x.open ? "/tasks" : "/tasks"), h("span", "pn-emoji", st === "locked" ? "🔒" : x.t.emoji));
+      n.style.left = pos[i].x + "%";
+      n.style.top = pos[i].y + "px";
+      n.appendChild(h("span", "pn-label", x.t.title));
+      n.appendChild(h("span", "pn-badge", x.done ? "✅" : x.open ? x.got + "/" + x.items.length : ""));
+      if (i === cur && KZ.hero) {
+        const fig = el("span", "pn-bit");
+        fig.innerHTML = KZ.hero.svg({ lite: true, still: true });
+        n.appendChild(fig);
+      }
+      n.addEventListener("click", (ev) => {
+        const card = document.getElementById("topic-" + x.t.id);
+        if (card) {
+          ev.preventDefault();
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.classList.add("flash");
+          setTimeout(() => card.classList.remove("flash"), 1400);
+        } else if (!x.open) {
+          ev.preventDefault();
+          KZ.toast("🔒", x.t.title, KZ.t("Алдыңғы тақырыптың тапсырмаларын өткенде ашылады"));
+        }
+      });
+      map.appendChild(n);
+    });
+    wrap.appendChild(map);
+    return wrap;
+  }
+
   function course(root, c, tab) {
     root.textContent = "";
     const page = el("div", "page");
@@ -324,6 +393,10 @@
     page.appendChild(tabs);
 
     const box = el("div", "tab-body");
+    if (tab === "lectures" || tab === "tasks") {
+      const pmap = pathMap(c);
+      if (pmap) box.appendChild(pmap);
+    }
     ({ lectures: lecturesTab, tasks: tasksTab, bonus: bonusTab, reference: referenceTab })[tab](c, box);
     page.appendChild(box);
     root.appendChild(page);

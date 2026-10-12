@@ -344,7 +344,7 @@
     document.querySelectorAll(".fly-token.op").forEach((n) => n.remove());
     const kp = keepCalc(i, nr);
     calcLead = fwd && nr && nr.calc ? opFlight() / 1000 : 0;
-    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, kp);
+    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, kp, fnInfoAt(i));
     if (fwd && nr && nr.calc && calcLead) flyOperands(nr.calc);
     if (fwd) flyAll(i, kp && kp.j === i - 1 ? ".calc-keep .cc.big" : null);
     showOut(f, i, fwd);
@@ -436,7 +436,27 @@
   const preview = () => true;
 
   /* ---------- Қораптар (жад) ---------- */
-  function renderVars(vars, loopInfo, narr, anim, keep) {
+  /* ұяшықты бассаң, индексі мен мәні көрінеді */
+  function tapIndex(card, row, sel, info) {
+    const pop = el("div", "idx-pop", KZ.t("👆 Ұяшықты бас: индексін көр"));
+    card.appendChild(pop);
+    row.addEventListener("click", (ev) => {
+      const cell = ev.target.closest(sel);
+      if (!cell || !row.contains(cell)) return;
+      const r = info(cell);
+      if (!r) return;
+      row.querySelectorAll(".tap-on").forEach((n) => n.classList.remove("tap-on"));
+      cell.classList.add("tap-on");
+      pop.textContent = "";
+      pop.append(el("code", null, r[0]), " → ", el("b", null, r[1]));
+      if (r[2]) pop.append(el("small", null, "  (" + r[2] + ")"));
+      pop.classList.remove("hit");
+      void pop.offsetWidth;
+      pop.classList.add("hit");
+    });
+  }
+
+  function renderVars(vars, loopInfo, narr, anim, keep, fn) {
     const box = $("#memory");
     box.textContent = "";
     const prev = shownVars;
@@ -453,6 +473,12 @@
         box.appendChild(el("p", "empty", KZ.t("Әзірге қораптар жоқ. x = 5 деп жазсаң, «x» қорабы осында пайда болады.")));
       shownVars = {};
       return;
+    }
+    let scopeBox = null;
+    if (fn) {
+      scopeBox = el("div", "fn-scope");
+      scopeBox.appendChild(el("div", "fn-scope-t", "🏠 " + fn.name + "() " + KZ.t("ішіндегі қораптар")));
+      box.appendChild(scopeBox);
     }
     vars.forEach((v) => {
       const old = prev[v.n];
@@ -486,6 +512,12 @@
           }
         }
         card.appendChild(row);
+        tapIndex(card, row, ".var-cell:not(.gone)", (cell) => {
+          const k = Number(cell.querySelector(".i") && cell.querySelector(".i").textContent);
+          if (isNaN(k)) return null;
+          const neg = k - v.i.length;
+          return [v.n + "[" + k + "]", v.i[k], k === v.i.length - 1 ? v.n + "[-1]" : neg >= -v.i.length ? v.n + "[" + neg + "]" : ""];
+        });
       } else if (v.d && preview()) {
         const tb = el("div", "var-dict");
         v.d.forEach((kv) => {
@@ -497,11 +529,16 @@
         });
         if (v.dn > v.d.length) tb.appendChild(el("div", "dict-row", "…"));
         card.appendChild(tb);
+        tapIndex(card, tb, ".dict-row", (row) => {
+          const kk = row.querySelector(".dk");
+          const vv = row.querySelector(".dv");
+          return kk && vv ? [v.n + "[" + kk.textContent + "]", vv.textContent, ""] : null;
+        });
       } else {
         if (!preview()) {
           if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
           card.appendChild(el("div", "var-box", v.r));
-          box.appendChild(card);
+          (scopeBox && fn.locals.has(v.n) ? scopeBox : box).appendChild(card);
           return;
         }
         const bx = el("div", "bx" + (isNew ? " fresh" : changed && !old.i ? " changed" : "") + (anim && (isNew || (changed && !old.i)) ? " wait" : ""));
@@ -522,9 +559,14 @@
             row.appendChild(c);
           });
           card.appendChild(row);
+          tapIndex(card, row, ".var-cell", (cell) => {
+            const k = Number(cell.querySelector(".i").textContent);
+            const L = Array.from(v.s).length;
+            return [v.n + "[" + k + "]", "'" + Array.from(v.s)[k] + "'", v.n + "[" + (k - L) + "]"];
+          });
         }
-      }
-      box.appendChild(card);
+      } card.classList.add("outer");
+      (scopeBox && fn.locals.has(v.n) ? scopeBox : box).appendChild(card);
     });
     shownVars = {};
     vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d, more: v.more }));
@@ -795,10 +837,77 @@
       cr = cr.slice(0, best - 1).concat([{ k: "n", v: r, res: true }], cr.slice(best + 2));
     }
     if (cr.length !== 1 || cr[0].k !== "n") return null;
-    if (Math.abs(Number(cr[0].v) - Number(want)) > 1e-9 || !Number.isFinite(Number(want))) return null;
+    if (want !== null && (Math.abs(Number(cr[0].v) - Number(want)) > 1e-9 || !Number.isFinite(Number(want)))) return null;
     rows.push({ t: cr, hl: [0, 0], fin: true });
     return { rows, names };
   }
+  /* функция ішінде тұрмыз ба? def жолы, параметрлер, шақыру кезіндегі мәндер */
+  const DEF_RE = /^(?:async\s+)?(?:def|fun|function)\s+(\w+)\s*\(([^)]*)\)/;
+  function enclosingDef(line) {
+    const me = indentOf(editor.getLine(line - 1) || "");
+    let lim = me;
+    for (let n = line - 1; n >= 1; n--) {
+      const t = editor.getLine(n - 1) || "";
+      if (!t.trim()) continue;
+      const ind = indentOf(t);
+      if (ind < lim) {
+        const m = DEF_RE.exec(t.trim());
+        if (m) return { line: n, name: m[1], params: m[2].split(",").map((x) => x.trim().replace(/^\*+/, "").split(/[:=\s]/)[0]).filter(Boolean), indent: ind };
+        lim = ind;
+      }
+    }
+    return null;
+  }
+  function fnInfoAt(i) {
+    const f = run && run.frames[i];
+    if (!f || !f.line || f.kind === "error") return null;
+    const d = enclosingDef(f.line);
+    if (!d) return null;
+    const inside = (L) => {
+      if (!L || L <= d.line) return false;
+      for (let n = d.line + 1; n <= L; n++) {
+        const t = editor.getLine(n - 1) || "";
+        if (t.trim() && indentOf(t) <= d.indent) return false;
+      }
+      return true;
+    };
+    let e = i;
+    while (e > 0 && inside(run.frames[e - 1].line)) e--;
+    const locals = new Set(d.params);
+    for (let n = d.line + 1; n <= editor.lastLine() + 1 && inside(n); n++) {
+      const mm = /^\s*(?:var\s+|val\s+|let\s+|const\s+)?([A-Za-z_]\w*)\s*(?:[-+*\/]?=)(?!=)/.exec(editor.getLine(n - 1) || "");
+      if (mm) locals.add(mm[1]);
+    }
+    const ef = run.frames[e];
+    const args = d.params.map((pn) => {
+      const v = ((ef && ef.vars) || []).find((x) => x.n === pn);
+      return { p: pn, v: v ? v.r : "?" };
+    });
+    let callText = "";
+    const cf = e > 0 ? run.frames[e - 1] : null;
+    if (cf && cf.line) {
+      const cm = new RegExp("\\b" + d.name + "\\s*\\(([^()]*(?:\\([^()]*\\)[^()]*)*)\\)").exec(editor.getLine(cf.line - 1) || "");
+      if (cm) callText = d.name + "(" + cm[1] + ")";
+    }
+    return { name: d.name, params: d.params, locals, entry: e, args, callText, first: i === e, defLine: d.line };
+  }
+  function fnCallEl(fi) {
+    const box = el("div", "fncall");
+    box.appendChild(el("div", "fncall-t", "📞 " + (fi.callText || fi.name + "(…)")));
+    const row = el("div", "fncall-args");
+    fi.args.forEach((a, k) => {
+      const c = el("span", "fa");
+      c.style.animationDelay = k * 0.9 + "s";
+      c.append(el("small", null, a.p), document.createTextNode(a.v));
+      row.append(c);
+    });
+    if (fi.args.length) {
+      box.appendChild(el("div", "fncall-s", KZ.t("Мәндер функцияның қораптарына түседі:")));
+      box.appendChild(row);
+    }
+    return box;
+  }
+
   function narrate(i) {
     const f = run && run.frames[i];
     if (f && f.kind === "error" && run.error && run.error.kind !== "input" && run.error.kind !== "limit") {
@@ -887,7 +996,22 @@
         else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
       });
     }
-    return { text, verdict, eq, fork, calc, kind, ctx, ask, chips: chips.slice(0, 4), n: i + 1 };
+    const fi = fnInfoAt(i);
+    const fnCall = fi && fi.first ? fi : null;
+    if (kind === "return") {
+      const rm = /^return\s+(.+?);?$/.exec(src);
+      if (rm) {
+        const cur2 = {};
+        (f.vars || []).forEach((v) => (cur2[v.n] = v.r));
+        const rc = buildCalc(rm[1], cur2, null);
+        if (rc) {
+          calc = rc;
+          ctx = { expr: rm[1] };
+          text = KZ.t("↩️ Функция нәтижені есептеп қайтарады: ") + "`" + rm[1] + "`";
+        }
+      }
+    }
+    return { text, verdict, eq, fork, calc, kind, ctx, ask, fnCall, chips: chips.slice(0, 4), n: i + 1 };
   }
   /* есептеу жолдары: анимациямен (келесі қадамда ауысады) немесе қозғалмай тұрады (sticky) */
   let calcLead = 0; // операндтар ұшып жеткенше күтетін уақыт (с)
@@ -985,6 +1109,7 @@
     const line = el("div", "narr-t");
     n.text.split("`").forEach((part, k) => line.appendChild(k % 2 ? el("code", null, part) : document.createTextNode(part)));
     body.appendChild(line);
+    if (n.fnCall) body.appendChild(fnCallEl(n.fnCall));
     if (n.calc) {
       body.appendChild(calcEl(n.calc, false));
     } else if (n.eq) {
@@ -1103,7 +1228,21 @@
         if (seq.length !== rounds) seq = null;
       }
     }
-    return { src, upto, rounds, done: upto > rounds, kw, seq, name };
+    let wseq = null;
+    if (kw === "while") {
+      const cond = condOf(src);
+      const ind0 = indentOf(editor.getLine(f.line - 1) || "");
+      wseq = [];
+      run.frames.forEach((g, k) => {
+        if (g.line === f.line && g.kind !== "error") {
+          const nx = run.frames[k + 1];
+          const inside = !!(nx && nx.line && (nx.line === f.line + 1 || indentOf(editor.getLine(nx.line - 1) || "") > ind0));
+          wseq.push({ sub: subst(cond, g), ok: inside });
+        }
+      });
+      if (wseq.length > 14) wseq = null;
+    }
+    return { src, upto, rounds, done: upto > rounds, kw, seq, name, wseq };
   }
   function loopCard(info) {
     const card = el("div", "loopbox");
@@ -1119,6 +1258,18 @@
         tr.appendChild(el("span", "lt" + st, val));
       });
       tr.appendChild(el("span", "lt-back" + (info.done ? " out" : ""), info.done ? "🏁" : "↻"));
+      card.appendChild(tr);
+      return card;
+    }
+    if (info.wseq && info.wseq.length) {
+      const tr = el("div", "wtrack");
+      info.wseq.forEach((w, k) => {
+        const st = k + 1 < info.upto || (info.done && k < info.wseq.length) ? " past" : k + 1 === info.upto ? " now" : "";
+        const c = el("span", "wt " + (w.ok ? "yes" : "no") + st);
+        c.append(el("code", null, w.sub), el("b", null, w.ok ? "✔" : "✘"));
+        tr.appendChild(c);
+        if (k < info.wseq.length - 1) tr.appendChild(el("span", "wt-arr", "→"));
+      });
       card.appendChild(tr);
       return card;
     }
