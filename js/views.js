@@ -219,7 +219,7 @@
   }
 
   function openAllToggle(c, box) {
-    if (!(KZ.auth && KZ.auth.canTeach && KZ.auth.canTeach())) return;
+    if (!(KZ.auth && KZ.auth.canTeach && KZ.auth.canTeach()) || (KZ.auth.isOwner && KZ.auth.isOwner())) return;
     const b = el("button", "btn small ghost", KZ.progress.openAll() ? KZ.t("🔒 Құлыптарды қайта қосу") : KZ.t("🔓 Барлық тақырыпты ашу (мұғалім үшін)"));
     b.type = "button";
     b.addEventListener("click", () => {

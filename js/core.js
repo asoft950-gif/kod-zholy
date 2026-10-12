@@ -159,6 +159,7 @@ KZ.progress = {
   /* Тақырып ашық па? Алдыңғы тақырыптың барлық тапсырмасы өтілуі керек (Coursera сияқты) */
   openAll() {
     /* тек мұғалім/админ/құрушы; оқушыда белгі қалып қойса да құлыптар жұмыс істейді */
+    if (KZ.auth && KZ.auth.isOwner && KZ.auth.isOwner()) return true; // құрушыға барлығы әрдайым ашық
     return KZ.store.get("kodzholy.openall", false) === true && !!(KZ.auth && KZ.auth.canTeach && KZ.auth.canTeach());
   },
   setOpenAll(v) {

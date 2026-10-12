@@ -90,6 +90,9 @@
     isStaff() {
       return A.isActive() && ["owner", "admin"].includes(A.profile.role);
     },
+    isOwner() {
+      return A.isActive() && !!A.profile && A.profile.role === "owner";
+    },
     canTeach() {
       return A.isActive() && ["owner", "admin", "teacher"].includes(A.profile.role);
     },

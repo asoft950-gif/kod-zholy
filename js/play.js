@@ -1566,9 +1566,11 @@
     $("#hintText").hidden = true;
     $("#hintText").textContent = level.hint;
     $("#hintBtn").hidden = !!level.sandbox || !!(level.assign && !level.assign.hint);
-    $("#solutionText").hidden = true;
+    /* құрушыға жауап бірден көрінеді */
+    const owner = !!(KZ.auth && KZ.auth.isOwner && KZ.auth.isOwner()) && !level.sandbox && !!level.solution;
+    $("#solutionText").hidden = !owner;
     $("#solutionText").textContent = level.solution;
-    $("#solutionBtn").hidden = true;
+    $("#solutionBtn").hidden = !owner;
     shareBtn.hidden = !level.sandbox;
     /* Осы тапсырма тақырыбының лекциясы бар болса — батырма көрінеді */
     const lecBtn = $("#lecBtn");
@@ -1702,7 +1704,7 @@
   $("#solutionBtn").addEventListener("click", () => {
     const s = $("#solutionText");
     s.hidden = !s.hidden;
-    if (!s.hidden && level && !level.sandbox) KZ.penalty.solution(...pkey());
+    if (!s.hidden && level && !level.sandbox && !(KZ.auth && KZ.auth.isOwner && KZ.auth.isOwner())) KZ.penalty.solution(...pkey());
   });
   editor.on("change", () => {
     if (course && level) KZ.codeStore.set(course.id, level.id, editor.getValue());
