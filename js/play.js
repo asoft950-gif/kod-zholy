@@ -142,11 +142,13 @@
   }
 
   /* ---------- Орындау ---------- */
+  /* input() жауаптары: бағдарлама сұрағанда бала жазады, код қайта іске қосылады */
+  let answers = [];
   function execute() {
     const code = editor.getValue();
     let res;
     try {
-      const raw = runFn(code, JSON.stringify({ robot: level.robot, html: typeof level.html === "string" ? level.html : undefined }));
+      const raw = runFn(code, JSON.stringify({ robot: level.robot, html: typeof level.html === "string" ? level.html : undefined, inputs: answers }));
       res = typeof raw === "string" ? JSON.parse(raw) : raw;
     } catch (e) {
       console.error(e);
@@ -226,6 +228,7 @@
   /* Код өзгергенде немесе «қайта бастау» басылғанда */
   function invalidate() {
     stop();
+    answers = [];
     run = null;
     idx = -1;
     clearLine();
@@ -647,7 +650,13 @@
   }
   function narrate(i) {
     const f = run && run.frames[i];
+    if (f && f.kind === "error" && run.error && run.error.kind !== "input" && run.error.kind !== "limit") {
+      return { text: KZ.t("😵 Мұнда мәселе бар: ") + run.error.msg, err: true, tip: run.error.tip, chips: [], n: i + 1 };
+    }
     if (!f || !f.line || f.kind === "error") return null;
+    if (f.kind === "input" && f.inp) {
+      return { text: KZ.t("⌨️ Жауап келді: ") + "`" + f.inp.ans + "`" + KZ.t(" — келесі жолда қорапқа түседі"), chips: [], n: i + 1 };
+    }
     const raw = editor.getLine(f.line - 1) || "";
     const src = raw.trim();
     if (!src || src.startsWith("#") || src.startsWith("//") || f.kind === "move" || f.kind === "collect" || f.kind === "crash") return null;
@@ -682,14 +691,15 @@
       text = KZ.t("Экранға шығарамыз") + (after ? ": " + after : "");
     } else if ((m = /^(?:var\s+|val\s+|let\s+|const\s+)?([A-Za-z_][\w.\[\]'"]*)\s*(\+=|-=|\*=|\/=|=)(?!=)\s*(.+)$/.exec(src))) {
       const rhs = m[3].replace(/;$/, "");
-      text = KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + rhs + "`";
+      const isIn = /\binput\s*\(/.test(rhs);
+      text = isIn ? KZ.t("Пернетақтадан енгізілген жауап қорапқа жазылады: ") + "`" + m[1] + "`" : KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + rhs + "`";
       /* ойша есептеу: айнымалы орнына мәнін қоямыз */
       const cur = {};
       (f.vars || []).forEach((v) => (cur[v.n] = v.r));
       const base = m[2] === "=" ? rhs : m[1] + " " + m[2].slice(0, -1) + " (" + rhs + ")";
       const sub = base.replace(/(["'])(?:\\.|(?!\1).)*\1|[A-Za-z_]\w*/g, (w) => (/^["']/.test(w) ? w : cur[w] !== undefined ? cur[w] : w));
       const tgt = next && (next.vars || []).find((v) => v.n === m[1]);
-      if (tgt && sub !== tgt.r && (m[2] !== "=" || /[A-Za-z_+\-*\/%()\[\]]/.test(rhs)) && !/^["'].*["']$/.test(rhs)) {
+      if (tgt && !isIn && sub !== tgt.r && (m[2] !== "=" || /[A-Za-z_+\-*\/%()\[\]]/.test(rhs)) && !/^["'].*["']$/.test(rhs)) {
         eq = { expr: sub, res: tgt.r };
         calc = buildCalc(base, cur, tgt.r);
         if (calc) eq = null;
@@ -708,7 +718,7 @@
     return { text, verdict, eq, fork, calc, chips: chips.slice(0, 4), n: i + 1 };
   }
   function narrCard(n) {
-    const card = el("div", "narr");
+    const card = el("div", "narr" + (n.err ? " err" : ""));
     const face = el("div", "narr-face");
     face.innerHTML = KZ.hero ? KZ.hero.svg({ lite: true, still: true }) : "";
     const body = el("div", "narr-body");
@@ -767,9 +777,55 @@
   function loopInfoAt(i) {
     const f = run && run.frames[i];
     if (!f || !f.line || f.kind === "error") return null;
-    const src = (editor.getLine(f.line - 1) || "").trim();
-    const m = /^(for|while)\b/.exec(src);
+    const lineSrc = (n) => (editor.getLine(n - 1) || "").trim();
+    let src = lineSrc(f.line);
+    let m = /^(?:\}\s*)?(for|while)\b/.exec(src);
+    const py = engine === "python";
+    let forLine = f.line;
+    /* JS/Kotlin-те for-тың басы бір-ақ рет көрінеді: денесіндегі жолдардан да цикл карточкасын көрсетеміз */
+    if (!py && !m) {
+      const me = indentOf(editor.getLine(f.line - 1) || "");
+      let lim = me;
+      for (let n = f.line - 1; n >= 1; n--) {
+        const t = editor.getLine(n - 1) || "";
+        if (!t.trim()) continue;
+        const ind = indentOf(t);
+        if (ind < lim) {
+          if (/^(?:\}\s*)?for\b/.test(t.trim())) {
+            forLine = n;
+            src = t.trim();
+            m = /^(?:\}\s*)?(for|while)\b/.exec(src);
+            break;
+          }
+          lim = ind;
+        }
+      }
+    }
     if (!m) return null;
+    const kw = m[1];
+    const nameRe = /^(?:\}\s*)?for\s*\(?\s*(?:(?:let|const|var|val)\s+)?(\w+)\s*(?:in|of|=)/;
+    if (!py && kw === "for") {
+      /* денесінің бірінші жолы қанша рет орындалды */
+      let bl = forLine + 1;
+      while (bl <= editor.lastLine() + 1 && !lineSrc(bl)) bl++;
+      const visits = [];
+      run.frames.forEach((g, k) => {
+        if (g.line === bl && g.kind !== "error") visits.push(k);
+      });
+      if (!visits.length) return null;
+      const mm = nameRe.exec(src);
+      const name = mm ? mm[1] : null;
+      let seq = null;
+      if (name) {
+        seq = visits.map((k) => {
+          const v = (run.frames[k].vars || []).find((x) => x.n === name);
+          return v ? v.r : null;
+        });
+        if (seq.some((x) => x === null)) seq = null;
+      }
+      const upto = Math.max(1, visits.filter((k) => k <= i).length);
+      return { src, upto, rounds: visits.length, done: false, kw, seq, name };
+    }
     let total = 0;
     let upto = 0;
     run.frames.forEach((g, k) => {
@@ -782,8 +838,8 @@
     /* for: айнымалы әр айналымда қандай мән алатынын алдын ала көрсетеміз */
     let seq = null;
     let name = null;
-    if (m[1] === "for") {
-      const mm = /^for\s*\(?\s*(?:(?:let|const|var|val)\s+)?(\w+)\s*(?:in|of|=)/.exec(src);
+    if (kw === "for") {
+      const mm = nameRe.exec(src);
       if (mm) {
         name = mm[1];
         seq = [];
@@ -797,7 +853,7 @@
         if (seq.length !== rounds) seq = null;
       }
     }
-    return { src, upto, rounds, done: upto > rounds, kw: m[1], seq, name };
+    return { src, upto, rounds, done: upto > rounds, kw, seq, name };
   }
   function loopCard(info) {
     const card = el("div", "loopbox");
@@ -883,6 +939,10 @@
   }
 
   function onEnd() {
+    if (run.error && run.error.kind === "input") {
+      renderAsk(run.error);
+      return;
+    }
     if (run.evaluated === null) {
       if (level.assign && !run.error) {
         const r = run;
@@ -929,6 +989,46 @@
       }
     }
     renderEnd();
+  }
+
+  /* Битлинг сұрайды: бала жауап жазады, бағдарлама сол жерден жалғасады */
+  function renderAsk(e) {
+    const con = $("#console");
+    con.textContent = (run.frames[run.frames.length - 1].out || "") + (e.prompt || "");
+    con.classList.add("typing");
+    showResult("ask", (box) => {
+      box.appendChild(el("h2", null, KZ.t("⌨️ Бағдарлама сұрап тұр")));
+      box.appendChild(el("p", null, e.prompt ? "«" + e.prompt.trim() + "»" : KZ.t("input() жауап күтіп тұр. Жауабыңды жазып, «Жіберу» бас.")));
+      const row = el("div", "row ask-row");
+      const inp = el("input", "ask-inp");
+      inp.type = "text";
+      inp.placeholder = KZ.t("Жауабыңды осында жаз");
+      inp.autocomplete = "off";
+      inp.setAttribute("autocapitalize", "off");
+      const go = el("button", "btn primary", KZ.t("Жіберу ➜"));
+      go.type = "button";
+      const submit = () => {
+        const at = run.frames.length - 2;
+        answers.push(inp.value);
+        con.classList.remove("typing");
+        if (!execute()) return;
+        show(Math.max(0, at));
+        play();
+      };
+      go.onclick = submit;
+      inp.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") submit();
+      });
+      row.append(inp, go);
+      box.appendChild(row);
+      setTimeout(() => {
+        try {
+          inp.focus({ preventScroll: true });
+        } catch (er) {
+          /* маңызды емес */
+        }
+      }, 50);
+    });
   }
 
   function renderEnd() {

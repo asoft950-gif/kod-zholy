@@ -1670,3 +1670,16 @@ html[data-theme="dark"] .narr-v.no { background: #5a2530; }
 @keyframes ccPulse { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
 .var.src { animation: srcGlow 1.8s ease-out; }
 @keyframes srcGlow { 0% { box-shadow: 0 0 0 0 rgba(255,214,64,.95); } 40% { box-shadow: 0 0 0 7px rgba(255,214,64,.7); } 100% { box-shadow: 0 0 0 0 rgba(255,214,64,0); } }
+
+/* қате: жол дірілдейді, Битлинг ойланады */
+.cm-err { animation: errShake .6s both, errFlash 1.2s ease-out; }
+@keyframes errShake { 0%,100% { transform: none; } 15% { transform: translateX(-7px); } 35% { transform: translateX(7px); } 55% { transform: translateX(-5px); } 75% { transform: translateX(4px); } }
+@keyframes errFlash { 0% { box-shadow: inset 5px 0 0 var(--coral), 0 0 0 0 rgba(255,90,90,.9); } 50% { box-shadow: inset 5px 0 0 var(--coral), 0 0 0 8px rgba(255,90,90,.45); } 100% { box-shadow: inset 5px 0 0 var(--coral), 0 0 0 0 rgba(255,90,90,0); } }
+.narr.err { border-color: var(--coral); background: #fff1f0; animation: errShake .6s both; }
+.narr.err .narr-face { animation: wob 1.6s ease-in-out infinite; filter: saturate(.6); }
+@keyframes wob { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.narr-tip { margin-top: 6px; font-size: 13px; line-height: 1.35; background: #fff8d6; border-radius: 10px; padding: 6px 8px; }
+.ask-row { display: flex; gap: 8px; margin-top: 8px; }
+.ask-inp { flex: 1; min-width: 0; font: 600 16px "JetBrains Mono", ui-monospace, monospace; padding: 8px 12px; border: 3px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+.card.result.ask { background: #fff9dc; }
+html[data-theme="dark"] .narr.err { background: #3a2226; }

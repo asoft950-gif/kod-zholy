@@ -266,8 +266,16 @@ def _features(tree):
     return f
 
 
+class NeedInput(BaseException):
+    """input() жауап күтіп тұр (try/except Exception ұстамайды)"""
+    def __init__(self, prompt):
+        self.prompt = prompt
+
+
 def run(code, cfg_json=None):
     cfg = json.loads(cfg_json) if cfg_json else {}
+    inputs = [str(x) for x in (cfg.get("inputs") or [])]
+    in_pos = [0]
     rc = cfg.get("robot")
     frames, out = [], []
     cur = [0]
@@ -390,8 +398,15 @@ def run(code, cfg_json=None):
         add_frame(cur[0], "print")
 
     def _input(prompt=""):
-        raise RuntimeError(T("input() бұл платформада жұмыс істемейді. "
-                           "Мәнді тікелей кодқа жаз, мысалы: x = 5"))
+        prompt = str(prompt)
+        if in_pos[0] >= len(inputs):
+            raise NeedInput(prompt)
+        ans = inputs[in_pos[0]]
+        in_pos[0] += 1
+        out.append(prompt + ans + "\n")
+        add_frame(cur[0], "input", None)
+        frames[-1]["inp"] = {"prompt": prompt, "ans": ans}
+        return ans
 
     safe_builtins = dict(vars(builtins))
     safe_builtins["print"] = _print
@@ -441,6 +456,9 @@ def run(code, cfg_json=None):
                    "detail": "step limit"}
         except SystemExit:
             pass
+        except NeedInput as e:
+            err = {"kind": "input", "type": "Input", "line": cur[0], "prompt": e.prompt,
+                   "msg": T("Бағдарлама сенің жауабыңды күтіп тұр."), "detail": "input"}
         except RobotError as e:
             err = {"kind": "robot", "type": "RobotError", "line": _line_of(e),
                    "msg": str(e), "detail": str(e)}
