@@ -483,7 +483,7 @@
       a.onfinish = () => tok.remove();
     } else tok.remove();
     /* токен экранға түскенде мәтін әріп-әріптен жазылады */
-    const step = Math.max(14, Math.min(55, 420 / Math.max(1, add.length)));
+    const step = Math.max(22, Math.min(80, 700 / Math.max(1, add.length)));
     let k = 0;
     const type = () => {
       k++;
@@ -720,7 +720,7 @@
       const sym = { "*": "×", "/": "÷", "**": "^" };
       n.calc.rows.forEach((r, k) => {
         const row = el("div", "calc-row" + (r.fin ? " fin" : ""));
-        row.style.animationDelay = k * 0.75 + "s";
+        row.style.animationDelay = k * 1.15 + "s";
         if (r.fin) row.appendChild(el("span", "calc-eq", "="));
         r.t.forEach((t, j) => {
           const hl = !r.fin && j >= r.hl[0] && j <= r.hl[1];
