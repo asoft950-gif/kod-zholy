@@ -247,7 +247,7 @@
     if (board) board.setState(f.robot, f.kind);
     renderVars(f.vars || [], loopInfoAt(i), preview() ? narrate(i) : null, fwd);
     if (fwd) flyAll(i);
-    $("#console").textContent = f.out || "";
+    showOut(f, i, fwd);
     renderNote(f);
     showDom(f, i === lastIdx());
     scrub.value = String(i);
@@ -415,6 +415,81 @@
     });
     shownVars = {};
     vars.forEach((v) => (shownVars[v.n] = { r: v.r, i: v.i, d: v.d }));
+  }
+
+  /* ---------- print: мәтін коддан экранға ұшып барып, әріп-әріптен жазылады ---------- */
+  let outTimers = [];
+  function showOut(f, i, fwd) {
+    const con = $("#console");
+    outTimers.forEach(clearTimeout);
+    outTimers = [];
+    document.querySelectorAll(".fly-token.out").forEach((n) => n.remove());
+    con.classList.toggle("mon", preview());
+    const now = f.out || "";
+    const prev = i > 0 ? run.frames[i - 1] : null;
+    const before = prev ? prev.out || "" : "";
+    if (!fwd || now.length <= before.length || now.slice(0, before.length) !== before) {
+      con.textContent = now;
+      con.scrollTop = con.scrollHeight;
+      return;
+    }
+    const add = now.slice(before.length);
+    const d = delay();
+    const F = d > 0 && d < 300 ? 0 : Math.round(d > 0 ? Math.min(650, Math.max(350, d * 0.6)) : 650);
+    if (!F || !prev.line) {
+      con.textContent = now;
+      con.scrollTop = con.scrollHeight;
+      return;
+    }
+    con.textContent = before;
+    con.classList.add("typing");
+    const r0 = con.getBoundingClientRect();
+    if (r0.bottom > innerHeight - 30) window.scrollBy(0, Math.round(r0.bottom - innerHeight + 60));
+    else if (r0.top < 70) window.scrollBy(0, Math.round(r0.top - 90));
+    const r = con.getBoundingClientRect();
+    const lineN = Math.max(0, Math.min(prev.line - 1, editor.lastLine()));
+    let sx = innerWidth / 2;
+    let sy = 80;
+    try {
+      const c = editor.charCoords({ line: lineN, ch: (editor.getLine(lineN) || "").length }, "window");
+      sx = Math.min(Math.max(c.right - 6, 20), innerWidth - 20);
+      sy = Math.min(Math.max((c.top + c.bottom) / 2, 20), innerHeight - 20);
+    } catch (e) {
+      /* координата табылмады */
+    }
+    const tx = r.left + Math.min(r.width / 2, 120);
+    const ty = Math.min(r.bottom - 24, Math.max(r.top + 24, r.top + r.height / 2));
+    const label = add.replace(/\n$/, "");
+    const tok = el("div", "fly-token out", label.length > 22 ? label.slice(0, 21) + "…" : label);
+    document.body.appendChild(tok);
+    const at = (x, y, sc) => "translate(" + x + "px," + y + "px) translate(-50%,-50%) scale(" + sc + ")";
+    const midY = Math.min(sy, ty) - 40;
+    if (tok.animate) {
+      const a = tok.animate(
+        [
+          { transform: at(sx, sy, 0.7), opacity: 0.2 },
+          { transform: at(sx, sy - 24, 1.2), opacity: 1, offset: 0.2 },
+          { transform: at((sx + tx) / 2, midY, 1.2), opacity: 1, offset: 0.55 },
+          { transform: at(tx, ty, 0.9), opacity: 1 },
+        ],
+        { duration: F, easing: "cubic-bezier(.45,.05,.4,1)", fill: "forwards" }
+      );
+      a.onfinish = () => tok.remove();
+    } else tok.remove();
+    /* токен экранға түскенде мәтін әріп-әріптен жазылады */
+    const step = Math.max(14, Math.min(55, 420 / Math.max(1, add.length)));
+    let k = 0;
+    const type = () => {
+      k++;
+      con.textContent = before + add.slice(0, k);
+      con.scrollTop = con.scrollHeight;
+      if (k < add.length) outTimers.push(setTimeout(type, step));
+      else con.classList.remove("typing");
+    };
+    outTimers.push(setTimeout(() => {
+      tok.remove();
+      type();
+    }, F - 30));
   }
 
   /* ---------- Мән коддан қорапқа ұшып барады ---------- */
