@@ -352,7 +352,7 @@
       const old = prev[v.n];
       const isNew = !old;
       const changed = !isNew && old.r !== v.r;
-      const card = el("div", "var" + (isNew ? " fresh" : changed ? " changed" : ""));
+      const card = el("div", "var" + (isNew ? " fresh" : changed ? " changed" : "") + (narr && narr.calc && narr.calc.names.includes(v.n) ? " src" : ""));
       card.style.setProperty("--c", KZ.colorFor(v.n));
       const name = el("div", "var-name", v.n);
       name.appendChild(el("small", null, v.t));
@@ -573,6 +573,78 @@
     ((f && f.vars) || []).forEach((v) => (cur[v.n] = v.r));
     return expr.replace(/(["'])(?:\\.|(?!\1).)*\1|[A-Za-z_]\w*/g, (w) => (/^["']/.test(w) || /^(and|or|not|in|is|True|False|true|false|null|None)$/.test(w) ? w : cur[w] !== undefined ? cur[w] : w));
   }
+  /* арифметика: өрнек қадам-қадаммен есептеледі (120 × 5 → 600) */
+  function buildCalc(expr, cur, want) {
+    const re = /\s*(\d+\.?\d*|[A-Za-z_]\w*|\*\*|\/\/|[-+*\/%()])/y;
+    const toks = [];
+    let pos = 0;
+    expr = expr.trim();
+    let mm;
+    while (pos < expr.length) {
+      re.lastIndex = pos;
+      mm = re.exec(expr);
+      if (!mm) return null;
+      pos = re.lastIndex;
+      const w = mm[1];
+      if (/^\d/.test(w)) toks.push({ k: "n", v: w });
+      else if (/^[A-Za-z_]/.test(w)) {
+        if (cur[w] === undefined || !/^-?\d+(\.\d+)?$/.test(cur[w])) return null;
+        toks.push({ k: "n", v: cur[w], name: w });
+      } else toks.push({ k: w === "(" ? "(" : w === ")" ? ")" : "o", v: w });
+    }
+    if (!toks.some((t) => t.k === "o") || toks.length > 15) return null;
+    const names = Array.from(new Set(toks.filter((t) => t.name).map((t) => t.name)));
+    const fmt = (x, fl) => (Number.isInteger(x) && fl ? x.toFixed(1) : String(x));
+    const num = (t) => Number(t.v);
+    const isF = (t) => /\./.test(t.v);
+    const apply = (a, o, b) => {
+      const x = num(a);
+      const y = num(b);
+      const fl = isF(a) || isF(b);
+      if (o === "+") return fmt(x + y, fl);
+      if (o === "-") return fmt(x - y, fl);
+      if (o === "*") return fmt(x * y, fl);
+      if (o === "/") return y === 0 ? null : fmt(x / y, true);
+      if (o === "//") return y === 0 ? null : fmt(Math.floor(x / y), fl);
+      if (o === "%") return y === 0 ? null : fmt(x - y * Math.floor(x / y), fl);
+      if (o === "**") return fmt(Math.pow(x, y), fl);
+      return null;
+    };
+    const prec = { "**": 3, "*": 2, "/": 2, "//": 2, "%": 2, "+": 1, "-": 1 };
+    const rows = [];
+    let cr = toks.slice();
+    for (let g = 0; g < 8 && cr.length > 1; g++) {
+      /* ішкі жақшаны табу */
+      let lo = 0;
+      let hi = cr.length;
+      const cl = cr.findIndex((t) => t.k === ")");
+      if (cl >= 0) {
+        const op = cr.slice(0, cl).map((t) => t.k).lastIndexOf("(");
+        if (op < 0) return null;
+        lo = op + 1;
+        hi = cl;
+        if (hi - lo === 1) {
+          rows.push({ t: cr, hl: [op, cl] });
+          cr = cr.slice(0, op).concat([cr[lo]], cr.slice(cl + 1));
+          continue;
+        }
+      }
+      let best = -1;
+      for (let k = lo; k < hi; k++) if (cr[k].k === "o" && (best < 0 || prec[cr[k].v] > prec[cr[best].v])) best = k;
+      if (best <= lo - 0 && best < lo + 1) return null;
+      const a = cr[best - 1];
+      const b = cr[best + 1];
+      if (!a || !b || a.k !== "n" || b.k !== "n") return null;
+      const r = apply(a, cr[best].v, b);
+      if (r === null) return null;
+      rows.push({ t: cr, hl: [best - 1, best + 1] });
+      cr = cr.slice(0, best - 1).concat([{ k: "n", v: r, res: true }], cr.slice(best + 2));
+    }
+    if (cr.length !== 1 || cr[0].k !== "n") return null;
+    if (Math.abs(Number(cr[0].v) - Number(want)) > 1e-9 || !Number.isFinite(Number(want))) return null;
+    rows.push({ t: cr, hl: [0, 0], fin: true });
+    return { rows, names };
+  }
   function narrate(i) {
     const f = run && run.frames[i];
     if (!f || !f.line || f.kind === "error") return null;
@@ -585,6 +657,7 @@
     let verdict = null;
     let eq = null;
     let fork = null;
+    let calc = null;
     let m;
     if ((m = /^(?:\}\s*)?(if|else\s+if|elif|while)\b/.exec(src))) {
       const wh = m[1] === "while";
@@ -616,7 +689,11 @@
       const base = m[2] === "=" ? rhs : m[1] + " " + m[2].slice(0, -1) + " (" + rhs + ")";
       const sub = base.replace(/(["'])(?:\\.|(?!\1).)*\1|[A-Za-z_]\w*/g, (w) => (/^["']/.test(w) ? w : cur[w] !== undefined ? cur[w] : w));
       const tgt = next && (next.vars || []).find((v) => v.n === m[1]);
-      if (tgt && sub !== tgt.r && /[A-Za-z_+\-*\/%()\[\]]/.test(rhs) && !/^["'].*["']$/.test(rhs)) eq = { expr: sub, res: tgt.r };
+      if (tgt && sub !== tgt.r && (m[2] !== "=" || /[A-Za-z_+\-*\/%()\[\]]/.test(rhs)) && !/^["'].*["']$/.test(rhs)) {
+        eq = { expr: sub, res: tgt.r };
+        calc = buildCalc(base, cur, tgt.r);
+        if (calc) eq = null;
+      }
     } else text = KZ.t("Жолды орындаймыз: ") + "`" + src + "`";
     /* алдыңғы қадамның нәтижесі: өзгерген айнымалылар */
     const chips = [];
@@ -628,7 +705,7 @@
         else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
       });
     }
-    return { text, verdict, eq, fork, chips: chips.slice(0, 4), n: i + 1 };
+    return { text, verdict, eq, fork, calc, chips: chips.slice(0, 4), n: i + 1 };
   }
   function narrCard(n) {
     const card = el("div", "narr");
@@ -638,7 +715,29 @@
     const line = el("div", "narr-t");
     n.text.split("`").forEach((part, k) => line.appendChild(k % 2 ? el("code", null, part) : document.createTextNode(part)));
     body.appendChild(line);
-    if (n.eq) {
+    if (n.calc) {
+      const cb = el("div", "calc");
+      const sym = { "*": "×", "/": "÷", "**": "^" };
+      n.calc.rows.forEach((r, k) => {
+        const row = el("div", "calc-row" + (r.fin ? " fin" : ""));
+        row.style.animationDelay = k * 0.75 + "s";
+        if (r.fin) row.appendChild(el("span", "calc-eq", "="));
+        r.t.forEach((t, j) => {
+          const hl = !r.fin && j >= r.hl[0] && j <= r.hl[1];
+          if (t.k === "n") {
+            const c = el("span", "cc" + (hl ? " hl" : "") + (t.res ? " res" : "") + (r.fin ? " big" : ""));
+            if (t.name) {
+              c.style.setProperty("--c", KZ.colorFor(t.name));
+              c.appendChild(el("small", null, t.name));
+            }
+            c.appendChild(document.createTextNode(t.v));
+            row.appendChild(c);
+          } else row.appendChild(el("span", "co" + (hl ? " hl" : ""), t.k === "o" ? sym[t.v] || t.v : t.v));
+        });
+        cb.appendChild(row);
+      });
+      body.appendChild(cb);
+    } else if (n.eq) {
       const e = el("div", "narr-eq");
       e.append("🧮 ", el("code", null, n.eq.expr), " = ", el("code", null, n.eq.res));
       body.appendChild(e);
