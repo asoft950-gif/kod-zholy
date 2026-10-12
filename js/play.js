@@ -344,7 +344,7 @@
     document.querySelectorAll(".fly-token.op").forEach((n) => n.remove());
     const kp = keepCalc(i, nr);
     calcLead = fwd && nr && nr.calc ? opFlight() / 1000 : 0;
-    renderVars(f.vars || [], loopInfoAt(i), nr, fwd, kp, fnInfoAt(i));
+    renderVars(f.vars || [], loopInfoAt(i) || lastLoop(i), nr, fwd, kp, fnInfoAt(i));
     if (fwd && nr && nr.calc && calcLead) flyOperands(nr.calc);
     if (fwd) flyAll(i, kp && kp.j === i - 1 ? ".calc-keep .cc.big" : null);
     showOut(f, i, fwd);
@@ -1158,7 +1158,7 @@
     const py = engine === "python";
     let forLine = f.line;
     /* JS/Kotlin-те for-тың басы бір-ақ рет көрінеді: денесіндегі жолдардан да цикл карточкасын көрсетеміз */
-    if (!py && !m) {
+    if (!m) {
       const me = indentOf(editor.getLine(f.line - 1) || "");
       let lim = me;
       for (let n = f.line - 1; n >= 1; n--) {
@@ -1166,7 +1166,7 @@
         if (!t.trim()) continue;
         const ind = indentOf(t);
         if (ind < lim) {
-          if (/^(?:\}\s*)?for\b/.test(t.trim())) {
+          if (/^(?:\}\s*)?(?:for|while)\b/.test(t.trim())) {
             forLine = n;
             src = t.trim();
             m = /^(?:\}\s*)?(for|while)\b/.exec(src);
@@ -1204,7 +1204,7 @@
     let total = 0;
     let upto = 0;
     run.frames.forEach((g, k) => {
-      if (g.line === f.line && g.kind !== "error") {
+      if (g.line === forLine && g.kind !== "error") {
         total++;
         if (k <= i) upto++;
       }
@@ -1219,9 +1219,9 @@
         name = mm[1];
         seq = [];
         run.frames.forEach((g, k) => {
-          if (g.line === f.line && g.kind !== "error" && run.frames[k + 1]) {
+          if (g.line === forLine && g.kind !== "error" && run.frames[k + 1]) {
             const nv = (run.frames[k + 1].vars || []).find((x) => x.n === name);
-            if (nv && run.frames[k + 1].line !== f.line) seq.push(nv.r);
+            if (nv && run.frames[k + 1].line !== forLine) seq.push(nv.r);
           }
         });
         seq = seq.slice(0, rounds);
@@ -1231,18 +1231,26 @@
     let wseq = null;
     if (kw === "while") {
       const cond = condOf(src);
-      const ind0 = indentOf(editor.getLine(f.line - 1) || "");
+      const ind0 = indentOf(editor.getLine(forLine - 1) || "");
       wseq = [];
       run.frames.forEach((g, k) => {
-        if (g.line === f.line && g.kind !== "error") {
+        if (g.line === forLine && g.kind !== "error") {
           const nx = run.frames[k + 1];
-          const inside = !!(nx && nx.line && (nx.line === f.line + 1 || indentOf(editor.getLine(nx.line - 1) || "") > ind0));
+          const inside = !!(nx && nx.line && (nx.line === forLine + 1 || indentOf(editor.getLine(nx.line - 1) || "") > ind0));
           wseq.push({ sub: subst(cond, g), ok: inside });
         }
       });
       if (wseq.length > 14) wseq = null;
     }
     return { src, upto, rounds, done: upto > rounds, kw, seq, name, wseq };
+  }
+  /* цикл біткен соң да соңғы цикл карточкасы экранда қалады */
+  function lastLoop(i) {
+    for (let j = i - 1; j >= 0 && j >= i - 80; j--) {
+      const li = loopInfoAt(j);
+      if (li) return Object.assign({}, li, { done: true, upto: li.rounds + 1 });
+    }
+    return null;
   }
   function loopCard(info) {
     const card = el("div", "loopbox");
