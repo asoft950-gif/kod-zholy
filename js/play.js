@@ -209,6 +209,90 @@
     }
   }
 
+  /* ---------- Болжау режимі: қадамнан бұрын нәтижені болжа ---------- */
+  let predictOn = false;
+  try {
+    predictOn = localStorage.getItem("kodzholy.predict") === "1";
+  } catch (e) {
+    /* маңызды емес */
+  }
+  let predictScore = { ok: 0, all: 0 };
+  const predictBox = el("section", "card predict");
+  predictBox.hidden = true;
+  (() => {
+    const sec = $("#memory") && $("#memory").closest("section");
+    if (sec && sec.parentNode) sec.parentNode.insertBefore(predictBox, sec);
+    const tg = $("#predictTg");
+    if (tg) {
+      tg.checked = predictOn;
+      tg.addEventListener("change", () => {
+        predictOn = tg.checked;
+        predictBox.hidden = true;
+        try {
+          localStorage.setItem("kodzholy.predict", predictOn ? "1" : "0");
+        } catch (e) {
+          /* маңызды емес */
+        }
+      });
+    }
+  })();
+  const normAns = (x) => String(x).trim().replace(/^["']|["']$/g, "");
+  const sameAns = (a, b) => {
+    const x = normAns(a);
+    const y = normAns(b);
+    if (x === y) return true;
+    return x !== "" && y !== "" && !isNaN(Number(x)) && !isNaN(Number(y)) && Number(x) === Number(y);
+  };
+  function askPredict(ask, at) {
+    predictBox.textContent = "";
+    predictBox.hidden = false;
+    predictBox.appendChild(el("div", "card-title", KZ.t("🎯 Болжа!") + (predictScore.all ? " · " + predictScore.ok + "/" + predictScore.all : "")));
+    const q = el("p", "predict-q");
+    q.append(KZ.t("Осы жол орындалғаннан кейін "), el("code", null, ask.name), KZ.t(" қорабында не болады?"));
+    predictBox.appendChild(q);
+    const row = el("div", "row ask-row");
+    const inp = el("input", "ask-inp");
+    inp.type = "text";
+    inp.placeholder = KZ.t("Болжамың…");
+    inp.autocomplete = "off";
+    inp.setAttribute("autocapitalize", "off");
+    const go = el("button", "btn primary", KZ.t("Тексер ✔"));
+    go.type = "button";
+    const skip = el("button", "btn ghost", KZ.t("Өткізу ⏭"));
+    skip.type = "button";
+    const proceed = () => {
+      predictBox.hidden = true;
+      show(at + 1);
+    };
+    go.onclick = () => {
+      if (!inp.value.trim()) return inp.focus();
+      const ok = sameAns(inp.value, ask.ans);
+      predictScore.all++;
+      if (ok) predictScore.ok++;
+      if (window.KZS) KZS.beep(ok ? "win" : "error");
+      predictBox.textContent = "";
+      predictBox.appendChild(el("div", "card-title", KZ.t("🎯 Болжа!") + " · " + predictScore.ok + "/" + predictScore.all));
+      predictBox.appendChild(el("h3", "predict-r " + (ok ? "yes" : "no"), ok ? KZ.t("✅ Дұрыс! Керемет!") : KZ.t("🤔 Жақын емес: болатыны ") + ask.ans));
+      const nx = el("button", "btn primary", KZ.t("Көрейік ▶"));
+      nx.type = "button";
+      nx.onclick = proceed;
+      predictBox.appendChild(nx);
+      nx.focus({ preventScroll: true });
+    };
+    skip.onclick = proceed;
+    inp.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") go.onclick();
+    });
+    row.append(inp, go, skip);
+    predictBox.appendChild(row);
+    try {
+      predictBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      inp.focus({ preventScroll: true });
+    } catch (e) {
+      /* маңызды емес */
+    }
+  }
+
   function stepForward() {
     if (!runFn) return;
     if (playing) stop();
@@ -216,6 +300,11 @@
       if (!execute()) return;
       show(0);
     } else if (idx < lastIdx()) {
+      if (predictOn && !predictBox.hidden) return;
+      if (predictOn && idx >= 0) {
+        const nr = narrate(idx);
+        if (nr && nr.ask && !run.frames[idx].inp) return askPredict(nr.ask, idx);
+      }
       show(idx + 1);
     }
   }
@@ -242,6 +331,7 @@
 
   /* ---------- Кадрды көрсету ---------- */
   function show(i) {
+    predictBox.hidden = true;
     const f = run.frames[i];
     const fwd = preview() && idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
     idx = i;
@@ -712,11 +802,11 @@
   function narrate(i) {
     const f = run && run.frames[i];
     if (f && f.kind === "error" && run.error && run.error.kind !== "input" && run.error.kind !== "limit") {
-      return { text: KZ.t("😵 Мұнда мәселе бар: ") + run.error.msg, err: true, tip: run.error.tip, chips: [], n: i + 1 };
+      return { text: KZ.t("😵 Мұнда мәселе бар: ") + run.error.msg, err: true, kind: "err", ctx: {}, tip: run.error.tip, chips: [], n: i + 1 };
     }
     if (!f || !f.line || f.kind === "error") return null;
     if (f.kind === "input" && f.inp) {
-      return { text: KZ.t("⌨️ Жауап келді: ") + "`" + f.inp.ans + "`" + KZ.t(" — келесі жолда қорапқа түседі"), chips: [], n: i + 1 };
+      return { text: KZ.t("⌨️ Жауап келді: ") + "`" + f.inp.ans + "`" + KZ.t(" — келесі жолда қорапқа түседі"), kind: "input", ctx: {}, chips: [], n: i + 1 };
     }
     const raw = editor.getLine(f.line - 1) || "";
     const src = raw.trim();
@@ -728,9 +818,14 @@
     let eq = null;
     let fork = null;
     let calc = null;
+    let kind = "other";
+    let ctx = {};
+    let ask = null;
     let m;
     if ((m = /^(?:\}\s*)?(if|else\s+if|elif|while)\b/.exec(src))) {
       const wh = m[1] === "while";
+      kind = wh ? "while" : "if";
+      ctx = { cond: condOf(src) };
       text = (wh ? KZ.t("Шартты тексереміз (қайталау үшін): ") : KZ.t("Шартты тексереміз: ")) + "`" + condOf(src) + "`";
       if (next && next.line) {
         const ni = indentOf(editor.getLine(next.line - 1) || "");
@@ -739,20 +834,28 @@
         verdict = inside ? { ok: true, t: wh ? KZ.t("✅ Ақиқат: цикл денесі қайта орындалады") : KZ.t("✅ Ақиқат: ішіндегі код орындалады") } : { ok: false, t: wh ? KZ.t("❌ Жалған: циклден шығамыз") : KZ.t("❌ Жалған: бұл блокты өткізіп жібереміз") };
       }
     } else if (/^(?:\}\s*)?for\b/.test(src)) {
+      kind = "for";
       const li = loopInfoAt(i);
+      const nm = /^(?:\}\s*)?for\s*\(?\s*(?:(?:let|const|var|val)\s+)?(\w+)/.exec(src);
+      ctx = { name: nm ? nm[1] : "" };
       text = KZ.t("Цикл: айнымалы келесі мәнді алады") + (li && !li.done ? " (" + Math.min(li.upto, li.rounds) + "/" + li.rounds + ")" : "");
       if (li && li.done) verdict = { ok: false, t: KZ.t("Мәндер бітті: циклден шығамыз") };
     } else if ((m = /^(?:def|fun|function)\s+(\w+)/.exec(src))) {
+      kind = "def";
       text = KZ.t("Функция жасалады: ") + "`" + m[1] + "`" + KZ.t(" (әлі іске қосылмайды)");
     } else if (/^return\b/.test(src)) {
+      kind = "return";
       text = KZ.t("Функция нәтижені қайтарып, шақырған жерге оралады");
     } else if (/^(print|println|console\.log)\b/.test(src)) {
+      kind = "print";
       const was = (f.out || "").length;
       const after = next ? (next.out || "").slice(was).trim() : "";
       text = KZ.t("Экранға шығарамыз") + (after ? ": " + after : "");
     } else if ((m = /^(?:var\s+|val\s+|let\s+|const\s+)?([A-Za-z_][\w.\[\]'"]*)\s*(\+=|-=|\*=|\/=|=)(?!=)\s*(.+)$/.exec(src))) {
       const rhs = m[3].replace(/;$/, "");
       const isIn = /\binput\s*\(/.test(rhs);
+      kind = isIn ? "input" : "assign";
+      ctx = { name: m[1], rhs };
       text = isIn ? KZ.t("Пернетақтадан енгізілген жауап қорапқа жазылады: ") + "`" + m[1] + "`" : KZ.t("Айнымалыға мән жазамыз: ") + "`" + m[1] + "` " + (m[2] === "=" ? "←" : m[2]) + " `" + rhs + "`";
       /* ойша есептеу: айнымалы орнына мәнін қоямыз */
       const cur = {};
@@ -764,8 +867,16 @@
         eq = { expr: sub, res: tgt.r };
         calc = buildCalc(base, cur, tgt.r);
         if (calc) eq = null;
+        ctx.expr = sub;
+        ctx.res = tgt.r;
+        ctx.calc = !!calc;
       }
-    } else text = KZ.t("Жолды орындаймыз: ") + "`" + src + "`";
+      if (tgt && !isIn && tgt.r.length <= 12 && /^[A-Za-z_]\w*$/.test(m[1]) && (!cur[m[1]] || cur[m[1]] !== tgt.r)) ask = { name: m[1], ans: tgt.r };
+    } else {
+      text = KZ.t("Жолды орындаймыз: ") + "`" + src + "`";
+      if (/\.(append|push|add)\s*\(/.test(src)) kind = "listadd";
+      else if (/\.(pop|remove|removeAt|removeLast)\s*\(/.test(src)) kind = "listdel";
+    }
     /* алдыңғы қадамның нәтижесі: өзгерген айнымалылар */
     const chips = [];
     if (prev) {
@@ -776,7 +887,7 @@
         else if (pv[v.n] !== v.r) chips.push(v.n + ": " + pv[v.n] + " → " + v.r);
       });
     }
-    return { text, verdict, eq, fork, calc, chips: chips.slice(0, 4), n: i + 1 };
+    return { text, verdict, eq, fork, calc, kind, ctx, ask, chips: chips.slice(0, 4), n: i + 1 };
   }
   /* есептеу жолдары: анимациямен (келесі қадамда ауысады) немесе қозғалмай тұрады (sticky) */
   let calcLead = 0; // операндтар ұшып жеткенше күтетін уақыт (с)
@@ -802,7 +913,26 @@
       });
       cb.appendChild(row);
     });
-    return cb;
+    if (still) return cb;
+    /* калькулятор: экраны (LCD) және пернелері; қолданылған амал пернесі басылады */
+    const calc2 = el("div", "calculator");
+    const lcd = el("div", "calc-lcd");
+    lcd.appendChild(cb);
+    calc2.appendChild(lcd);
+    const used = new Set();
+    calc.rows.forEach((r) => {
+      for (let q = r.hl[0]; q <= r.hl[1]; q++) if (r.t[q] && r.t[q].k === "o") used.add(r.t[q].v);
+    });
+    const keys = el("div", "calc-keys");
+    [["7", "8", "9", "/"], ["4", "5", "6", "*"], ["1", "2", "3", "-"], ["0", ".", "=", "+"]].forEach((rw) =>
+      rw.forEach((kk) => {
+        const kb = el("i", "ck" + (/[-+*\/=]/.test(kk) ? " op" : "") + (used.has(kk) ? " press" : ""), kk === "*" ? "×" : kk === "/" ? "÷" : kk);
+        if (used.has(kk)) kb.style.animationDelay = calcLead + (calc.rows.findIndex((r) => r.t.some((t, q) => t.k === "o" && t.v === kk && q >= r.hl[0] && q <= r.hl[1]))) * 1.7 + "s";
+        keys.appendChild(kb);
+      })
+    );
+    calc2.appendChild(keys);
+    return calc2;
   }
   /* соңғы есептеуді экранда қалдырамыз: келесі есептеу шыққанша */
   function keepCalc(i, cur) {
@@ -812,6 +942,40 @@
       if (nj && nj.calc) return { calc: nj.calc, text: nj.text, j };
     }
     return null;
+  }
+  /* «Қайта түсіндір»: қарапайым мысалмен (жәшік, себет, қақпашы) */
+  function simpleExplain(n) {
+    const c = n.ctx || {};
+    const nm = c.name ? "«" + c.name + "»" : "";
+    const T = KZ.t;
+    switch (n.kind) {
+      case "assign":
+        return c.calc
+          ? [T("📦 Қорап — жәшік сияқты. Алдымен компьютер оң жағын санайды: ") + c.expr + " → " + c.res + ".", T("Сосын нәтижені ") + nm + T(" жәшігіне салады. Ескі мән болса, үстінен жазылады.")]
+          : [T("📦 Қорап — жәшік сияқты. Бұл жол былай дейді: ") + nm + T(" деп жазылған жәшікке мынаны сал: ") + (c.rhs || "") + "."];
+      case "input":
+        return [T("⌨️ input — компьютер сенен сұрайды. Сен жауап жазасың, ол жауап жәшікке түседі.")];
+      case "if":
+        return [T("🚦 Шарт — қақпашы сияқты. Ол сұрайды: «") + (c.cond || "") + T("» дұрыс па?"), T("Дұрыс болса — ішке кіреміз. Дұрыс болмаса — өтіп кетеміз.")];
+      case "while":
+        return [T("🔁 while — «шарт дұрыс болғанша қайтала». Әр айналым алдында компьютер шартты қайта тексереді.")];
+      case "for":
+        return [T("🍎 Цикл — себеттегі алмаларды бір-бірден алып қарау сияқты."), nm ? nm + T(" әр айналымда келесі мәнді алады.") : T("Әр айналымда айнымалы келесі мәнді алады.")];
+      case "print":
+        return [T("🖥 print — экранға жазып көрсету. Қағазға жазып, көрсеткен сияқты.")];
+      case "listadd":
+        return [T("🧺 Тізім — қатарласқан жәшіктер. Қосу командасы соңына жаңа жәшік қосады.")];
+      case "listdel":
+        return [T("🧺 Алу командасы тізімнің соңғы жәшігін алып тастайды.")];
+      case "def":
+        return [T("📖 def — компьютерге жаңа команда үйрету. Үйреткенде ол әлі орындалмайды, тек шақырғанда ғана орындалады.")];
+      case "return":
+        return [T("↩️ return — функция жұмысын бітіріп, нәтижені шақырған жерге қайтарады.")];
+      case "err":
+        return [T("🙈 Қате — компьютер «түсінбедім» дейді. Қызыл жолды оқы да, төмендегі ескертуді қара: ол көмектеседі.")];
+      default:
+        return [T("👣 Компьютер кодты жолма-жол, жоғарыдан төмен қарай орындайды. Қазір осы жол орындалады.")];
+    }
   }
   function narrCard(n) {
     const card = el("div", "narr" + (n.err ? " err" : ""));
@@ -845,6 +1009,16 @@
       n.chips.forEach((c) => row.appendChild(el("span", "narr-chip", c)));
       body.appendChild(row);
     }
+    const more = el("button", "narr-more", KZ.t("❓ Қайта түсіндір"));
+    more.type = "button";
+    const easy = el("div", "narr-easy");
+    easy.hidden = true;
+    simpleExplain(n).forEach((l) => easy.appendChild(el("p", null, l)));
+    more.onclick = () => {
+      easy.hidden = !easy.hidden;
+      more.textContent = easy.hidden ? KZ.t("❓ Қайта түсіндір") : KZ.t("✖ Жабу");
+    };
+    body.append(more, easy);
     card.append(face, body);
     return card;
   }
