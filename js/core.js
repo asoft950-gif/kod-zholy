@@ -158,7 +158,8 @@ KZ.progress = {
   },
   /* Тақырып ашық па? Алдыңғы тақырыптың барлық тапсырмасы өтілуі керек (Coursera сияқты) */
   openAll() {
-    return KZ.store.get("kodzholy.openall", false) === true;
+    /* тек мұғалім/админ/құрушы; оқушыда белгі қалып қойса да құлыптар жұмыс істейді */
+    return KZ.store.get("kodzholy.openall", false) === true && !!(KZ.auth && KZ.auth.canTeach && KZ.auth.canTeach());
   },
   setOpenAll(v) {
     KZ.store.set("kodzholy.openall", !!v);
