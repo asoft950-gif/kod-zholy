@@ -240,12 +240,12 @@
   /* ---------- Кадрды көрсету ---------- */
   function show(i) {
     const f = run.frames[i];
-    const fwd = idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const fwd = preview() && idx === i - 1 && i > 0 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
     idx = i;
     if (f.line) setLine(f.line, f.kind === "error" ? "cm-err" : "cm-exec");
     else clearLine();
     if (board) board.setState(f.robot, f.kind);
-    renderVars(f.vars || [], loopInfoAt(i), narrate(i), fwd);
+    renderVars(f.vars || [], loopInfoAt(i), preview() ? narrate(i) : null, fwd);
     if (fwd) flyAll(i);
     $("#console").textContent = f.out || "";
     renderNote(f);
@@ -332,6 +332,12 @@
     scrub.disabled = !run;
   }
 
+  /* Жаңа визуализация (түсіндіру, ұшатын мән, сөздік кестесі) әзірге тек құрушыға көрінеді */
+  const preview = () => {
+    const A = KZ.auth;
+    return !!(A && A.isActive && A.isActive() && A.profile && A.profile.role === "owner");
+  };
+
   /* ---------- Қораптар (жад) ---------- */
   function renderVars(vars, loopInfo, narr, anim) {
     const box = $("#memory");
@@ -367,7 +373,7 @@
         });
         if (v.more) row.appendChild(el("div", "var-cell", "…"));
         card.appendChild(row);
-      } else if (v.d) {
+      } else if (v.d && preview()) {
         const tb = el("div", "var-dict");
         v.d.forEach((kv) => {
           const was = old && old.d && old.d.find((x) => x[0] === kv[0]);
@@ -379,6 +385,12 @@
         if (v.dn > v.d.length) tb.appendChild(el("div", "dict-row", "…"));
         card.appendChild(tb);
       } else {
+        if (!preview()) {
+          if (changed && !old.i) card.appendChild(el("div", "var-old", old.r));
+          card.appendChild(el("div", "var-box", v.r));
+          box.appendChild(card);
+          return;
+        }
         const bx = el("div", "bx" + (isNew ? " fresh" : changed && !old.i ? " changed" : "") + (anim && (isNew || (changed && !old.i)) ? " wait" : ""));
         bx.dataset.v = v.n;
         const lids = el("div", "bx-lids");
