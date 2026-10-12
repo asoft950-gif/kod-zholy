@@ -332,11 +332,8 @@
     scrub.disabled = !run;
   }
 
-  /* Жаңа визуализация (түсіндіру, ұшатын мән, сөздік кестесі) әзірге тек құрушыға көрінеді */
-  const preview = () => {
-    const A = KZ.auth;
-    return !!(A && A.isActive && A.isActive() && A.profile && A.profile.role === "owner");
-  };
+  /* Жаңа визуализация (түсіндіру, ұшатын мән, сөздік кестесі, print) барлығына ашық */
+  const preview = () => true;
 
   /* ---------- Қораптар (жад) ---------- */
   function renderVars(vars, loopInfo, narr, anim) {
